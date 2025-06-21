@@ -1,0 +1,58 @@
+[
+  {
+    "model_flag": "resnet18",
+    "norm": "bn",
+    "num_clients": 6,
+    "num_rounds": 100,
+    "batch_size": 64,
+    "download": true,
+    "resize": false,
+    "as_rgb": false,
+    "size": 28,
+    "num_ensemble": 32,
+    "local_learning_rate": 0.0001,
+    "centralized_learning_rate": 0.0001
+  },
+  {
+    "model_flag": "resnet50",
+    "norm": "bn",
+    "num_clients": 4,
+    "num_rounds": 100,
+    "batch_size": 64,
+    "download": true,
+    "resize": false,
+    "as_rgb": false,
+    "size": 28,
+    "num_ensemble": 32,
+    "local_learning_rate": 0.0001,
+    "centralized_learning_rate": 0.00001
+  },
+  {
+    "model_flag": "resnet18",
+    "norm": "bn",
+    "num_clients": 4,
+    "num_rounds": 100,
+    "batch_size": 4,
+    "download": true,
+    "resize": false,
+    "as_rgb": false,
+    "size": 224,
+    "num_ensemble": 32,
+    "local_learning_rate": 0.0001,
+    "centralized_learning_rate": 0.00001
+  },
+  {
+    "model_flag": "resnet50",
+    "norm": "bn",
+    "num_clients": 4,
+    "num_rounds": 100,
+    "batch_size": 4,
+    "download": true,
+    "resize": false,
+    "as_rgb": false,
+    "size": 224,
+    "num_ensemble": 32,
+    "local_learning_rate": 0.0001,
+    "centralized_learning_rate": 0.00001
+  }
+] 
