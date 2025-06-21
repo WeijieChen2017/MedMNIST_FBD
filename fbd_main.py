@@ -5,7 +5,6 @@ Integrates FBD (Function Block Diversification) with Flower federated learning f
 
 import warnings
 # Suppress specific warnings
-warnings.filterwarnings("ignore", message=".*DEPRECATED FEATURE.*client_fn.*")
 warnings.filterwarnings("ignore", message=".*The parameter 'pretrained' is deprecated.*")
 warnings.filterwarnings("ignore", message=".*Arguments other than a weight enum.*")
 
@@ -19,7 +18,7 @@ import random
 import numpy as np
 import logging
 from flwr.client import Client
-from flwr.common import FitRes, Parameters, ndarrays_to_parameters, parameters_to_ndarrays, Context
+from flwr.common import FitRes, Parameters, ndarrays_to_parameters, parameters_to_ndarrays
 from collections import OrderedDict
 import pickle
 from typing import Dict, List, Tuple, Optional
@@ -907,9 +906,8 @@ def main():
     logging.info(f"Loaded shipping plan for {len(shipping_plan)} rounds")
     logging.info(f"Loaded request plan for {len(request_plan)} rounds")
     
-    def client_fn(context: Context) -> Client:
+    def client_fn(cid: str) -> Client:
         """Create an FBD Flower client."""
-        cid = context.node_id  # Extract client ID from context
         client_dataset = client_datasets[int(cid)]
         train_loader = get_data_loader(client_dataset, config.batch_size)
         val_loader = get_data_loader(val_dataset, config.batch_size)
