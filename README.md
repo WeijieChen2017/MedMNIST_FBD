@@ -1,1 +1,0 @@
-# MedMNIST_FBD
