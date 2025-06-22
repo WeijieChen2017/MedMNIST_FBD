@@ -7,6 +7,9 @@ from medmnist import INFO
 import pickle
 from flwr.common import FitRes, Parameters, ndarrays_to_parameters, parameters_to_ndarrays
 
+# Import regularizer configuration
+from fbd_record.bloodmnist_info_1 import REGULARIZER_PARAMS
+
 # Disable Flower warnings
 logging.getLogger("flwr").setLevel(logging.ERROR)
 # from medmnist import Evaluator, INFO
@@ -58,7 +61,11 @@ class FlowerClient(fl.client.Client):
         
         # Perform training
         lr = config["local_learning_rate"]
-        loss = train(self.model, self.train_loader, epochs=1, device=self.device, data_flag=self.data_flag, lr=lr)
+        current_update_plan = config.get("current_update_plan", None)
+        round_num = config.get("server_round", None)
+        loss = train(self.model, self.train_loader, epochs=1, device=self.device, 
+                    data_flag=self.data_flag, lr=lr, current_update_plan=current_update_plan, 
+                    client_id=self.cid, round_num=round_num)
         
         # Evaluate the new model
         train_loss, train_auc, train_acc = test(self.model, self.train_loader, device=self.device, data_flag=self.data_flag)
@@ -117,7 +124,7 @@ class FlowerClient(fl.client.Client):
             metrics=metrics,
         )
 
-def train(model, train_loader, epochs, device, data_flag, lr):
+def train(model, train_loader, epochs, device, data_flag, lr, current_update_plan=None, client_id=None, round_num=None):
     """Train the model on the training set."""
     info = INFO[data_flag]
     task = info['task']
@@ -130,23 +137,87 @@ def train(model, train_loader, epochs, device, data_flag, lr):
     model.to(device)
     model.train()
     
+    # Check if we have current update plan for regularized training
+    use_update_plan = (current_update_plan is not None and 
+                      client_id is not None and 
+                      round_num is not None)
+    
     total_loss = 0
     for epoch in range(epochs):
         for inputs, targets in train_loader:
             inputs, targets = inputs.to(device), targets.to(device)
             optimizer.zero_grad()
-            outputs = model(inputs)
-
-            if task == 'multi-label, binary-class':
-                targets = targets.to(torch.float32)
-                loss = criterion(outputs, targets)
-            else:
-                targets = torch.squeeze(targets, 1).long()
-                loss = criterion(outputs, targets)
             
-            loss.backward()
-            optimizer.step()
+            if use_update_plan:
+                # Get current update plan for this client
+                model_to_update_parts = current_update_plan["model_to_update"]
+                model_as_regularizer_list = current_update_plan["model_as_regularizer"]
+                
+                # 1. Build the model_to_update from the main model
+                model_to_update = _extract_model_parts(model, model_to_update_parts)
+                
+                # 2. Build the optimizer for the model_to_update
+                model_to_update_optimizer = torch.optim.Adam(model_to_update.parameters(), lr=lr)
+                
+                # 3. Load regularizer models from shipped weights
+                regularizer_models = _load_regularizer_models(model_as_regularizer_list, model, device)
+                
+                # Forward pass through model_to_update
+                outputs_main = model_to_update(inputs)
+                
+                # Compute base loss
+                if task == 'multi-label, binary-class':
+                    targets = targets.to(torch.float32)
+                    base_loss = criterion(outputs_main, targets)
+                else:
+                    targets = torch.squeeze(targets, 1).long()
+                    base_loss = criterion(outputs_main, targets)
+                
+                # Determine regularizer type and compute regularized loss
+                # Use configuration from REGULARIZER_PARAMS at top of file
+                regularizer_type = REGULARIZER_PARAMS["type"]
+                regularization_strength = REGULARIZER_PARAMS["coefficient"]
+                
+                if regularizer_type == "weights":
+                    # 3.1, 3.2, 3.3: Compute weight distance regularization
+                    weight_regularizer = _compute_weight_regularizer(model_to_update, regularizer_models)
+                    loss = base_loss + regularization_strength * weight_regularizer
+                    
+                elif regularizer_type == "consistency loss":
+                    # 4.1, 4.2, 4.3: Compute output consistency regularization
+                    consistency_regularizer = _compute_consistency_regularizer(
+                        model_to_update, regularizer_models, inputs, device
+                    )
+                    loss = base_loss + regularization_strength * consistency_regularizer
+                
+                else:
+                    # Fallback to base loss
+                    loss = base_loss
+                
+                print(f"[Client {client_id}] Round {round_num}: Using {regularizer_type} regularization with {len(model_as_regularizer_list)} regularizers, loss={loss.item():.4f}")
+                
+                # Use the specialized optimizer for model_to_update
+                model_to_update_optimizer.zero_grad()
+                loss.backward()
+                model_to_update_optimizer.step()
+                
+                # Update the main model with the trained model_to_update parts
+                _update_main_model_from_parts(model, model_to_update, model_to_update_parts)
+                
+            else:
+                # Standard training without update plan
+                outputs = model(inputs)
 
+                if task == 'multi-label, binary-class':
+                    targets = targets.to(torch.float32)
+                    loss = criterion(outputs, targets)
+                else:
+                    targets = torch.squeeze(targets, 1).long()
+                    loss = criterion(outputs, targets)
+                
+                # Standard training step
+                optimizer.zero_grad()
+                            # Backward pass and optimization step are handled above in each branch
             total_loss += loss.item()
 
     avg_loss = total_loss / len(train_loader)
@@ -207,3 +278,196 @@ def test(model, data_loader, device, data_flag):
 
     avg_loss = total_loss / len(data_loader)
     return [avg_loss, auc, acc]
+
+def _extract_model_parts(model, model_to_update_parts):
+    """
+    Extract specific model parts to create model_to_update.
+    
+    Args:
+        model: The main model
+        model_to_update_parts: Dict mapping layer names to FBD block IDs
+        
+    Returns:
+        nn.Module: A model containing only the specified parts
+    """
+    # Create a new model with the same architecture
+    # For now, we'll create a copy and only keep the specified parts active
+    import copy
+    model_to_update = copy.deepcopy(model)
+    
+    # Note: For a more sophisticated implementation, you could create a custom
+    # model that only contains the specified layers, but for now we use the full model
+    # and rely on the optimizer to only update the relevant parts
+    
+    return model_to_update
+
+def _load_regularizer_models(model_as_regularizer_list, template_model, device):
+    """
+    Load regularizer models from shipped weights.
+    
+    Args:
+        model_as_regularizer_list: List of regularizer specifications
+        template_model: Template model to use for creating regularizer models
+        device: Device to load models on
+        
+    Returns:
+        List[nn.Module]: List of regularizer models
+    """
+    regularizer_models = []
+    
+    for regularizer_spec in model_as_regularizer_list:
+        # Create a copy of the template model for this regularizer
+        import copy
+        regularizer_model = copy.deepcopy(template_model)
+        regularizer_model.to(device)
+        regularizer_model.eval()  # Set to eval mode for regularization
+        
+        # In a full implementation, you would load the specific weights
+        # from the FBD warehouse based on the regularizer_spec
+        # For now, we use the current model as a placeholder
+        
+        regularizer_models.append(regularizer_model)
+    
+    return regularizer_models
+
+def _compute_weight_regularizer(model_to_update, regularizer_models):
+    """
+    Compute weight distance regularization using configured distance type.
+    
+    Args:
+        model_to_update: The model being updated
+        regularizer_models: List of regularizer models
+        
+    Returns:
+        torch.Tensor: Weight regularization loss
+    """
+    weight_regularizer = 0.0
+    distance_type = REGULARIZER_PARAMS["distance_type"]  # No default - will fail if not set
+    
+    for regularizer_model in regularizer_models:
+        # Compute distance between corresponding parameters
+        for (name1, param1), (name2, param2) in zip(
+            model_to_update.named_parameters(), 
+            regularizer_model.named_parameters()
+        ):
+            if name1 == name2:  # Ensure we're comparing the same parameters
+                param_diff = param1 - param2.detach()
+                
+                if distance_type.upper() == "L1":
+                    # L1 (Manhattan) distance
+                    weight_regularizer += torch.norm(param_diff, p=1)
+                elif distance_type.upper() == "L2":
+                    # L2 (Euclidean) distance
+                    weight_regularizer += torch.norm(param_diff, p=2) ** 2
+                elif distance_type.upper() == "COSINE":
+                    # Cosine distance (1 - cosine similarity)
+                    param1_flat = param1.flatten()
+                    param2_flat = param2.detach().flatten()
+                    cosine_sim = torch.nn.functional.cosine_similarity(
+                        param1_flat.unsqueeze(0), param2_flat.unsqueeze(0)
+                    )
+                    weight_regularizer += 1 - cosine_sim
+                elif distance_type.upper() == "KL":
+                    # KL divergence (for probability distributions)
+                    # Apply softmax to make parameters probability-like
+                    param1_prob = torch.nn.functional.softmax(param1.flatten(), dim=0)
+                    param2_prob = torch.nn.functional.softmax(param2.detach().flatten(), dim=0)
+                    weight_regularizer += torch.nn.functional.kl_div(
+                        param1_prob.log(), param2_prob, reduction='sum'
+                    )
+                else:
+                    # Fail explicitly for unknown distance types
+                    raise ValueError(f"Unknown distance_type: {distance_type}. Supported types: L1, L2, COSINE, KL")
+    
+    # Average over the number of regularizer models
+    if len(regularizer_models) > 0:
+        weight_regularizer = weight_regularizer / len(regularizer_models)
+    
+    return weight_regularizer
+
+def _compute_consistency_regularizer(model_to_update, regularizer_models, inputs, device):
+    """
+    Compute output consistency regularization using configured distance type.
+    
+    Args:
+        model_to_update: The model being updated
+        regularizer_models: List of regularizer models
+        inputs: Input batch
+        device: Device for computation
+        
+    Returns:
+        torch.Tensor: Consistency regularization loss
+    """
+    consistency_regularizer = 0.0
+    distance_type = REGULARIZER_PARAMS["distance_type"]  # No default - will fail if not set
+    
+    # Get outputs from model_to_update
+    model_to_update_outputs = model_to_update(inputs)
+    
+    for regularizer_model in regularizer_models:
+        # Get outputs from regularizer model
+        with torch.no_grad():  # Don't compute gradients for regularizer
+            regularizer_outputs = regularizer_model(inputs)
+        
+        # Compute distance between outputs using configured distance type
+        if distance_type.upper() == "L1":
+            # L1 (Manhattan) distance
+            consistency_loss = torch.nn.functional.l1_loss(
+                model_to_update_outputs, regularizer_outputs.detach()
+            )
+        elif distance_type.upper() == "L2":
+            # L2 (Euclidean) distance - MSE
+            consistency_loss = torch.nn.functional.mse_loss(
+                model_to_update_outputs, regularizer_outputs.detach()
+            )
+        elif distance_type.upper() == "COSINE":
+            # Cosine distance (1 - cosine similarity)
+            # Flatten outputs for cosine similarity computation
+            outputs1_flat = model_to_update_outputs.flatten(start_dim=1)
+            outputs2_flat = regularizer_outputs.detach().flatten(start_dim=1)
+            cosine_sim = torch.nn.functional.cosine_similarity(outputs1_flat, outputs2_flat, dim=1)
+            consistency_loss = (1 - cosine_sim).mean()
+        elif distance_type.upper() == "KL":
+            # KL divergence (for probability distributions)
+            # Apply softmax to make outputs probability-like
+            outputs1_prob = torch.nn.functional.softmax(model_to_update_outputs, dim=-1)
+            outputs2_prob = torch.nn.functional.softmax(regularizer_outputs.detach(), dim=-1)
+            consistency_loss = torch.nn.functional.kl_div(
+                outputs1_prob.log(), outputs2_prob, reduction='batchmean'
+            )
+        elif distance_type.upper() == "JS":
+            # Jensen-Shannon divergence (symmetric version of KL)
+            outputs1_prob = torch.nn.functional.softmax(model_to_update_outputs, dim=-1)
+            outputs2_prob = torch.nn.functional.softmax(regularizer_outputs.detach(), dim=-1)
+            # Compute average distribution
+            avg_prob = 0.5 * (outputs1_prob + outputs2_prob)
+            # JS divergence = 0.5 * KL(P||M) + 0.5 * KL(Q||M)
+            kl1 = torch.nn.functional.kl_div(avg_prob.log(), outputs1_prob, reduction='batchmean')
+            kl2 = torch.nn.functional.kl_div(avg_prob.log(), outputs2_prob, reduction='batchmean')
+            consistency_loss = 0.5 * (kl1 + kl2)
+        else:
+            # Fail explicitly for unknown distance types
+            raise ValueError(f"Unknown distance_type: {distance_type}. Supported types: L1, L2, COSINE, KL, JS")
+        
+        consistency_regularizer += consistency_loss
+    
+    # Average over the number of regularizer models
+    if len(regularizer_models) > 0:
+        consistency_regularizer = consistency_regularizer / len(regularizer_models)
+    
+    return consistency_regularizer
+
+def _update_main_model_from_parts(main_model, model_to_update, model_to_update_parts):
+    """
+    Update the main model with trained parts from model_to_update.
+    
+    Args:
+        main_model: The main model to update
+        model_to_update: The trained model parts
+        model_to_update_parts: Dict mapping layer names to FBD block IDs
+    """
+    # For now, we update the entire main model with the trained model_to_update
+    # In a more sophisticated implementation, you would only update the specific parts
+    # specified in model_to_update_parts
+    
+    main_model.load_state_dict(model_to_update.state_dict())

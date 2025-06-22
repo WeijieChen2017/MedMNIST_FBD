@@ -1,0 +1,5102 @@
+{
+  "1": {
+    "0": {
+      "model_to_update": {
+        "in_layer": "AFA79",
+        "layer1": "BFF56",
+        "layer2": "CAA77",
+        "layer3": "DSC60",
+        "layer4": "EJJ91",
+        "out_layer": "FXR03"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        }
+      ]
+    },
+    "1": {
+      "model_to_update": {
+        "in_layer": "AOC39",
+        "layer1": "BWW19",
+        "layer2": "COO30",
+        "layer3": "DHK75",
+        "layer4": "EYT34",
+        "out_layer": "FGM06"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "2": {
+      "model_to_update": {
+        "in_layer": "AUV29",
+        "layer1": "BYM04",
+        "layer2": "CRZ52",
+        "layer3": "DPX98",
+        "layer4": "EVN36",
+        "out_layer": "FSY05"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "3": {
+      "model_to_update": {
+        "in_layer": "ASN90",
+        "layer1": "BXG86",
+        "layer2": "CPM83",
+        "layer3": "DPU42",
+        "layer4": "EVN11",
+        "out_layer": "FWC09"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        }
+      ]
+    },
+    "4": {
+      "model_to_update": {
+        "in_layer": "ALT34",
+        "layer1": "BVP97",
+        "layer2": "CNF57",
+        "layer3": "DWJ41",
+        "layer4": "EGO46",
+        "out_layer": "FBI78"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "5": {
+      "model_to_update": {
+        "in_layer": "AKY64",
+        "layer1": "BVD88",
+        "layer2": "CGV29",
+        "layer3": "DQM27",
+        "layer4": "EVZ66",
+        "out_layer": "FPC91"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    }
+  },
+  "2": {
+    "0": {
+      "model_to_update": {
+        "in_layer": "AKY64",
+        "layer1": "BVD88",
+        "layer2": "CGV29",
+        "layer3": "DQM27",
+        "layer4": "EVZ66",
+        "out_layer": "FPC91"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        }
+      ]
+    },
+    "1": {
+      "model_to_update": {
+        "in_layer": "ASN90",
+        "layer1": "BXG86",
+        "layer2": "CPM83",
+        "layer3": "DPU42",
+        "layer4": "EVN11",
+        "out_layer": "FWC09"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        }
+      ]
+    },
+    "2": {
+      "model_to_update": {
+        "in_layer": "AFA79",
+        "layer1": "BFF56",
+        "layer2": "CAA77",
+        "layer3": "DSC60",
+        "layer4": "EJJ91",
+        "out_layer": "FXR03"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "3": {
+      "model_to_update": {
+        "in_layer": "AOC39",
+        "layer1": "BWW19",
+        "layer2": "COO30",
+        "layer3": "DHK75",
+        "layer4": "EYT34",
+        "out_layer": "FGM06"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "4": {
+      "model_to_update": {
+        "in_layer": "AUV29",
+        "layer1": "BYM04",
+        "layer2": "CRZ52",
+        "layer3": "DPX98",
+        "layer4": "EVN36",
+        "out_layer": "FSY05"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        },
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        }
+      ]
+    },
+    "5": {
+      "model_to_update": {
+        "in_layer": "ALT34",
+        "layer1": "BVP97",
+        "layer2": "CNF57",
+        "layer3": "DWJ41",
+        "layer4": "EGO46",
+        "out_layer": "FBI78"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    }
+  },
+  "3": {
+    "0": {
+      "model_to_update": {
+        "in_layer": "ALT34",
+        "layer1": "BVP97",
+        "layer2": "CNF57",
+        "layer3": "DWJ41",
+        "layer4": "EGO46",
+        "out_layer": "FBI78"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        }
+      ]
+    },
+    "1": {
+      "model_to_update": {
+        "in_layer": "AFA79",
+        "layer1": "BFF56",
+        "layer2": "CAA77",
+        "layer3": "DSC60",
+        "layer4": "EJJ91",
+        "out_layer": "FXR03"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "2": {
+      "model_to_update": {
+        "in_layer": "ASN90",
+        "layer1": "BXG86",
+        "layer2": "CPM83",
+        "layer3": "DPU42",
+        "layer4": "EVN11",
+        "out_layer": "FWC09"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "3": {
+      "model_to_update": {
+        "in_layer": "AKY64",
+        "layer1": "BVD88",
+        "layer2": "CGV29",
+        "layer3": "DQM27",
+        "layer4": "EVZ66",
+        "out_layer": "FPC91"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "4": {
+      "model_to_update": {
+        "in_layer": "AOC39",
+        "layer1": "BWW19",
+        "layer2": "COO30",
+        "layer3": "DHK75",
+        "layer4": "EYT34",
+        "out_layer": "FGM06"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "5": {
+      "model_to_update": {
+        "in_layer": "AUV29",
+        "layer1": "BYM04",
+        "layer2": "CRZ52",
+        "layer3": "DPX98",
+        "layer4": "EVN36",
+        "out_layer": "FSY05"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        }
+      ]
+    }
+  },
+  "4": {
+    "0": {
+      "model_to_update": {
+        "in_layer": "AFA79",
+        "layer1": "BFF56",
+        "layer2": "CAA77",
+        "layer3": "DSC60",
+        "layer4": "EJJ91",
+        "out_layer": "FXR03"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        }
+      ]
+    },
+    "1": {
+      "model_to_update": {
+        "in_layer": "AOC39",
+        "layer1": "BWW19",
+        "layer2": "COO30",
+        "layer3": "DHK75",
+        "layer4": "EYT34",
+        "out_layer": "FGM06"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "2": {
+      "model_to_update": {
+        "in_layer": "AUV29",
+        "layer1": "BYM04",
+        "layer2": "CRZ52",
+        "layer3": "DPX98",
+        "layer4": "EVN36",
+        "out_layer": "FSY05"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "3": {
+      "model_to_update": {
+        "in_layer": "ASN90",
+        "layer1": "BXG86",
+        "layer2": "CPM83",
+        "layer3": "DPU42",
+        "layer4": "EVN11",
+        "out_layer": "FWC09"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        }
+      ]
+    },
+    "4": {
+      "model_to_update": {
+        "in_layer": "ALT34",
+        "layer1": "BVP97",
+        "layer2": "CNF57",
+        "layer3": "DWJ41",
+        "layer4": "EGO46",
+        "out_layer": "FBI78"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "5": {
+      "model_to_update": {
+        "in_layer": "AKY64",
+        "layer1": "BVD88",
+        "layer2": "CGV29",
+        "layer3": "DQM27",
+        "layer4": "EVZ66",
+        "out_layer": "FPC91"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    }
+  },
+  "5": {
+    "0": {
+      "model_to_update": {
+        "in_layer": "AKY64",
+        "layer1": "BVD88",
+        "layer2": "CGV29",
+        "layer3": "DQM27",
+        "layer4": "EVZ66",
+        "out_layer": "FPC91"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        }
+      ]
+    },
+    "1": {
+      "model_to_update": {
+        "in_layer": "ASN90",
+        "layer1": "BXG86",
+        "layer2": "CPM83",
+        "layer3": "DPU42",
+        "layer4": "EVN11",
+        "out_layer": "FWC09"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        }
+      ]
+    },
+    "2": {
+      "model_to_update": {
+        "in_layer": "AFA79",
+        "layer1": "BFF56",
+        "layer2": "CAA77",
+        "layer3": "DSC60",
+        "layer4": "EJJ91",
+        "out_layer": "FXR03"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "3": {
+      "model_to_update": {
+        "in_layer": "AOC39",
+        "layer1": "BWW19",
+        "layer2": "COO30",
+        "layer3": "DHK75",
+        "layer4": "EYT34",
+        "out_layer": "FGM06"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "4": {
+      "model_to_update": {
+        "in_layer": "AUV29",
+        "layer1": "BYM04",
+        "layer2": "CRZ52",
+        "layer3": "DPX98",
+        "layer4": "EVN36",
+        "out_layer": "FSY05"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        },
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        }
+      ]
+    },
+    "5": {
+      "model_to_update": {
+        "in_layer": "ALT34",
+        "layer1": "BVP97",
+        "layer2": "CNF57",
+        "layer3": "DWJ41",
+        "layer4": "EGO46",
+        "out_layer": "FBI78"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    }
+  },
+  "6": {
+    "0": {
+      "model_to_update": {
+        "in_layer": "ALT34",
+        "layer1": "BVP97",
+        "layer2": "CNF57",
+        "layer3": "DWJ41",
+        "layer4": "EGO46",
+        "out_layer": "FBI78"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        }
+      ]
+    },
+    "1": {
+      "model_to_update": {
+        "in_layer": "AFA79",
+        "layer1": "BFF56",
+        "layer2": "CAA77",
+        "layer3": "DSC60",
+        "layer4": "EJJ91",
+        "out_layer": "FXR03"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "2": {
+      "model_to_update": {
+        "in_layer": "ASN90",
+        "layer1": "BXG86",
+        "layer2": "CPM83",
+        "layer3": "DPU42",
+        "layer4": "EVN11",
+        "out_layer": "FWC09"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "3": {
+      "model_to_update": {
+        "in_layer": "AKY64",
+        "layer1": "BVD88",
+        "layer2": "CGV29",
+        "layer3": "DQM27",
+        "layer4": "EVZ66",
+        "out_layer": "FPC91"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "4": {
+      "model_to_update": {
+        "in_layer": "AOC39",
+        "layer1": "BWW19",
+        "layer2": "COO30",
+        "layer3": "DHK75",
+        "layer4": "EYT34",
+        "out_layer": "FGM06"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "5": {
+      "model_to_update": {
+        "in_layer": "AUV29",
+        "layer1": "BYM04",
+        "layer2": "CRZ52",
+        "layer3": "DPX98",
+        "layer4": "EVN36",
+        "out_layer": "FSY05"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        }
+      ]
+    }
+  },
+  "7": {
+    "0": {
+      "model_to_update": {
+        "in_layer": "AFA79",
+        "layer1": "BFF56",
+        "layer2": "CAA77",
+        "layer3": "DSC60",
+        "layer4": "EJJ91",
+        "out_layer": "FXR03"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        }
+      ]
+    },
+    "1": {
+      "model_to_update": {
+        "in_layer": "AOC39",
+        "layer1": "BWW19",
+        "layer2": "COO30",
+        "layer3": "DHK75",
+        "layer4": "EYT34",
+        "out_layer": "FGM06"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "2": {
+      "model_to_update": {
+        "in_layer": "AUV29",
+        "layer1": "BYM04",
+        "layer2": "CRZ52",
+        "layer3": "DPX98",
+        "layer4": "EVN36",
+        "out_layer": "FSY05"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "3": {
+      "model_to_update": {
+        "in_layer": "ASN90",
+        "layer1": "BXG86",
+        "layer2": "CPM83",
+        "layer3": "DPU42",
+        "layer4": "EVN11",
+        "out_layer": "FWC09"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        }
+      ]
+    },
+    "4": {
+      "model_to_update": {
+        "in_layer": "ALT34",
+        "layer1": "BVP97",
+        "layer2": "CNF57",
+        "layer3": "DWJ41",
+        "layer4": "EGO46",
+        "out_layer": "FBI78"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "5": {
+      "model_to_update": {
+        "in_layer": "AKY64",
+        "layer1": "BVD88",
+        "layer2": "CGV29",
+        "layer3": "DQM27",
+        "layer4": "EVZ66",
+        "out_layer": "FPC91"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    }
+  },
+  "8": {
+    "0": {
+      "model_to_update": {
+        "in_layer": "AKY64",
+        "layer1": "BVD88",
+        "layer2": "CGV29",
+        "layer3": "DQM27",
+        "layer4": "EVZ66",
+        "out_layer": "FPC91"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        }
+      ]
+    },
+    "1": {
+      "model_to_update": {
+        "in_layer": "ASN90",
+        "layer1": "BXG86",
+        "layer2": "CPM83",
+        "layer3": "DPU42",
+        "layer4": "EVN11",
+        "out_layer": "FWC09"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        }
+      ]
+    },
+    "2": {
+      "model_to_update": {
+        "in_layer": "AFA79",
+        "layer1": "BFF56",
+        "layer2": "CAA77",
+        "layer3": "DSC60",
+        "layer4": "EJJ91",
+        "out_layer": "FXR03"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "3": {
+      "model_to_update": {
+        "in_layer": "AOC39",
+        "layer1": "BWW19",
+        "layer2": "COO30",
+        "layer3": "DHK75",
+        "layer4": "EYT34",
+        "out_layer": "FGM06"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "4": {
+      "model_to_update": {
+        "in_layer": "AUV29",
+        "layer1": "BYM04",
+        "layer2": "CRZ52",
+        "layer3": "DPX98",
+        "layer4": "EVN36",
+        "out_layer": "FSY05"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        },
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        }
+      ]
+    },
+    "5": {
+      "model_to_update": {
+        "in_layer": "ALT34",
+        "layer1": "BVP97",
+        "layer2": "CNF57",
+        "layer3": "DWJ41",
+        "layer4": "EGO46",
+        "out_layer": "FBI78"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    }
+  },
+  "9": {
+    "0": {
+      "model_to_update": {
+        "in_layer": "ALT34",
+        "layer1": "BVP97",
+        "layer2": "CNF57",
+        "layer3": "DWJ41",
+        "layer4": "EGO46",
+        "out_layer": "FBI78"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        }
+      ]
+    },
+    "1": {
+      "model_to_update": {
+        "in_layer": "AFA79",
+        "layer1": "BFF56",
+        "layer2": "CAA77",
+        "layer3": "DSC60",
+        "layer4": "EJJ91",
+        "out_layer": "FXR03"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "2": {
+      "model_to_update": {
+        "in_layer": "ASN90",
+        "layer1": "BXG86",
+        "layer2": "CPM83",
+        "layer3": "DPU42",
+        "layer4": "EVN11",
+        "out_layer": "FWC09"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "3": {
+      "model_to_update": {
+        "in_layer": "AKY64",
+        "layer1": "BVD88",
+        "layer2": "CGV29",
+        "layer3": "DQM27",
+        "layer4": "EVZ66",
+        "out_layer": "FPC91"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "4": {
+      "model_to_update": {
+        "in_layer": "AOC39",
+        "layer1": "BWW19",
+        "layer2": "COO30",
+        "layer3": "DHK75",
+        "layer4": "EYT34",
+        "out_layer": "FGM06"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "5": {
+      "model_to_update": {
+        "in_layer": "AUV29",
+        "layer1": "BYM04",
+        "layer2": "CRZ52",
+        "layer3": "DPX98",
+        "layer4": "EVN36",
+        "out_layer": "FSY05"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        }
+      ]
+    }
+  },
+  "10": {
+    "0": {
+      "model_to_update": {
+        "in_layer": "AFA79",
+        "layer1": "BFF56",
+        "layer2": "CAA77",
+        "layer3": "DSC60",
+        "layer4": "EJJ91",
+        "out_layer": "FXR03"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        }
+      ]
+    },
+    "1": {
+      "model_to_update": {
+        "in_layer": "AOC39",
+        "layer1": "BWW19",
+        "layer2": "COO30",
+        "layer3": "DHK75",
+        "layer4": "EYT34",
+        "out_layer": "FGM06"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "2": {
+      "model_to_update": {
+        "in_layer": "AUV29",
+        "layer1": "BYM04",
+        "layer2": "CRZ52",
+        "layer3": "DPX98",
+        "layer4": "EVN36",
+        "out_layer": "FSY05"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "3": {
+      "model_to_update": {
+        "in_layer": "ASN90",
+        "layer1": "BXG86",
+        "layer2": "CPM83",
+        "layer3": "DPU42",
+        "layer4": "EVN11",
+        "out_layer": "FWC09"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        }
+      ]
+    },
+    "4": {
+      "model_to_update": {
+        "in_layer": "ALT34",
+        "layer1": "BVP97",
+        "layer2": "CNF57",
+        "layer3": "DWJ41",
+        "layer4": "EGO46",
+        "out_layer": "FBI78"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "5": {
+      "model_to_update": {
+        "in_layer": "AKY64",
+        "layer1": "BVD88",
+        "layer2": "CGV29",
+        "layer3": "DQM27",
+        "layer4": "EVZ66",
+        "out_layer": "FPC91"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    }
+  },
+  "11": {
+    "0": {
+      "model_to_update": {
+        "in_layer": "AKY64",
+        "layer1": "BVD88",
+        "layer2": "CGV29",
+        "layer3": "DQM27",
+        "layer4": "EVZ66",
+        "out_layer": "FPC91"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        }
+      ]
+    },
+    "1": {
+      "model_to_update": {
+        "in_layer": "ASN90",
+        "layer1": "BXG86",
+        "layer2": "CPM83",
+        "layer3": "DPU42",
+        "layer4": "EVN11",
+        "out_layer": "FWC09"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        }
+      ]
+    },
+    "2": {
+      "model_to_update": {
+        "in_layer": "AFA79",
+        "layer1": "BFF56",
+        "layer2": "CAA77",
+        "layer3": "DSC60",
+        "layer4": "EJJ91",
+        "out_layer": "FXR03"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "3": {
+      "model_to_update": {
+        "in_layer": "AOC39",
+        "layer1": "BWW19",
+        "layer2": "COO30",
+        "layer3": "DHK75",
+        "layer4": "EYT34",
+        "out_layer": "FGM06"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "4": {
+      "model_to_update": {
+        "in_layer": "AUV29",
+        "layer1": "BYM04",
+        "layer2": "CRZ52",
+        "layer3": "DPX98",
+        "layer4": "EVN36",
+        "out_layer": "FSY05"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        },
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        }
+      ]
+    },
+    "5": {
+      "model_to_update": {
+        "in_layer": "ALT34",
+        "layer1": "BVP97",
+        "layer2": "CNF57",
+        "layer3": "DWJ41",
+        "layer4": "EGO46",
+        "out_layer": "FBI78"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    }
+  },
+  "12": {
+    "0": {
+      "model_to_update": {
+        "in_layer": "ALT34",
+        "layer1": "BVP97",
+        "layer2": "CNF57",
+        "layer3": "DWJ41",
+        "layer4": "EGO46",
+        "out_layer": "FBI78"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        }
+      ]
+    },
+    "1": {
+      "model_to_update": {
+        "in_layer": "AFA79",
+        "layer1": "BFF56",
+        "layer2": "CAA77",
+        "layer3": "DSC60",
+        "layer4": "EJJ91",
+        "out_layer": "FXR03"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "2": {
+      "model_to_update": {
+        "in_layer": "ASN90",
+        "layer1": "BXG86",
+        "layer2": "CPM83",
+        "layer3": "DPU42",
+        "layer4": "EVN11",
+        "out_layer": "FWC09"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "3": {
+      "model_to_update": {
+        "in_layer": "AKY64",
+        "layer1": "BVD88",
+        "layer2": "CGV29",
+        "layer3": "DQM27",
+        "layer4": "EVZ66",
+        "out_layer": "FPC91"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "4": {
+      "model_to_update": {
+        "in_layer": "AOC39",
+        "layer1": "BWW19",
+        "layer2": "COO30",
+        "layer3": "DHK75",
+        "layer4": "EYT34",
+        "out_layer": "FGM06"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "5": {
+      "model_to_update": {
+        "in_layer": "AUV29",
+        "layer1": "BYM04",
+        "layer2": "CRZ52",
+        "layer3": "DPX98",
+        "layer4": "EVN36",
+        "out_layer": "FSY05"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        }
+      ]
+    }
+  },
+  "13": {
+    "0": {
+      "model_to_update": {
+        "in_layer": "AFA79",
+        "layer1": "BFF56",
+        "layer2": "CAA77",
+        "layer3": "DSC60",
+        "layer4": "EJJ91",
+        "out_layer": "FXR03"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        }
+      ]
+    },
+    "1": {
+      "model_to_update": {
+        "in_layer": "AOC39",
+        "layer1": "BWW19",
+        "layer2": "COO30",
+        "layer3": "DHK75",
+        "layer4": "EYT34",
+        "out_layer": "FGM06"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "2": {
+      "model_to_update": {
+        "in_layer": "AUV29",
+        "layer1": "BYM04",
+        "layer2": "CRZ52",
+        "layer3": "DPX98",
+        "layer4": "EVN36",
+        "out_layer": "FSY05"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "3": {
+      "model_to_update": {
+        "in_layer": "ASN90",
+        "layer1": "BXG86",
+        "layer2": "CPM83",
+        "layer3": "DPU42",
+        "layer4": "EVN11",
+        "out_layer": "FWC09"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        }
+      ]
+    },
+    "4": {
+      "model_to_update": {
+        "in_layer": "ALT34",
+        "layer1": "BVP97",
+        "layer2": "CNF57",
+        "layer3": "DWJ41",
+        "layer4": "EGO46",
+        "out_layer": "FBI78"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "5": {
+      "model_to_update": {
+        "in_layer": "AKY64",
+        "layer1": "BVD88",
+        "layer2": "CGV29",
+        "layer3": "DQM27",
+        "layer4": "EVZ66",
+        "out_layer": "FPC91"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    }
+  },
+  "14": {
+    "0": {
+      "model_to_update": {
+        "in_layer": "AKY64",
+        "layer1": "BVD88",
+        "layer2": "CGV29",
+        "layer3": "DQM27",
+        "layer4": "EVZ66",
+        "out_layer": "FPC91"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        }
+      ]
+    },
+    "1": {
+      "model_to_update": {
+        "in_layer": "ASN90",
+        "layer1": "BXG86",
+        "layer2": "CPM83",
+        "layer3": "DPU42",
+        "layer4": "EVN11",
+        "out_layer": "FWC09"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        }
+      ]
+    },
+    "2": {
+      "model_to_update": {
+        "in_layer": "AFA79",
+        "layer1": "BFF56",
+        "layer2": "CAA77",
+        "layer3": "DSC60",
+        "layer4": "EJJ91",
+        "out_layer": "FXR03"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "3": {
+      "model_to_update": {
+        "in_layer": "AOC39",
+        "layer1": "BWW19",
+        "layer2": "COO30",
+        "layer3": "DHK75",
+        "layer4": "EYT34",
+        "out_layer": "FGM06"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "4": {
+      "model_to_update": {
+        "in_layer": "AUV29",
+        "layer1": "BYM04",
+        "layer2": "CRZ52",
+        "layer3": "DPX98",
+        "layer4": "EVN36",
+        "out_layer": "FSY05"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        },
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        }
+      ]
+    },
+    "5": {
+      "model_to_update": {
+        "in_layer": "ALT34",
+        "layer1": "BVP97",
+        "layer2": "CNF57",
+        "layer3": "DWJ41",
+        "layer4": "EGO46",
+        "out_layer": "FBI78"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    }
+  },
+  "15": {
+    "0": {
+      "model_to_update": {
+        "in_layer": "ALT34",
+        "layer1": "BVP97",
+        "layer2": "CNF57",
+        "layer3": "DWJ41",
+        "layer4": "EGO46",
+        "out_layer": "FBI78"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        }
+      ]
+    },
+    "1": {
+      "model_to_update": {
+        "in_layer": "AFA79",
+        "layer1": "BFF56",
+        "layer2": "CAA77",
+        "layer3": "DSC60",
+        "layer4": "EJJ91",
+        "out_layer": "FXR03"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "2": {
+      "model_to_update": {
+        "in_layer": "ASN90",
+        "layer1": "BXG86",
+        "layer2": "CPM83",
+        "layer3": "DPU42",
+        "layer4": "EVN11",
+        "out_layer": "FWC09"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "3": {
+      "model_to_update": {
+        "in_layer": "AKY64",
+        "layer1": "BVD88",
+        "layer2": "CGV29",
+        "layer3": "DQM27",
+        "layer4": "EVZ66",
+        "out_layer": "FPC91"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "4": {
+      "model_to_update": {
+        "in_layer": "AOC39",
+        "layer1": "BWW19",
+        "layer2": "COO30",
+        "layer3": "DHK75",
+        "layer4": "EYT34",
+        "out_layer": "FGM06"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "5": {
+      "model_to_update": {
+        "in_layer": "AUV29",
+        "layer1": "BYM04",
+        "layer2": "CRZ52",
+        "layer3": "DPX98",
+        "layer4": "EVN36",
+        "out_layer": "FSY05"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        }
+      ]
+    }
+  },
+  "16": {
+    "0": {
+      "model_to_update": {
+        "in_layer": "AFA79",
+        "layer1": "BFF56",
+        "layer2": "CAA77",
+        "layer3": "DSC60",
+        "layer4": "EJJ91",
+        "out_layer": "FXR03"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        }
+      ]
+    },
+    "1": {
+      "model_to_update": {
+        "in_layer": "AOC39",
+        "layer1": "BWW19",
+        "layer2": "COO30",
+        "layer3": "DHK75",
+        "layer4": "EYT34",
+        "out_layer": "FGM06"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "2": {
+      "model_to_update": {
+        "in_layer": "AUV29",
+        "layer1": "BYM04",
+        "layer2": "CRZ52",
+        "layer3": "DPX98",
+        "layer4": "EVN36",
+        "out_layer": "FSY05"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "3": {
+      "model_to_update": {
+        "in_layer": "ASN90",
+        "layer1": "BXG86",
+        "layer2": "CPM83",
+        "layer3": "DPU42",
+        "layer4": "EVN11",
+        "out_layer": "FWC09"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        }
+      ]
+    },
+    "4": {
+      "model_to_update": {
+        "in_layer": "ALT34",
+        "layer1": "BVP97",
+        "layer2": "CNF57",
+        "layer3": "DWJ41",
+        "layer4": "EGO46",
+        "out_layer": "FBI78"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "5": {
+      "model_to_update": {
+        "in_layer": "AKY64",
+        "layer1": "BVD88",
+        "layer2": "CGV29",
+        "layer3": "DQM27",
+        "layer4": "EVZ66",
+        "out_layer": "FPC91"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    }
+  },
+  "17": {
+    "0": {
+      "model_to_update": {
+        "in_layer": "AKY64",
+        "layer1": "BVD88",
+        "layer2": "CGV29",
+        "layer3": "DQM27",
+        "layer4": "EVZ66",
+        "out_layer": "FPC91"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        }
+      ]
+    },
+    "1": {
+      "model_to_update": {
+        "in_layer": "ASN90",
+        "layer1": "BXG86",
+        "layer2": "CPM83",
+        "layer3": "DPU42",
+        "layer4": "EVN11",
+        "out_layer": "FWC09"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        }
+      ]
+    },
+    "2": {
+      "model_to_update": {
+        "in_layer": "AFA79",
+        "layer1": "BFF56",
+        "layer2": "CAA77",
+        "layer3": "DSC60",
+        "layer4": "EJJ91",
+        "out_layer": "FXR03"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "3": {
+      "model_to_update": {
+        "in_layer": "AOC39",
+        "layer1": "BWW19",
+        "layer2": "COO30",
+        "layer3": "DHK75",
+        "layer4": "EYT34",
+        "out_layer": "FGM06"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "4": {
+      "model_to_update": {
+        "in_layer": "AUV29",
+        "layer1": "BYM04",
+        "layer2": "CRZ52",
+        "layer3": "DPX98",
+        "layer4": "EVN36",
+        "out_layer": "FSY05"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        },
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        }
+      ]
+    },
+    "5": {
+      "model_to_update": {
+        "in_layer": "ALT34",
+        "layer1": "BVP97",
+        "layer2": "CNF57",
+        "layer3": "DWJ41",
+        "layer4": "EGO46",
+        "out_layer": "FBI78"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    }
+  },
+  "18": {
+    "0": {
+      "model_to_update": {
+        "in_layer": "ALT34",
+        "layer1": "BVP97",
+        "layer2": "CNF57",
+        "layer3": "DWJ41",
+        "layer4": "EGO46",
+        "out_layer": "FBI78"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        }
+      ]
+    },
+    "1": {
+      "model_to_update": {
+        "in_layer": "AFA79",
+        "layer1": "BFF56",
+        "layer2": "CAA77",
+        "layer3": "DSC60",
+        "layer4": "EJJ91",
+        "out_layer": "FXR03"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "2": {
+      "model_to_update": {
+        "in_layer": "ASN90",
+        "layer1": "BXG86",
+        "layer2": "CPM83",
+        "layer3": "DPU42",
+        "layer4": "EVN11",
+        "out_layer": "FWC09"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "3": {
+      "model_to_update": {
+        "in_layer": "AKY64",
+        "layer1": "BVD88",
+        "layer2": "CGV29",
+        "layer3": "DQM27",
+        "layer4": "EVZ66",
+        "out_layer": "FPC91"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "4": {
+      "model_to_update": {
+        "in_layer": "AOC39",
+        "layer1": "BWW19",
+        "layer2": "COO30",
+        "layer3": "DHK75",
+        "layer4": "EYT34",
+        "out_layer": "FGM06"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "5": {
+      "model_to_update": {
+        "in_layer": "AUV29",
+        "layer1": "BYM04",
+        "layer2": "CRZ52",
+        "layer3": "DPX98",
+        "layer4": "EVN36",
+        "out_layer": "FSY05"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        }
+      ]
+    }
+  },
+  "19": {
+    "0": {
+      "model_to_update": {
+        "in_layer": "AFA79",
+        "layer1": "BFF56",
+        "layer2": "CAA77",
+        "layer3": "DSC60",
+        "layer4": "EJJ91",
+        "out_layer": "FXR03"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        }
+      ]
+    },
+    "1": {
+      "model_to_update": {
+        "in_layer": "AOC39",
+        "layer1": "BWW19",
+        "layer2": "COO30",
+        "layer3": "DHK75",
+        "layer4": "EYT34",
+        "out_layer": "FGM06"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "2": {
+      "model_to_update": {
+        "in_layer": "AUV29",
+        "layer1": "BYM04",
+        "layer2": "CRZ52",
+        "layer3": "DPX98",
+        "layer4": "EVN36",
+        "out_layer": "FSY05"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "3": {
+      "model_to_update": {
+        "in_layer": "ASN90",
+        "layer1": "BXG86",
+        "layer2": "CPM83",
+        "layer3": "DPU42",
+        "layer4": "EVN11",
+        "out_layer": "FWC09"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        }
+      ]
+    },
+    "4": {
+      "model_to_update": {
+        "in_layer": "ALT34",
+        "layer1": "BVP97",
+        "layer2": "CNF57",
+        "layer3": "DWJ41",
+        "layer4": "EGO46",
+        "out_layer": "FBI78"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "5": {
+      "model_to_update": {
+        "in_layer": "AKY64",
+        "layer1": "BVD88",
+        "layer2": "CGV29",
+        "layer3": "DQM27",
+        "layer4": "EVZ66",
+        "out_layer": "FPC91"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    }
+  },
+  "20": {
+    "0": {
+      "model_to_update": {
+        "in_layer": "AKY64",
+        "layer1": "BVD88",
+        "layer2": "CGV29",
+        "layer3": "DQM27",
+        "layer4": "EVZ66",
+        "out_layer": "FPC91"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        }
+      ]
+    },
+    "1": {
+      "model_to_update": {
+        "in_layer": "ASN90",
+        "layer1": "BXG86",
+        "layer2": "CPM83",
+        "layer3": "DPU42",
+        "layer4": "EVN11",
+        "out_layer": "FWC09"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        }
+      ]
+    },
+    "2": {
+      "model_to_update": {
+        "in_layer": "AFA79",
+        "layer1": "BFF56",
+        "layer2": "CAA77",
+        "layer3": "DSC60",
+        "layer4": "EJJ91",
+        "out_layer": "FXR03"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "3": {
+      "model_to_update": {
+        "in_layer": "AOC39",
+        "layer1": "BWW19",
+        "layer2": "COO30",
+        "layer3": "DHK75",
+        "layer4": "EYT34",
+        "out_layer": "FGM06"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "4": {
+      "model_to_update": {
+        "in_layer": "AUV29",
+        "layer1": "BYM04",
+        "layer2": "CRZ52",
+        "layer3": "DPX98",
+        "layer4": "EVN36",
+        "out_layer": "FSY05"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        },
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        }
+      ]
+    },
+    "5": {
+      "model_to_update": {
+        "in_layer": "ALT34",
+        "layer1": "BVP97",
+        "layer2": "CNF57",
+        "layer3": "DWJ41",
+        "layer4": "EGO46",
+        "out_layer": "FBI78"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    }
+  },
+  "21": {
+    "0": {
+      "model_to_update": {
+        "in_layer": "ALT34",
+        "layer1": "BVP97",
+        "layer2": "CNF57",
+        "layer3": "DWJ41",
+        "layer4": "EGO46",
+        "out_layer": "FBI78"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        }
+      ]
+    },
+    "1": {
+      "model_to_update": {
+        "in_layer": "AFA79",
+        "layer1": "BFF56",
+        "layer2": "CAA77",
+        "layer3": "DSC60",
+        "layer4": "EJJ91",
+        "out_layer": "FXR03"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "2": {
+      "model_to_update": {
+        "in_layer": "ASN90",
+        "layer1": "BXG86",
+        "layer2": "CPM83",
+        "layer3": "DPU42",
+        "layer4": "EVN11",
+        "out_layer": "FWC09"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "3": {
+      "model_to_update": {
+        "in_layer": "AKY64",
+        "layer1": "BVD88",
+        "layer2": "CGV29",
+        "layer3": "DQM27",
+        "layer4": "EVZ66",
+        "out_layer": "FPC91"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "4": {
+      "model_to_update": {
+        "in_layer": "AOC39",
+        "layer1": "BWW19",
+        "layer2": "COO30",
+        "layer3": "DHK75",
+        "layer4": "EYT34",
+        "out_layer": "FGM06"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "5": {
+      "model_to_update": {
+        "in_layer": "AUV29",
+        "layer1": "BYM04",
+        "layer2": "CRZ52",
+        "layer3": "DPX98",
+        "layer4": "EVN36",
+        "out_layer": "FSY05"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        }
+      ]
+    }
+  },
+  "22": {
+    "0": {
+      "model_to_update": {
+        "in_layer": "AFA79",
+        "layer1": "BFF56",
+        "layer2": "CAA77",
+        "layer3": "DSC60",
+        "layer4": "EJJ91",
+        "out_layer": "FXR03"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        }
+      ]
+    },
+    "1": {
+      "model_to_update": {
+        "in_layer": "AOC39",
+        "layer1": "BWW19",
+        "layer2": "COO30",
+        "layer3": "DHK75",
+        "layer4": "EYT34",
+        "out_layer": "FGM06"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "2": {
+      "model_to_update": {
+        "in_layer": "AUV29",
+        "layer1": "BYM04",
+        "layer2": "CRZ52",
+        "layer3": "DPX98",
+        "layer4": "EVN36",
+        "out_layer": "FSY05"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "3": {
+      "model_to_update": {
+        "in_layer": "ASN90",
+        "layer1": "BXG86",
+        "layer2": "CPM83",
+        "layer3": "DPU42",
+        "layer4": "EVN11",
+        "out_layer": "FWC09"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        }
+      ]
+    },
+    "4": {
+      "model_to_update": {
+        "in_layer": "ALT34",
+        "layer1": "BVP97",
+        "layer2": "CNF57",
+        "layer3": "DWJ41",
+        "layer4": "EGO46",
+        "out_layer": "FBI78"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "5": {
+      "model_to_update": {
+        "in_layer": "AKY64",
+        "layer1": "BVD88",
+        "layer2": "CGV29",
+        "layer3": "DQM27",
+        "layer4": "EVZ66",
+        "out_layer": "FPC91"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    }
+  },
+  "23": {
+    "0": {
+      "model_to_update": {
+        "in_layer": "AKY64",
+        "layer1": "BVD88",
+        "layer2": "CGV29",
+        "layer3": "DQM27",
+        "layer4": "EVZ66",
+        "out_layer": "FPC91"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        }
+      ]
+    },
+    "1": {
+      "model_to_update": {
+        "in_layer": "ASN90",
+        "layer1": "BXG86",
+        "layer2": "CPM83",
+        "layer3": "DPU42",
+        "layer4": "EVN11",
+        "out_layer": "FWC09"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        }
+      ]
+    },
+    "2": {
+      "model_to_update": {
+        "in_layer": "AFA79",
+        "layer1": "BFF56",
+        "layer2": "CAA77",
+        "layer3": "DSC60",
+        "layer4": "EJJ91",
+        "out_layer": "FXR03"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "3": {
+      "model_to_update": {
+        "in_layer": "AOC39",
+        "layer1": "BWW19",
+        "layer2": "COO30",
+        "layer3": "DHK75",
+        "layer4": "EYT34",
+        "out_layer": "FGM06"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "4": {
+      "model_to_update": {
+        "in_layer": "AUV29",
+        "layer1": "BYM04",
+        "layer2": "CRZ52",
+        "layer3": "DPX98",
+        "layer4": "EVN36",
+        "out_layer": "FSY05"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        },
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        }
+      ]
+    },
+    "5": {
+      "model_to_update": {
+        "in_layer": "ALT34",
+        "layer1": "BVP97",
+        "layer2": "CNF57",
+        "layer3": "DWJ41",
+        "layer4": "EGO46",
+        "out_layer": "FBI78"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    }
+  },
+  "24": {
+    "0": {
+      "model_to_update": {
+        "in_layer": "ALT34",
+        "layer1": "BVP97",
+        "layer2": "CNF57",
+        "layer3": "DWJ41",
+        "layer4": "EGO46",
+        "out_layer": "FBI78"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        }
+      ]
+    },
+    "1": {
+      "model_to_update": {
+        "in_layer": "AFA79",
+        "layer1": "BFF56",
+        "layer2": "CAA77",
+        "layer3": "DSC60",
+        "layer4": "EJJ91",
+        "out_layer": "FXR03"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "2": {
+      "model_to_update": {
+        "in_layer": "ASN90",
+        "layer1": "BXG86",
+        "layer2": "CPM83",
+        "layer3": "DPU42",
+        "layer4": "EVN11",
+        "out_layer": "FWC09"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "3": {
+      "model_to_update": {
+        "in_layer": "AKY64",
+        "layer1": "BVD88",
+        "layer2": "CGV29",
+        "layer3": "DQM27",
+        "layer4": "EVZ66",
+        "out_layer": "FPC91"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "4": {
+      "model_to_update": {
+        "in_layer": "AOC39",
+        "layer1": "BWW19",
+        "layer2": "COO30",
+        "layer3": "DHK75",
+        "layer4": "EYT34",
+        "out_layer": "FGM06"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "5": {
+      "model_to_update": {
+        "in_layer": "AUV29",
+        "layer1": "BYM04",
+        "layer2": "CRZ52",
+        "layer3": "DPX98",
+        "layer4": "EVN36",
+        "out_layer": "FSY05"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        }
+      ]
+    }
+  },
+  "25": {
+    "0": {
+      "model_to_update": {
+        "in_layer": "AFA79",
+        "layer1": "BFF56",
+        "layer2": "CAA77",
+        "layer3": "DSC60",
+        "layer4": "EJJ91",
+        "out_layer": "FXR03"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        }
+      ]
+    },
+    "1": {
+      "model_to_update": {
+        "in_layer": "AOC39",
+        "layer1": "BWW19",
+        "layer2": "COO30",
+        "layer3": "DHK75",
+        "layer4": "EYT34",
+        "out_layer": "FGM06"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "2": {
+      "model_to_update": {
+        "in_layer": "AUV29",
+        "layer1": "BYM04",
+        "layer2": "CRZ52",
+        "layer3": "DPX98",
+        "layer4": "EVN36",
+        "out_layer": "FSY05"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "3": {
+      "model_to_update": {
+        "in_layer": "ASN90",
+        "layer1": "BXG86",
+        "layer2": "CPM83",
+        "layer3": "DPU42",
+        "layer4": "EVN11",
+        "out_layer": "FWC09"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        }
+      ]
+    },
+    "4": {
+      "model_to_update": {
+        "in_layer": "ALT34",
+        "layer1": "BVP97",
+        "layer2": "CNF57",
+        "layer3": "DWJ41",
+        "layer4": "EGO46",
+        "out_layer": "FBI78"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "5": {
+      "model_to_update": {
+        "in_layer": "AKY64",
+        "layer1": "BVD88",
+        "layer2": "CGV29",
+        "layer3": "DQM27",
+        "layer4": "EVZ66",
+        "out_layer": "FPC91"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    }
+  },
+  "26": {
+    "0": {
+      "model_to_update": {
+        "in_layer": "AKY64",
+        "layer1": "BVD88",
+        "layer2": "CGV29",
+        "layer3": "DQM27",
+        "layer4": "EVZ66",
+        "out_layer": "FPC91"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        }
+      ]
+    },
+    "1": {
+      "model_to_update": {
+        "in_layer": "ASN90",
+        "layer1": "BXG86",
+        "layer2": "CPM83",
+        "layer3": "DPU42",
+        "layer4": "EVN11",
+        "out_layer": "FWC09"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        }
+      ]
+    },
+    "2": {
+      "model_to_update": {
+        "in_layer": "AFA79",
+        "layer1": "BFF56",
+        "layer2": "CAA77",
+        "layer3": "DSC60",
+        "layer4": "EJJ91",
+        "out_layer": "FXR03"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "3": {
+      "model_to_update": {
+        "in_layer": "AOC39",
+        "layer1": "BWW19",
+        "layer2": "COO30",
+        "layer3": "DHK75",
+        "layer4": "EYT34",
+        "out_layer": "FGM06"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "4": {
+      "model_to_update": {
+        "in_layer": "AUV29",
+        "layer1": "BYM04",
+        "layer2": "CRZ52",
+        "layer3": "DPX98",
+        "layer4": "EVN36",
+        "out_layer": "FSY05"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        },
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        }
+      ]
+    },
+    "5": {
+      "model_to_update": {
+        "in_layer": "ALT34",
+        "layer1": "BVP97",
+        "layer2": "CNF57",
+        "layer3": "DWJ41",
+        "layer4": "EGO46",
+        "out_layer": "FBI78"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    }
+  },
+  "27": {
+    "0": {
+      "model_to_update": {
+        "in_layer": "ALT34",
+        "layer1": "BVP97",
+        "layer2": "CNF57",
+        "layer3": "DWJ41",
+        "layer4": "EGO46",
+        "out_layer": "FBI78"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        }
+      ]
+    },
+    "1": {
+      "model_to_update": {
+        "in_layer": "AFA79",
+        "layer1": "BFF56",
+        "layer2": "CAA77",
+        "layer3": "DSC60",
+        "layer4": "EJJ91",
+        "out_layer": "FXR03"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "2": {
+      "model_to_update": {
+        "in_layer": "ASN90",
+        "layer1": "BXG86",
+        "layer2": "CPM83",
+        "layer3": "DPU42",
+        "layer4": "EVN11",
+        "out_layer": "FWC09"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "3": {
+      "model_to_update": {
+        "in_layer": "AKY64",
+        "layer1": "BVD88",
+        "layer2": "CGV29",
+        "layer3": "DQM27",
+        "layer4": "EVZ66",
+        "out_layer": "FPC91"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "4": {
+      "model_to_update": {
+        "in_layer": "AOC39",
+        "layer1": "BWW19",
+        "layer2": "COO30",
+        "layer3": "DHK75",
+        "layer4": "EYT34",
+        "out_layer": "FGM06"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "5": {
+      "model_to_update": {
+        "in_layer": "AUV29",
+        "layer1": "BYM04",
+        "layer2": "CRZ52",
+        "layer3": "DPX98",
+        "layer4": "EVN36",
+        "out_layer": "FSY05"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        }
+      ]
+    }
+  },
+  "28": {
+    "0": {
+      "model_to_update": {
+        "in_layer": "AFA79",
+        "layer1": "BFF56",
+        "layer2": "CAA77",
+        "layer3": "DSC60",
+        "layer4": "EJJ91",
+        "out_layer": "FXR03"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        }
+      ]
+    },
+    "1": {
+      "model_to_update": {
+        "in_layer": "AOC39",
+        "layer1": "BWW19",
+        "layer2": "COO30",
+        "layer3": "DHK75",
+        "layer4": "EYT34",
+        "out_layer": "FGM06"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "2": {
+      "model_to_update": {
+        "in_layer": "AUV29",
+        "layer1": "BYM04",
+        "layer2": "CRZ52",
+        "layer3": "DPX98",
+        "layer4": "EVN36",
+        "out_layer": "FSY05"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "3": {
+      "model_to_update": {
+        "in_layer": "ASN90",
+        "layer1": "BXG86",
+        "layer2": "CPM83",
+        "layer3": "DPU42",
+        "layer4": "EVN11",
+        "out_layer": "FWC09"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        }
+      ]
+    },
+    "4": {
+      "model_to_update": {
+        "in_layer": "ALT34",
+        "layer1": "BVP97",
+        "layer2": "CNF57",
+        "layer3": "DWJ41",
+        "layer4": "EGO46",
+        "out_layer": "FBI78"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "5": {
+      "model_to_update": {
+        "in_layer": "AKY64",
+        "layer1": "BVD88",
+        "layer2": "CGV29",
+        "layer3": "DQM27",
+        "layer4": "EVZ66",
+        "out_layer": "FPC91"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    }
+  },
+  "29": {
+    "0": {
+      "model_to_update": {
+        "in_layer": "AKY64",
+        "layer1": "BVD88",
+        "layer2": "CGV29",
+        "layer3": "DQM27",
+        "layer4": "EVZ66",
+        "out_layer": "FPC91"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        }
+      ]
+    },
+    "1": {
+      "model_to_update": {
+        "in_layer": "ASN90",
+        "layer1": "BXG86",
+        "layer2": "CPM83",
+        "layer3": "DPU42",
+        "layer4": "EVN11",
+        "out_layer": "FWC09"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        }
+      ]
+    },
+    "2": {
+      "model_to_update": {
+        "in_layer": "AFA79",
+        "layer1": "BFF56",
+        "layer2": "CAA77",
+        "layer3": "DSC60",
+        "layer4": "EJJ91",
+        "out_layer": "FXR03"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "3": {
+      "model_to_update": {
+        "in_layer": "AOC39",
+        "layer1": "BWW19",
+        "layer2": "COO30",
+        "layer3": "DHK75",
+        "layer4": "EYT34",
+        "out_layer": "FGM06"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "4": {
+      "model_to_update": {
+        "in_layer": "AUV29",
+        "layer1": "BYM04",
+        "layer2": "CRZ52",
+        "layer3": "DPX98",
+        "layer4": "EVN36",
+        "out_layer": "FSY05"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        },
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        }
+      ]
+    },
+    "5": {
+      "model_to_update": {
+        "in_layer": "ALT34",
+        "layer1": "BVP97",
+        "layer2": "CNF57",
+        "layer3": "DWJ41",
+        "layer4": "EGO46",
+        "out_layer": "FBI78"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    }
+  },
+  "30": {
+    "0": {
+      "model_to_update": {
+        "in_layer": "ALT34",
+        "layer1": "BVP97",
+        "layer2": "CNF57",
+        "layer3": "DWJ41",
+        "layer4": "EGO46",
+        "out_layer": "FBI78"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        }
+      ]
+    },
+    "1": {
+      "model_to_update": {
+        "in_layer": "AFA79",
+        "layer1": "BFF56",
+        "layer2": "CAA77",
+        "layer3": "DSC60",
+        "layer4": "EJJ91",
+        "out_layer": "FXR03"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "2": {
+      "model_to_update": {
+        "in_layer": "ASN90",
+        "layer1": "BXG86",
+        "layer2": "CPM83",
+        "layer3": "DPU42",
+        "layer4": "EVN11",
+        "out_layer": "FWC09"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AFA79",
+          "layer1": "BFF56",
+          "layer2": "CAA77",
+          "layer3": "DSC60",
+          "layer4": "EJJ91",
+          "out_layer": "FXR03"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "3": {
+      "model_to_update": {
+        "in_layer": "AKY64",
+        "layer1": "BVD88",
+        "layer2": "CGV29",
+        "layer3": "DQM27",
+        "layer4": "EVZ66",
+        "out_layer": "FPC91"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AOC39",
+          "layer1": "BWW19",
+          "layer2": "COO30",
+          "layer3": "DHK75",
+          "layer4": "EYT34",
+          "out_layer": "FGM06"
+        },
+        {
+          "in_layer": "ASN90",
+          "layer1": "BXG86",
+          "layer2": "CPM83",
+          "layer3": "DPU42",
+          "layer4": "EVN11",
+          "out_layer": "FWC09"
+        }
+      ]
+    },
+    "4": {
+      "model_to_update": {
+        "in_layer": "AOC39",
+        "layer1": "BWW19",
+        "layer2": "COO30",
+        "layer3": "DHK75",
+        "layer4": "EYT34",
+        "out_layer": "FGM06"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        },
+        {
+          "in_layer": "AUV29",
+          "layer1": "BYM04",
+          "layer2": "CRZ52",
+          "layer3": "DPX98",
+          "layer4": "EVN36",
+          "out_layer": "FSY05"
+        }
+      ]
+    },
+    "5": {
+      "model_to_update": {
+        "in_layer": "AUV29",
+        "layer1": "BYM04",
+        "layer2": "CRZ52",
+        "layer3": "DPX98",
+        "layer4": "EVN36",
+        "out_layer": "FSY05"
+      },
+      "model_as_regularizer": [
+        {
+          "in_layer": "AKY64",
+          "layer1": "BVD88",
+          "layer2": "CGV29",
+          "layer3": "DQM27",
+          "layer4": "EVZ66",
+          "out_layer": "FPC91"
+        },
+        {
+          "in_layer": "ALT34",
+          "layer1": "BVP97",
+          "layer2": "CNF57",
+          "layer3": "DWJ41",
+          "layer4": "EGO46",
+          "out_layer": "FBI78"
+        }
+      ]
+    }
+  }
+}

@@ -118,7 +118,8 @@ class FBDFlowerClient(fl.client.Client):
             logging.info(f"[FBD Client {self.cid}] Round {round_num}: No weights received from server - using current model")
         
         # Perform local training
-        train_loss = self._train_model(local_lr)
+        current_update_plan = config.get("current_update_plan", None)
+        train_loss = self._train_model(local_lr, current_update_plan=current_update_plan, round_num=round_num)
         
         # Evaluate after training
         train_loss, train_auc, train_acc = self._test_model(self.train_loader)
@@ -177,11 +178,12 @@ class FBDFlowerClient(fl.client.Client):
             metrics=metrics,
         )
 
-    def _train_model(self, lr):
+    def _train_model(self, lr, current_update_plan=None, round_num=None):
         """Train the model locally."""
         from client import train  # Use existing training function
         return train(self.model, self.train_loader, epochs=1, device=self.device, 
-                    data_flag=self.data_flag, lr=lr)
+                    data_flag=self.data_flag, lr=lr, current_update_plan=current_update_plan,
+                    client_id=self.cid, round_num=round_num)
 
     def _test_model(self, data_loader):
         """Test the model."""
@@ -209,7 +211,8 @@ class FBDStrategy(FedAvg):
     def __init__(self, fbd_config_path, shipping_plan_path, request_plan_path, 
                  num_clients, communication_dir, model_template, output_dir, 
                  num_classes, input_shape, test_dataset, batch_size, norm_type='bn', 
-                 num_rounds=1, num_ensemble=64, ensemble_colors=None, *args, **kwargs):
+                 num_rounds=1, num_ensemble=64, ensemble_colors=None, 
+                 update_plan_path=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
         # FBD configuration
@@ -232,6 +235,20 @@ class FBDStrategy(FedAvg):
         self.fbd_trace, self.fbd_info, self.transparent_to_client = load_fbd_settings(fbd_config_path)
         self.shipping_plan = load_shipping_plan(shipping_plan_path)
         self.request_plan = load_request_plan(request_plan_path)
+        
+        # Load update plan
+        import os
+        self.update_plan = None
+        if update_plan_path and os.path.exists(update_plan_path):
+            try:
+                import json
+                with open(update_plan_path, 'r') as f:
+                    self.update_plan = json.load(f)
+                logging.info(f"[FBD Strategy] Loaded update plan from {update_plan_path}")
+            except Exception as e:
+                logging.warning(f"[FBD Strategy] Failed to load update plan: {e}")
+        else:
+            logging.info(f"[FBD Strategy] No update plan provided or file not found")
         
         # Initialize FBD warehouse
         self.warehouse = FBDWarehouse(self.fbd_trace, model_template)
@@ -318,8 +335,37 @@ class FBDStrategy(FedAvg):
             
             logging.info(f"[FBD Strategy] Shipped weights to {shipped_count} expected clients")
         
-        # Return standard fit configuration
-        return super().configure_fit(server_round, parameters, client_manager)
+        # Get available clients
+        sample_size, min_num_clients = client_manager.num_available(), self.min_fit_clients
+        if sample_size < min_num_clients:
+            logging.warning(f"Not enough clients available for training: {sample_size} < {min_num_clients}")
+            return []
+        
+        # Sample clients
+        sampled_clients = client_manager.sample(num_clients=min_num_clients, criterion=client_manager.criterion)
+        
+        # Create per-client configuration with update plans
+        fit_instructions = []
+        for client in sampled_clients:
+            client_id = int(client.cid)
+            
+            # Get base config
+            base_config = self.on_fit_config_fn(server_round)
+            
+            # Add client-specific update plan if available
+            if (self.update_plan is not None and 
+                str(server_round) in self.update_plan and 
+                str(client_id) in self.update_plan[str(server_round)]):
+                
+                client_update_plan = self.update_plan[str(server_round)][str(client_id)]
+                base_config["current_update_plan"] = client_update_plan
+                
+                logging.info(f"[FBD Strategy] Sending update plan to client {client_id}: "
+                           f"model_to_update with {len(client_update_plan['model_as_regularizer'])} regularizers")
+            
+            fit_instructions.append((client, fl.common.FitIns(parameters, base_config)))
+        
+        return fit_instructions
 
     def aggregate_fit(self, server_round: int, results: List[Tuple[ClientProxy, FitRes]], failures):
         """Aggregate fit results with FBD collection phase."""
@@ -754,6 +800,8 @@ def main():
                        help="Path to shipping plan JSON file")
     parser.add_argument("--request_plan", type=str, default="request_plan.json", 
                        help="Path to request plan JSON file")
+    parser.add_argument("--update_plan", type=str, default="fbd_record/update_plan.json",
+                       help="Path to update plan JSON file")
     parser.add_argument("--communication_dir", type=str, default="fbd_comm",
                        help="Directory for FBD communication files")
     parser.add_argument("--ensemble_size", type=int, default=None,
@@ -885,10 +933,23 @@ def main():
         shutil.rmtree(args.communication_dir)
     os.makedirs(args.communication_dir, exist_ok=True)
     
-    # Load shipping and request plans
-    logging.info("Loading shipping and request plans...")
+    # Load shipping, request, and update plans
+    logging.info("Loading shipping, request, and update plans...")
     shipping_plan = load_shipping_plan(args.shipping_plan)
     request_plan = load_request_plan(args.request_plan)
+    
+    # Load update plan
+    update_plan = None
+    if args.update_plan and os.path.exists(args.update_plan):
+        try:
+            import json
+            with open(args.update_plan, 'r') as f:
+                update_plan = json.load(f)
+            logging.info(f"Loaded update plan from {args.update_plan}")
+        except Exception as e:
+            logging.warning(f"Failed to load update plan: {e}")
+    else:
+        logging.info(f"No update plan provided or file not found")
     
     # FBD training is driven by shipping plan, not config
     max_shipping_round = max(shipping_plan.keys()) if shipping_plan else 0
@@ -946,6 +1007,7 @@ def main():
         fbd_config_path=args.fbd_config,
         shipping_plan_path=args.shipping_plan,
         request_plan_path=args.request_plan,
+        update_plan_path=args.update_plan,  # Pass update plan path
         num_clients=config.num_clients,
         communication_dir=args.communication_dir,
         model_template=model,

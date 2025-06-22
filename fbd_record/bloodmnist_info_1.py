@@ -106,41 +106,63 @@ for blist in model_to_blocks.values():
     blist.sort(key=lambda b: part_rank[FBD_TRACE[b]['model_part']])
 
 # --- 3.  HYPER-PARAMETERS -------------------------------------------
-EPOCHS_PER_STAGE   = 10
-# blocks_per_stage    = [6, 5, 3, 2, 1]   # 100 → ≈75 → 50 → ≈25 → ≈17 %
-blocks_per_stage    = [6, 6, 6, 6, 6]
-# blocks_per_stage    = [1, 1, 1, 1, 1]
-OUTER_ROUNDS_TOTAL = EPOCHS_PER_STAGE * len(blocks_per_stage)
+OUTER_ROUNDS_TOTAL = 30  # Total number of communication rounds
 BLOCKS_PER_MODEL    = 6
 ENSEMBLE_SIZE       = 24
 ENSEMBLE_COLORS     = ['M1', 'M2']
 
 
-# --- 4.  GENERATE SHIPPING / REQUEST PLANS ---------------------------
-model_ptr      = {mid: 0 for mid in model_to_blocks}
+# --- 4.  GENERATE SHIPPING / REQUEST / UPDATE PLANS ---------------------------
 shipping_plan  = defaultdict(dict)
 request_plan   = defaultdict(dict)
+update_plan    = defaultdict(dict)
 
 for outer_round in range(OUTER_ROUNDS_TOTAL):          # 0-based index
-    stage_idx  = outer_round // EPOCHS_PER_STAGE
-    k_blocks   = blocks_per_stage[stage_idx]
     sched_idx  = outer_round % 3                      # micro-cycle 0/1/2
     schedule   = FBD_INFO["training_plan"]["schedule"][sched_idx]
 
-    for client, model in schedule.items():
-        ptr    = model_ptr[model]
-        blist  = model_to_blocks[model]
-
-        sel = blist[ptr:ptr + k_blocks]
-        if len(sel) < k_blocks:                      # wrap-around
-            sel += blist[:k_blocks - len(sel)]
-
-        shipping_plan[outer_round + 1][client] = sel
-        request_plan[outer_round + 1][client]  = sel
-        model_ptr[model] = (ptr + k_blocks) % BLOCKS_PER_MODEL
+    for client, active_model in schedule.items():
+        # Get all models this client is involved in
+        client_models = FBD_INFO["clients"][client]
+        
+        # Collect all blocks from all models this client is involved in
+        all_client_blocks = []
+        for model_id in client_models:
+            all_client_blocks.extend(model_to_blocks[model_id])
+        
+        shipping_plan[outer_round + 1][client] = all_client_blocks
+        request_plan[outer_round + 1][client]  = all_client_blocks
+        
+        # --- Generate update plan ---
+        # model_to_update: specify which blocks to update for each model part
+        model_to_update = {}
+        active_model_blocks = model_to_blocks[active_model]
+        
+        # Group blocks by model part for the active model
+        for block_id in active_model_blocks:
+            model_part = FBD_TRACE[block_id]['model_part']
+            model_to_update[model_part] = block_id
+        
+        # model_as_regularizer: other models this client is involved in
+        regularizer_models = []
+        for model_id in client_models:
+            if model_id != active_model:
+                regularizer_model = {}
+                regularizer_blocks = model_to_blocks[model_id]
+                for block_id in regularizer_blocks:
+                    model_part = FBD_TRACE[block_id]['model_part']
+                    regularizer_model[model_part] = block_id
+                regularizer_models.append(regularizer_model)
+        
+        update_plan[outer_round + 1][client] = {
+            "model_to_update": model_to_update,
+            "model_as_regularizer": regularizer_models
+        }
 
 # --- 5.  SAVE TO JSON -----------------------------------------------
 with open("shipping_plan.json", "w") as f:
     json.dump({int(k): v for k, v in shipping_plan.items()}, f, indent=2)
 with open("request_plan.json", "w") as f:
     json.dump({int(k): v for k, v in request_plan.items()}, f, indent=2)
+with open("update_plan.json", "w") as f:
+    json.dump({int(k): v for k, v in update_plan.items()}, f, indent=2)
