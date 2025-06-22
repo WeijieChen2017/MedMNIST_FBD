@@ -4,19 +4,19 @@ TRANSPARENT_TO_CLIENT = False
 
 MODEL_PARTS = ['in_layer', 'layer1', 'layer2', 'layer3', 'layer4', 'out_layer']
 
-REGULARIZER_PARAMS = {
-    "type": "weights",
-    "distance_type": "L2",
-    "coefficient": 0.01,
-    # maybe decay but not now
-}
-
 # REGULARIZER_PARAMS = {
-#     "type": "consistency loss",
+#     "type": "weights",
 #     "distance_type": "L2",
-#     "coefficient": 0.1,
+#     "coefficient": 0.01,
 #     # maybe decay but not now
 # }
+
+REGULARIZER_PARAMS = {
+    "type": "consistency loss",
+    "distance_type": "L2",
+    "coefficient": 0.1,
+    # maybe decay but not now
+}
 
 FBD_TRACE = {
     'AFA79': {'model_part': 'in_layer',  'color': 'M0', 'train_record': []},
