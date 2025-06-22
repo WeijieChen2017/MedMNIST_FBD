@@ -108,8 +108,8 @@ for blist in model_to_blocks.values():
 # --- 3.  HYPER-PARAMETERS -------------------------------------------
 EPOCHS_PER_STAGE   = 24
 # blocks_per_stage    = [6, 5, 3, 2, 1]   # 100 → ≈75 → 50 → ≈25 → ≈17 %
-# blocks_per_stage    = [6, 6, 6, 6, 6]
-blocks_per_stage    = [1, 1, 1, 1, 1]
+blocks_per_stage    = [6, 6, 6, 6, 6]
+# blocks_per_stage    = [1, 1, 1, 1, 1]
 OUTER_ROUNDS_TOTAL = EPOCHS_PER_STAGE * len(blocks_per_stage)
 BLOCKS_PER_MODEL    = 6
 
