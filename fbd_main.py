@@ -342,7 +342,7 @@ class FBDStrategy(FedAvg):
             return []
         
         # Sample clients
-        sampled_clients = client_manager.sample(num_clients=min_num_clients, criterion=client_manager.criterion)
+        sampled_clients = client_manager.sample(num_clients=min_num_clients) # , criterion=client_manager.criterion
         
         # Create per-client configuration with update plans
         fit_instructions = []
