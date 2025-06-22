@@ -95,7 +95,8 @@ def run_fbd_simulation():
         "--communication_dir", "fbd_flower_comm",
         "--imagenet",
         "--output_dir", OUTPUT_DIR,
-    ]
+        "--ensemble_size", str(fbd_settings['ensemble_size']),
+        "--ensemble_colors"] + fbd_settings['ensemble_colors']
     
     print("Command:", " ".join(cmd))
 

@@ -209,7 +209,7 @@ class FBDStrategy(FedAvg):
     def __init__(self, fbd_config_path, shipping_plan_path, request_plan_path, 
                  num_clients, communication_dir, model_template, output_dir, 
                  num_classes, input_shape, test_dataset, batch_size, norm_type='bn', 
-                 num_rounds=1, num_ensemble=64, *args, **kwargs):
+                 num_rounds=1, num_ensemble=64, ensemble_colors=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
         # FBD configuration
@@ -226,6 +226,7 @@ class FBDStrategy(FedAvg):
         self.norm_type = norm_type  # Store normalization type
         self.num_rounds = num_rounds  # Store total number of rounds
         self.num_ensemble = num_ensemble  # Store number of ensemble models
+        self.ensemble_colors = ensemble_colors  # Store ensemble colors
         
         # Load FBD settings
         self.fbd_trace, self.fbd_info, self.transparent_to_client = load_fbd_settings(fbd_config_path)
@@ -417,8 +418,8 @@ class FBDStrategy(FedAvg):
             device=device,
             norm=self.norm_type,
             ensemble_method='voting',
-            num_ensemble=self.num_ensemble,
-            colors_ensemble=None  # Use all available colors
+                    num_ensemble=self.num_ensemble,
+        colors_ensemble=self.ensemble_colors
         )
         
         # Extract summary metrics from comprehensive evaluation
@@ -759,6 +760,10 @@ def main():
                        help="Path to request plan JSON file")
     parser.add_argument("--communication_dir", type=str, default="fbd_comm",
                        help="Directory for FBD communication files")
+    parser.add_argument("--ensemble_size", type=int, default=None,
+                       help="Number of ensemble models to generate (overrides config)")
+    parser.add_argument("--ensemble_colors", type=str, nargs='+', default=None,
+                       help="List of model colors for ensemble (e.g., M1 M2)")
     
     args = parser.parse_args()
     
@@ -772,6 +777,10 @@ def main():
     
     # Load configuration
     config = load_config(args.dataset, args.model_flag.replace("_fbd", ""), args.size)
+    
+    # Override ensemble settings if provided via command line
+    if args.ensemble_size is not None:
+        config.num_ensemble = args.ensemble_size
     
     # Store original config rounds before any modifications
     original_config_rounds = config.num_rounds
@@ -952,6 +961,7 @@ def main():
         norm_type=norm_type,  # Pass normalization type
         num_rounds=config.num_rounds,  # Pass total number of rounds
         num_ensemble=config.num_ensemble,  # Pass number of ensemble models from config
+        ensemble_colors=args.ensemble_colors,  # Pass ensemble colors from command line
         fraction_fit=1.0,
         fraction_evaluate=0.0,  # Disable client-side evaluation
         min_fit_clients=config.num_clients,
