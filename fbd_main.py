@@ -383,10 +383,8 @@ class FBDStrategy(FedAvg):
 
     def evaluate(self, server_round: int, parameters: Parameters) -> Optional[Tuple[float, Dict[str, Scalar]]]:
         """Evaluate using FBD comprehensive evaluation strategy (M0-M5 + Averaging) and ensemble strategy."""
-        logging.info(f"")  # Empty line before round
-        logging.info(f"=" * 60)
+        print(f"============Round [{server_round}/{self.num_rounds}] =========")
         logging.info(f"🔄 [FBD Strategy] Round [{server_round}/{self.num_rounds}]: Executing evaluation phase")
-        logging.info(f"=" * 60)
         
         # Create test loader for evaluation
         test_loader = get_data_loader(self.test_dataset, self.batch_size)
@@ -513,10 +511,8 @@ class FBDStrategy(FedAvg):
         with open(ensemble_file, 'w') as f:
             json.dump(ensemble_results, f, indent=2, default=str)
         
-        logging.info(f"=" * 60)
         logging.info(f"✅ [FBD Strategy] Round [{server_round}/{self.num_rounds}]: Evaluation completed")
-        logging.info(f"=" * 60)
-        logging.info(f"")  # Empty line after round
+        print(f"============Round [{server_round}/{self.num_rounds}] END =======")
         
         return avg_loss, {
             'fbd_auc': avg_auc,
