@@ -21,7 +21,7 @@ def load_fbd_settings():
     try:
         # Import the FBD configuration module
         sys.path.append('fbd_record')
-        import bloodmnist_info_1
+        import fbd_record.bloodmnist_info_1 as bloodmnist_info_1
         return {
             'epochs_per_stage': bloodmnist_info_1.EPOCHS_PER_STAGE,
             'blocks_per_stage': bloodmnist_info_1.blocks_per_stage,
