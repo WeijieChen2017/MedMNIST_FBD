@@ -765,9 +765,7 @@ class FBDEnsembleEvaluationStrategy(FBDEvaluationStrategy):
         for color in colors_ensemble:
             try:
                 color_weights = warehouse.get_model_weights(color)
-                print(f"[FBD Ensemble] Debug: Color {color} weights available: {color_weights is not None}")
                 if color_weights:
-                    print(f"[FBD Ensemble] Debug: Color {color} positions: {list(color_weights.keys())}")
                     for position in model_parts:
                         if position in color_weights:
                             # Flatten all parameters of this block into a single tensor
@@ -777,74 +775,66 @@ class FBDEnsembleEvaluationStrategy(FBDEvaluationStrategy):
                             if block_params:
                                 flattened_block = torch.cat(block_params)
                                 color_position_blocks[color][position].append(flattened_block)
-                                print(f"[FBD Ensemble] Debug: Added block for {color}/{position}, shape: {flattened_block.shape}")
             except Exception as e:
                 print(f"[FBD Ensemble] Warning: Could not extract weights for color {color}: {e}")
                 continue
         
-        # Compute L2 distances between blocks with same color at different positions
+        # Compute L2 distances between blocks of different colors at the same position
         l2_distances = {}
-        position_averages = {}
+        position_comparisons = {}
         
-        print(f"[FBD Ensemble] Computing L2 distances between blocks with same color:")
+        print(f"[FBD Ensemble] Computing L2 distances between different colors at same positions:")
         
-        for color in colors_ensemble:
-            l2_distances[color] = {}
+        # For each position, compare blocks of different colors
+        for position in model_parts:
+            position_comparisons[position] = {}
+            position_distances = []
             
-            # Get all positions that have blocks for this color
-            available_positions = [pos for pos in model_parts if color_position_blocks[color][pos]]
-            print(f"[FBD Ensemble] Debug: Color {color} available positions: {available_positions}")
+            # Get all colors that have blocks at this position
+            colors_at_position = [color for color in colors_ensemble if color_position_blocks[color][position]]
             
-            if len(available_positions) < 2:
-                print(f"[FBD Ensemble] Debug: Skipping {color} - only {len(available_positions)} positions available")
-                continue  # Need at least 2 positions to compute distances
+            if len(colors_at_position) < 2:
+                print(f"  {position}: Only {len(colors_at_position)} colors available - skipping")
+                continue
             
-            color_all_distances = []
-            
-            # Compute pairwise L2 distances between different positions
-            for i, pos1 in enumerate(available_positions):
-                for j, pos2 in enumerate(available_positions):
+            # Compare all pairs of colors at this position
+            for i, color1 in enumerate(colors_at_position):
+                for j, color2 in enumerate(colors_at_position):
                     if i < j:  # Only compute upper triangle to avoid duplicates
-                        block1 = color_position_blocks[color][pos1][0]  # Take first (and usually only) block
-                        block2 = color_position_blocks[color][pos2][0]
+                        block1 = color_position_blocks[color1][position][0]  # First (and only) block
+                        block2 = color_position_blocks[color2][position][0]
                         
-                        # Ensure tensors are on the same device and have same shape
+                        # These should have the same shape since they're at the same position
                         if block1.shape != block2.shape:
-                            # Skip if shapes don't match (shouldn't happen but just in case)
+                            print(f"  Warning: {color1} and {color2} at {position} have different shapes!")
                             continue
                         
                         l2_distance = torch.norm(block1 - block2, p=2).item()
                         
-                        pair_key = f"{pos1}_vs_{pos2}"
-                        l2_distances[color][pair_key] = l2_distance
-                        color_all_distances.append(l2_distance)
+                        pair_key = f"{color1}_vs_{color2}"
+                        position_comparisons[position][pair_key] = l2_distance
+                        position_distances.append(l2_distance)
             
-            if color_all_distances:
-                avg_distance = np.mean(color_all_distances)
-                print(f"  {color}: Average L2 distance = {avg_distance:.6f}")
-                l2_distances[color]['average'] = avg_distance
-        
-        # Compute average L2 distances for each position pair across all colors
-        print(f"[FBD Ensemble] Average L2 distances by position pairs:")
-        
-        for i, pos1 in enumerate(model_parts):
-            for j, pos2 in enumerate(model_parts):
-                if i < j:  # Only upper triangle
-                    pair_key = f"{pos1}_vs_{pos2}"
-                    pair_distances = []
-                    
-                    for color in colors_ensemble:
-                        if color in l2_distances and pair_key in l2_distances[color]:
-                            pair_distances.append(l2_distances[color][pair_key])
-                    
-                    if pair_distances:
-                        avg_pair_distance = np.mean(pair_distances)
-                        position_averages[pair_key] = avg_pair_distance
-                        print(f"  {pair_key}: {avg_pair_distance:.6f}")
+            if position_distances:
+                avg_distance = np.mean(position_distances)
+                print(f"  {position}: Average L2 distance between colors = {avg_distance:.6f}")
+                position_comparisons[position]['average'] = avg_distance
+            
+        # Also store the individual color blocks for potential future analysis
+        for color in colors_ensemble:
+            l2_distances[color] = {}
+            for position in model_parts:
+                if color_position_blocks[color][position]:
+                    block = color_position_blocks[color][position][0]
+                    l2_distances[color][position] = {
+                        'norm': torch.norm(block, p=2).item(),  # L2 norm of the block itself
+                        'shape': list(block.shape),
+                        'num_params': block.numel()
+                    }
         
         return {
-            'by_color': l2_distances,
-            'by_position_pair': position_averages,
+            'by_color_and_position': l2_distances,
+            'by_position_comparisons': position_comparisons,
             'colors_analyzed': colors_ensemble,
             'positions_analyzed': model_parts
         }
