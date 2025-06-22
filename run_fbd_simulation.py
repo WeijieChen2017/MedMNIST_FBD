@@ -28,22 +28,10 @@ def load_fbd_settings():
             'ensemble_size': bloodmnist_info_1.ENSEMBLE_SIZE,
             'ensemble_colors': bloodmnist_info_1.ENSEMBLE_COLORS
         }
-    except ImportError:
-        print("Warning: Could not load FBD configuration, using default settings")
-        return {
-            'epochs_per_stage': 10,
-            'blocks_per_stage': [6, 6, 6, 6, 6],
-            'ensemble_size': 32,
-            'ensemble_colors': ['M0', 'M1', 'M2', 'M3', 'M4', 'M5']
-        }
+    except ImportError as e:
+        raise ImportError(f"Could not load FBD configuration from fbd_record/bloodmnist_info_1.py: {e}")
     except AttributeError as e:
-        print(f"Warning: Missing attribute in FBD configuration: {e}")
-        return {
-            'epochs_per_stage': 10,
-            'blocks_per_stage': [6, 6, 6, 6, 6],
-            'ensemble_size': 32,
-            'ensemble_colors': ['M0', 'M1', 'M2', 'M3', 'M4', 'M5']
-        }
+        raise AttributeError(f"Missing required attribute in FBD configuration: {e}")
 
 # Load FBD settings
 fbd_settings = load_fbd_settings()
