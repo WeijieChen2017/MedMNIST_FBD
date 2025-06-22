@@ -28,7 +28,8 @@ class FBDServer:
                  communication_dir: str = "fbd_comm",
                  num_classes: int = 8,
                  input_shape: tuple = (1, 28, 28),
-                 device: str = 'cpu'):
+                 device: str = 'cpu',
+                 norm: str = 'bn'):
         """
         Initialize FBD server.
         
@@ -41,11 +42,13 @@ class FBDServer:
             num_classes: Number of output classes
             input_shape: Input tensor shape
             device: Device for computation
+            norm: Normalization type ('bn', 'in', 'ln')
         """
         self.device = device
         self.num_clients = num_clients
         self.num_classes = num_classes
         self.input_shape = input_shape
+        self.norm = norm
         
         # Load FBD configuration
         self.fbd_trace, self.fbd_info, self.transparent_to_client = load_fbd_settings(fbd_config_path)
@@ -55,8 +58,13 @@ class FBDServer:
         self.request_plan = load_request_plan(request_plan_path)
         self.total_rounds = len(self.shipping_plan)
         
-        # Initialize warehouse with template model
-        template_model = ResNet18_FBD(in_channels=input_shape[0], num_classes=num_classes)
+        # Initialize warehouse with template model using proper normalization
+        from models import get_resnet18_fbd_model
+        template_model = get_resnet18_fbd_model(
+            norm=norm,
+            in_channels=input_shape[0], 
+            num_classes=num_classes
+        )
         self.warehouse = FBDWarehouse(self.fbd_trace, template_model)
         
         # Initialize communication
@@ -180,8 +188,14 @@ class FBDServer:
                 # Reconstruct model from warehouse
                 model_weights = self.warehouse.get_model_weights(model_color)
                 
-                # Create temporary model for evaluation
-                temp_model = ResNet18_FBD(in_channels=self.input_shape[0], num_classes=self.num_classes)
+                # Create temporary model for evaluation with proper normalization
+                from models import get_resnet18_fbd_model
+                norm_type = getattr(self, 'norm', 'bn')
+                temp_model = get_resnet18_fbd_model(
+                    norm=norm_type,
+                    in_channels=self.input_shape[0], 
+                    num_classes=self.num_classes
+                )
                 temp_model.load_from_dict(model_weights)
                 
                 # Basic model statistics (placeholder)

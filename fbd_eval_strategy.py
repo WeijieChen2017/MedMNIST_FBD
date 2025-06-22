@@ -248,7 +248,10 @@ class FBDAverageEvaluationStrategy(FBDEvaluationStrategy):
                 }
             
             # Step 2: Create temporary model and load averaged weights
-            temp_model = ResNet18_FBD(
+            # Use norm type stored on strategy instance, default to 'bn' if not set
+            norm_type = getattr(self, 'norm', 'bn')
+            temp_model = get_resnet18_fbd_model(
+                norm=norm_type,
                 in_channels=self.input_shape[0], 
                 num_classes=self.num_classes
             ).to(self.device)
@@ -337,6 +340,8 @@ def fbd_average_evaluate(warehouse,
         test_batch_size=test_batch_size,
         num_test_batches=num_test_batches
     )
+    # Store norm type for temp_model creation
+    strategy.norm = norm
     
     return strategy.evaluate(warehouse, round_num)
 
