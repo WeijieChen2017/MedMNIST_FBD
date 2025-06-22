@@ -112,6 +112,9 @@ blocks_per_stage    = [6, 6, 6, 6, 6]
 # blocks_per_stage    = [1, 1, 1, 1, 1]
 OUTER_ROUNDS_TOTAL = EPOCHS_PER_STAGE * len(blocks_per_stage)
 BLOCKS_PER_MODEL    = 6
+ENSEMBLE_SIZE       = 24
+ENSEMBLE_COLORS     = ['M1', 'M2']
+
 
 # --- 4.  GENERATE SHIPPING / REQUEST PLANS ---------------------------
 model_ptr      = {mid: 0 for mid in model_to_blocks}
