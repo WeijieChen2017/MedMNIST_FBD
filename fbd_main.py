@@ -256,6 +256,18 @@ class FBDStrategy(FedAvg):
         self.shipping_plan = load_shipping_plan(shipping_plan_path)
         self.request_plan = load_request_plan(request_plan_path)
         
+        # Load REGULARIZER_PARAMS from FBD config
+        try:
+            import importlib.util
+            spec = importlib.util.spec_from_file_location("fbd_config", fbd_config_path)
+            fbd_config_module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(fbd_config_module)
+            self.regularizer_params = getattr(fbd_config_module, 'REGULARIZER_PARAMS', {})
+            logging.info(f"[FBD Strategy] Loaded regularizer params: {self.regularizer_params}")
+        except Exception as e:
+            logging.warning(f"[FBD Strategy] Failed to load REGULARIZER_PARAMS: {e}")
+            self.regularizer_params = {}
+        
         # Load update plan
         import os
         self.update_plan = None
@@ -471,6 +483,7 @@ class FBDStrategy(FedAvg):
                 logging.info(f"[FBD Strategy] Round {server_round} Regularizer Summary:")
                 logging.info(f"  Average regularizer distance: {avg_reg_distance:.6f}")
                 logging.info(f"  Regularizer type: {metrics_aggregated.get('regularizer_type', 'N/A')}")
+                logging.info(f"  Regularizer params: {self.regularizer_params}")
                 logging.info(f"  Clients with regularizers: {len(client_regularizer_metrics)}")
         
         # Return current parameters (unchanged for FBD)
@@ -785,6 +798,7 @@ class FBDStrategy(FedAvg):
                 "auc": self.training_history['auc_centralized'].get(self.training_history['total_rounds'], 0.0),
                 "accuracy": self.training_history['accuracy_centralized'].get(self.training_history['total_rounds'], 0.0)
             },
+            "regularizer_params": self.regularizer_params,
             "regularizer_metrics": self.training_history.get('regularizer_metrics', {}),
             "l2_distances": self.training_history.get('l2_distances', {})
         }
@@ -803,6 +817,7 @@ class FBDStrategy(FedAvg):
                 "total_time_seconds": round(self.training_history['total_time'], 2),
                 "status": "completed"
             },
+            "regularizer_params": self.regularizer_params,
             "history_loss_centralized": {
                 f"round {k}": v for k, v in self.training_history['loss_centralized'].items()
             },
@@ -947,6 +962,17 @@ def main():
         model = get_resnet18_fbd_model(norm_type, n_channels, n_classes, use_imagenet=False, device=device)
         model = model.to(device)
     
+    # Load REGULARIZER_PARAMS for configuration saving
+    regularizer_params = {}
+    try:
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("fbd_config", args.fbd_config)
+        fbd_config_module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(fbd_config_module)
+        regularizer_params = getattr(fbd_config_module, 'REGULARIZER_PARAMS', {})
+    except Exception as e:
+        logging.warning(f"Failed to load REGULARIZER_PARAMS for config: {e}")
+    
     # Save configuration
     config_dict = {
         "dataset": args.dataset,
@@ -960,6 +986,7 @@ def main():
         "num_rounds": config.num_rounds,
         "num_rounds_note": "Derived from shipping plan, not config file",
         "original_config_rounds": original_config_rounds,
+        "regularizer_params": regularizer_params,
         "batch_size": config.batch_size,
         "local_learning_rate": config.local_learning_rate,
         "num_ensemble": config.num_ensemble,
