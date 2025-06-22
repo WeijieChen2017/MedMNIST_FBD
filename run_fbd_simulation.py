@@ -24,7 +24,7 @@ def load_fbd_settings():
         import fbd_record.bloodmnist_info_1 as bloodmnist_info_1
         return {
             'epochs_per_stage': bloodmnist_info_1.EPOCHS_PER_STAGE,
-            'blocks_per_stage': bloodmnist_info_1.blocks_per_stage,
+            'blocks_per_stage': bloodmnist_info_1.BLOCKS_PER_STAGE,
             'ensemble_size': bloodmnist_info_1.ENSEMBLE_SIZE,
             'ensemble_colors': bloodmnist_info_1.ENSEMBLE_COLORS
         }

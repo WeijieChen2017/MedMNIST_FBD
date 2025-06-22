@@ -4,6 +4,20 @@ TRANSPARENT_TO_CLIENT = False
 
 MODEL_PARTS = ['in_layer', 'layer1', 'layer2', 'layer3', 'layer4', 'out_layer']
 
+REGULARIZER_PARAMS = {
+    "type": "weights",
+    "distance_type": "L2",
+    "coefficient": 0.1,
+    # maybe decay but not now
+}
+
+# REGULARIZER_PARAMS = {
+#     "type": "consistency loss",
+#     "distance_type": "L2",
+#     "coefficient": 0.1,
+#     # maybe decay but not now
+# }
+
 FBD_TRACE = {
     'AFA79': {'model_part': 'in_layer',  'color': 'M0', 'train_record': []},
     'AKY64': {'model_part': 'in_layer',  'color': 'M1', 'train_record': []},
@@ -106,11 +120,12 @@ for blist in model_to_blocks.values():
     blist.sort(key=lambda b: part_rank[FBD_TRACE[b]['model_part']])
 
 # --- 3.  HYPER-PARAMETERS -------------------------------------------
-OUTER_ROUNDS_TOTAL = 30  # Total number of communication rounds
-BLOCKS_PER_MODEL    = 6
+EPOCHS_PER_STAGE = 20  # Number of epochs per training stage
+BLOCKS_PER_STAGE = [6, 6, 6, 6, 6]
+OUTER_ROUNDS_TOTAL = EPOCHS_PER_STAGE * len(BLOCKS_PER_STAGE)
+BLOCKS_PER_MODEL    = len(MODEL_PARTS)
 ENSEMBLE_SIZE       = 24
 ENSEMBLE_COLORS     = ['M1', 'M2']
-
 
 # --- 4.  GENERATE SHIPPING / REQUEST / UPDATE PLANS ---------------------------
 shipping_plan  = defaultdict(dict)
