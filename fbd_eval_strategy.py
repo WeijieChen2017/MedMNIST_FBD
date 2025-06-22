@@ -739,6 +739,111 @@ class FBDEnsembleEvaluationStrategy(FBDEvaluationStrategy):
         model.load_from_dict(model_weights)
         return model
     
+    def _compute_color_block_l2_distances(self, warehouse, ensemble_records, colors_ensemble):
+        """
+        Compute L2 distances between blocks with the same color across different positions.
+        
+        Args:
+            warehouse: FBD warehouse containing function block weights
+            ensemble_records: List of ensemble model records
+            colors_ensemble: List of colors used in ensemble
+            
+        Returns:
+            Dict: L2 distance statistics by position and color
+        """
+        model_parts = ['in_layer', 'layer1', 'layer2', 'layer3', 'layer4', 'out_layer']
+        
+        # Collect all block weights for each color and position
+        color_position_blocks = {}  # color -> position -> list of weight tensors
+        
+        for color in colors_ensemble:
+            color_position_blocks[color] = {}
+            for position in model_parts:
+                color_position_blocks[color][position] = []
+        
+        # Extract weights from warehouse for each color and position
+        for color in colors_ensemble:
+            try:
+                color_weights = warehouse.get_model_weights(color)
+                if color_weights:
+                    for position in model_parts:
+                        if position in color_weights:
+                            # Flatten all parameters of this block into a single tensor
+                            block_params = []
+                            for param_name, param_tensor in color_weights[position].items():
+                                block_params.append(param_tensor.flatten())
+                            if block_params:
+                                flattened_block = torch.cat(block_params)
+                                color_position_blocks[color][position].append(flattened_block)
+            except Exception as e:
+                print(f"[FBD Ensemble] Warning: Could not extract weights for color {color}: {e}")
+                continue
+        
+        # Compute L2 distances between blocks with same color at different positions
+        l2_distances = {}
+        position_averages = {}
+        
+        print(f"[FBD Ensemble] Computing L2 distances between blocks with same color:")
+        
+        for color in colors_ensemble:
+            l2_distances[color] = {}
+            
+            # Get all positions that have blocks for this color
+            available_positions = [pos for pos in model_parts if color_position_blocks[color][pos]]
+            
+            if len(available_positions) < 2:
+                continue  # Need at least 2 positions to compute distances
+            
+            color_all_distances = []
+            
+            # Compute pairwise L2 distances between different positions
+            for i, pos1 in enumerate(available_positions):
+                for j, pos2 in enumerate(available_positions):
+                    if i < j:  # Only compute upper triangle to avoid duplicates
+                        block1 = color_position_blocks[color][pos1][0]  # Take first (and usually only) block
+                        block2 = color_position_blocks[color][pos2][0]
+                        
+                        # Ensure tensors are on the same device and have same shape
+                        if block1.shape != block2.shape:
+                            # Skip if shapes don't match (shouldn't happen but just in case)
+                            continue
+                        
+                        l2_distance = torch.norm(block1 - block2, p=2).item()
+                        
+                        pair_key = f"{pos1}_vs_{pos2}"
+                        l2_distances[color][pair_key] = l2_distance
+                        color_all_distances.append(l2_distance)
+            
+            if color_all_distances:
+                avg_distance = np.mean(color_all_distances)
+                print(f"  {color}: Average L2 distance = {avg_distance:.6f}")
+                l2_distances[color]['average'] = avg_distance
+        
+        # Compute average L2 distances for each position pair across all colors
+        print(f"[FBD Ensemble] Average L2 distances by position pairs:")
+        
+        for i, pos1 in enumerate(model_parts):
+            for j, pos2 in enumerate(model_parts):
+                if i < j:  # Only upper triangle
+                    pair_key = f"{pos1}_vs_{pos2}"
+                    pair_distances = []
+                    
+                    for color in colors_ensemble:
+                        if color in l2_distances and pair_key in l2_distances[color]:
+                            pair_distances.append(l2_distances[color][pair_key])
+                    
+                    if pair_distances:
+                        avg_pair_distance = np.mean(pair_distances)
+                        position_averages[pair_key] = avg_pair_distance
+                        print(f"  {pair_key}: {avg_pair_distance:.6f}")
+        
+        return {
+            'by_color': l2_distances,
+            'by_position_pair': position_averages,
+            'colors_analyzed': colors_ensemble,
+            'positions_analyzed': model_parts
+        }
+
     def _evaluate_ensemble(self, warehouse, num_ensemble: int = 64, colors_ensemble: List[str] = None) -> Dict[str, Any]:
         """
         Evaluate ensemble of randomly generated models on the test dataset.
@@ -902,6 +1007,9 @@ class FBDEnsembleEvaluationStrategy(FBDEvaluationStrategy):
         min_agreement = min(agreements)
         agreement_ratio = avg_agreement / len(all_predictions)  # Ratio of average agreement
         
+        # Step 6.5: Compute L2 distances between blocks with same color
+        l2_distances = self._compute_color_block_l2_distances(warehouse, ensemble_records, colors_ensemble)
+        
         print(f"[FBD Ensemble] Generated {len(all_predictions)} ensemble models")
         print(f"[FBD Ensemble] Ensemble Accuracy: {ensemble_accuracy:.2f}%")
         print(f"[FBD Ensemble] Agreement Stats (across {len(final_predictions)} samples):")
@@ -916,6 +1024,7 @@ class FBDEnsembleEvaluationStrategy(FBDEvaluationStrategy):
             'colors_ensemble': colors_ensemble,
             'ensemble_accuracy': ensemble_accuracy,
             'ensemble_auc': ensemble_auc,
+            'l2_distances': l2_distances,
             'agreement_stats': {
                 'average_agreement': avg_agreement,
                 'median_agreement': median_agreement,
