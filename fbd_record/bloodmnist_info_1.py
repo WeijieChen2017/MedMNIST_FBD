@@ -106,7 +106,7 @@ for blist in model_to_blocks.values():
     blist.sort(key=lambda b: part_rank[FBD_TRACE[b]['model_part']])
 
 # --- 3.  HYPER-PARAMETERS -------------------------------------------
-EPOCHS_PER_STAGE   = 24
+EPOCHS_PER_STAGE   = 10
 # blocks_per_stage    = [6, 5, 3, 2, 1]   # 100 → ≈75 → 50 → ≈25 → ≈17 %
 blocks_per_stage    = [6, 6, 6, 6, 6]
 # blocks_per_stage    = [1, 1, 1, 1, 1]
