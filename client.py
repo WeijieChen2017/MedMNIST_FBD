@@ -8,7 +8,7 @@ import pickle
 from flwr.common import FitRes, Parameters, ndarrays_to_parameters, parameters_to_ndarrays
 
 # Import regularizer configuration
-from fbd_record.bloodmnist_info_1 import REGULARIZER_PARAMS
+from fbd_record.fbd_settings import REGULARIZER_PARAMS
 
 # Disable Flower warnings
 logging.getLogger("flwr").setLevel(logging.ERROR)

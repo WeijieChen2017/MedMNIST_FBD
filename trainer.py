@@ -10,7 +10,7 @@ from typing import Dict, Any, Optional
 import time
 
 # Import regularizer configuration
-from fbd_record.bloodmnist_info_1 import REGULARIZER_PARAMS
+from fbd_record.fbd_settings import REGULARIZER_PARAMS
 
 class LocalTrainer:
     """

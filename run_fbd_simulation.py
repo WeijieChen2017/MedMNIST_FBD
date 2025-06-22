@@ -25,16 +25,16 @@ def load_fbd_settings():
     try:
         # Import the FBD configuration module
         sys.path.append('fbd_record')
-        import fbd_record.bloodmnist_info_1 as bloodmnist_info_1
+        import fbd_record.fbd_settings as fbd_settings_module
         return {
-            'epochs_per_stage': bloodmnist_info_1.EPOCHS_PER_STAGE,
-            'blocks_per_stage': bloodmnist_info_1.BLOCKS_PER_STAGE,
-            'ensemble_size': bloodmnist_info_1.ENSEMBLE_SIZE,
-            'ensemble_colors': bloodmnist_info_1.ENSEMBLE_COLORS,
-            'regularizer_params': bloodmnist_info_1.REGULARIZER_PARAMS
+            'epochs_per_stage': fbd_settings_module.EPOCHS_PER_STAGE,
+            'blocks_per_stage': fbd_settings_module.BLOCKS_PER_STAGE,
+            'ensemble_size': fbd_settings_module.ENSEMBLE_SIZE,
+            'ensemble_colors': fbd_settings_module.ENSEMBLE_COLORS,
+            'regularizer_params': fbd_settings_module.REGULARIZER_PARAMS
         }
     except ImportError as e:
-        raise ImportError(f"Could not load FBD configuration from fbd_record/bloodmnist_info_1.py: {e}")
+        raise ImportError(f"Could not load FBD configuration from fbd_record/fbd_settings.py: {e}")
     except AttributeError as e:
         raise AttributeError(f"Missing required attribute in FBD configuration: {e}")
 
@@ -72,7 +72,7 @@ def run_fbd_simulation():
     
     # Check required files
     required_files = [
-        "fbd_record/bloodmnist_info_1.py",
+        "fbd_record/fbd_settings.py",
         "shipping_plan.json", 
         "request_plan.json"
     ]
@@ -94,7 +94,7 @@ def run_fbd_simulation():
         "--size", "28",
         "--seed", "42",
         "--cpus_per_client", "6",
-        "--fbd_config", "fbd_record/bloodmnist_info_1.py",
+        "--fbd_config", "fbd_record/fbd_settings.py",
         "--shipping_plan", "shipping_plan.json",
         "--request_plan", "request_plan.json",
         "--communication_dir", FLWR_COMM_DIR,

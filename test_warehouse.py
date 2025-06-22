@@ -18,7 +18,7 @@ def test_warehouse():
     os.makedirs('fbd_test', exist_ok=True)
     
     # Load FBD configuration
-    fbd_trace, fbd_info, transparent_to_client = load_fbd_settings('fbd_record/bloodmnist_info_1.py')
+    fbd_trace, fbd_info, transparent_to_client = load_fbd_settings('fbd_record/fbd_settings.py')
     print(f"Loaded FBD configuration with {len(fbd_trace)} function blocks")
     
     # Create a template model for initialization

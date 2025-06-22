@@ -10,7 +10,7 @@ def test_fbd_logic():
     
     # Test parameters
     num_clients = 6
-    fbd_file_path = "fbd_record/bloodmnist_info_1.py"
+    fbd_file_path = "fbd_record/fbd_settings.py"
     
     print("=== Testing FBD Logic ===")
     print(f"Number of clients: {num_clients}")

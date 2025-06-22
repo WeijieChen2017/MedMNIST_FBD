@@ -889,7 +889,7 @@ def main():
     parser.add_argument("--imagenet", action="store_true", help="Use ImageNet pretrained weights for initialization")
     
     # FBD specific arguments
-    parser.add_argument("--fbd_config", type=str, default="fbd_record/bloodmnist_info_1.py", 
+    parser.add_argument("--fbd_config", type=str, default="fbd_record/fbd_settings.py", 
                        help="Path to FBD configuration file")
     parser.add_argument("--shipping_plan", type=str, default="shipping_plan.json",
                        help="Path to shipping plan JSON file")

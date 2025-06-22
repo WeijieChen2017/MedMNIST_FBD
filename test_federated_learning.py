@@ -83,7 +83,7 @@ def test_single_round_federated_learning():
     
     # Configuration
     config = {
-        'fbd_config_path': 'fbd_record/bloodmnist_info_1.py',
+        'fbd_config_path': 'fbd_record/fbd_settings.py',
         'shipping_plan_path': 'fbd_record/shipping_plan.json',
         'request_plan_path': 'fbd_record/request_plan.json',
         'communication_dir': 'fbd_comm_test',
@@ -168,7 +168,7 @@ def test_multi_round_federated_learning(num_rounds=3):
     
     # Configuration
     config = {
-        'fbd_config_path': 'fbd_record/bloodmnist_info_1.py',
+        'fbd_config_path': 'fbd_record/fbd_settings.py',
         'shipping_plan_path': 'fbd_record/shipping_plan.json',
         'request_plan_path': 'fbd_record/request_plan.json',
         'communication_dir': 'fbd_comm_multitest',
@@ -267,7 +267,7 @@ def test_server_only_simulation(num_rounds=5):
     
     # Configuration
     config = {
-        'fbd_config_path': 'fbd_record/bloodmnist_info_1.py',
+        'fbd_config_path': 'fbd_record/fbd_settings.py',
         'shipping_plan_path': 'fbd_record/shipping_plan.json',
         'request_plan_path': 'fbd_record/request_plan.json',
         'communication_dir': 'fbd_comm_server_only',
