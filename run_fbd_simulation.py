@@ -14,47 +14,41 @@ from models import get_model_info
 ARCHITECTURE = "resnet50"  # ← CHANGE THIS for ResNet50
 NORMALIZATION = "bn"       # ← CHANGE THIS for different normalization
 
-# Load blocks_per_stage from FBD configuration
-def load_blocks_per_stage():
-    """Load blocks_per_stage from the FBD configuration file."""
-    try:
-        # Import the FBD configuration module
-        sys.path.append('fbd_record')
-        import bloodmnist_info_1
-        return bloodmnist_info_1.blocks_per_stage
-    except ImportError:
-        print("Warning: Could not load FBD configuration, using default blocks_per_stage")
-        return [6, 6, 6, 6, 6]
+# Load FBD configuration settings
 
-def load_ensemble_settings():
-    """Load ensemble settings from the FBD configuration file."""
+def load_fbd_settings():
+    """Load FBD settings from the FBD configuration file."""
     try:
         # Import the FBD configuration module
         sys.path.append('fbd_record')
         import bloodmnist_info_1
         return {
+            'epochs_per_stage': bloodmnist_info_1.EPOCHS_PER_STAGE,
+            'blocks_per_stage': bloodmnist_info_1.blocks_per_stage,
             'ensemble_size': bloodmnist_info_1.ENSEMBLE_SIZE,
             'ensemble_colors': bloodmnist_info_1.ENSEMBLE_COLORS
         }
     except ImportError:
-        print("Warning: Could not load FBD configuration, using default ensemble settings")
+        print("Warning: Could not load FBD configuration, using default settings")
         return {
+            'epochs_per_stage': 10,
+            'blocks_per_stage': [6, 6, 6, 6, 6],
             'ensemble_size': 32,
             'ensemble_colors': ['M0', 'M1', 'M2', 'M3', 'M4', 'M5']
         }
     except AttributeError as e:
-        print(f"Warning: Missing ensemble attribute in FBD configuration: {e}")
+        print(f"Warning: Missing attribute in FBD configuration: {e}")
         return {
+            'epochs_per_stage': 10,
+            'blocks_per_stage': [6, 6, 6, 6, 6],
             'ensemble_size': 32,
             'ensemble_colors': ['M0', 'M1', 'M2', 'M3', 'M4', 'M5']
         }
 
-# Load blocks_per_stage
-blocks_per_stage = load_blocks_per_stage()
+# Load FBD settings
+fbd_settings = load_fbd_settings()
+blocks_per_stage = fbd_settings['blocks_per_stage']
 blocks_per_stage_str = "".join(map(str, blocks_per_stage))
-
-# Load ensemble settings
-ensemble_settings = load_ensemble_settings()
 
 # I want like 0618_1424 as the current time
 # the time shown is 0618_2149, but current time is 0618_1649
@@ -121,7 +115,7 @@ def run_fbd_simulation():
     try:
         config = load_config("bloodmnist", ARCHITECTURE, 28)
         # Override num_ensemble with value from FBD configuration
-        config.num_ensemble = ensemble_settings['ensemble_size']
+        config.num_ensemble = fbd_settings['ensemble_size']
     except ValueError as e:
         print(f"❌ Error loading configuration: {e}")
         return False
@@ -138,8 +132,10 @@ def run_fbd_simulation():
     print(f"  Number of rounds: {config.num_rounds}")
     print(f"  Batch size: {config.batch_size}")
     print(f"  Local learning rate: {config.local_learning_rate}")
+    print(f"  Epochs per stage: {fbd_settings['epochs_per_stage']}")
+    print(f"  Blocks per stage: {fbd_settings['blocks_per_stage']}")
     print(f"  Ensemble models: {config.num_ensemble}")
-    print(f"  Ensemble colors: {ensemble_settings['ensemble_colors']}")
+    print(f"  Ensemble colors: {fbd_settings['ensemble_colors']}")
     print(f"  Seed: 42")
     print(f"  CPUs per client: 6")
     print(f"  Communication dir: fbd_flower_comm")
