@@ -26,7 +26,8 @@ def load_fbd_settings():
             'epochs_per_stage': bloodmnist_info_1.EPOCHS_PER_STAGE,
             'blocks_per_stage': bloodmnist_info_1.BLOCKS_PER_STAGE,
             'ensemble_size': bloodmnist_info_1.ENSEMBLE_SIZE,
-            'ensemble_colors': bloodmnist_info_1.ENSEMBLE_COLORS
+            'ensemble_colors': bloodmnist_info_1.ENSEMBLE_COLORS,
+            'regularizer_params': bloodmnist_info_1.REGULARIZER_PARAMS
         }
     except ImportError as e:
         raise ImportError(f"Could not load FBD configuration from fbd_record/bloodmnist_info_1.py: {e}")
@@ -125,6 +126,9 @@ def run_fbd_simulation():
     print(f"  Blocks per stage: {fbd_settings['blocks_per_stage']}")
     print(f"  Ensemble models: {config.num_ensemble}")
     print(f"  Ensemble colors: {fbd_settings['ensemble_colors']}")
+    print(f"  Regularizer type: {fbd_settings['regularizer_params'].get('type', 'N/A')}")
+    print(f"  Regularizer distance: {fbd_settings['regularizer_params'].get('distance_type', 'N/A')}")
+    print(f"  Regularizer coefficient: {fbd_settings['regularizer_params'].get('coefficient', 'N/A')}")
     print(f"  Seed: 42")
     print(f"  CPUs per client: 6")
     print(f"  Communication dir: fbd_flower_comm")
