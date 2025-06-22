@@ -765,7 +765,9 @@ class FBDEnsembleEvaluationStrategy(FBDEvaluationStrategy):
         for color in colors_ensemble:
             try:
                 color_weights = warehouse.get_model_weights(color)
+                print(f"[FBD Ensemble] Debug: Color {color} weights available: {color_weights is not None}")
                 if color_weights:
+                    print(f"[FBD Ensemble] Debug: Color {color} positions: {list(color_weights.keys())}")
                     for position in model_parts:
                         if position in color_weights:
                             # Flatten all parameters of this block into a single tensor
@@ -775,6 +777,7 @@ class FBDEnsembleEvaluationStrategy(FBDEvaluationStrategy):
                             if block_params:
                                 flattened_block = torch.cat(block_params)
                                 color_position_blocks[color][position].append(flattened_block)
+                                print(f"[FBD Ensemble] Debug: Added block for {color}/{position}, shape: {flattened_block.shape}")
             except Exception as e:
                 print(f"[FBD Ensemble] Warning: Could not extract weights for color {color}: {e}")
                 continue
@@ -790,8 +793,10 @@ class FBDEnsembleEvaluationStrategy(FBDEvaluationStrategy):
             
             # Get all positions that have blocks for this color
             available_positions = [pos for pos in model_parts if color_position_blocks[color][pos]]
+            print(f"[FBD Ensemble] Debug: Color {color} available positions: {available_positions}")
             
             if len(available_positions) < 2:
+                print(f"[FBD Ensemble] Debug: Skipping {color} - only {len(available_positions)} positions available")
                 continue  # Need at least 2 positions to compute distances
             
             color_all_distances = []
