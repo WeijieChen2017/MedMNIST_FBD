@@ -63,9 +63,16 @@ class FlowerClient(fl.client.Client):
         lr = config["local_learning_rate"]
         current_update_plan = config.get("current_update_plan", None)
         round_num = config.get("server_round", None)
-        loss = train(self.model, self.train_loader, epochs=1, device=self.device, 
+        train_result = train(self.model, self.train_loader, epochs=1, device=self.device, 
                     data_flag=self.data_flag, lr=lr, current_update_plan=current_update_plan, 
                     client_id=self.cid, round_num=round_num)
+        
+        # Handle different return types from train function
+        if isinstance(train_result, tuple):
+            loss, regularizer_metrics = train_result
+        else:
+            loss = train_result
+            regularizer_metrics = None
         
         # Evaluate the new model
         train_loss, train_auc, train_acc = test(self.model, self.train_loader, device=self.device, data_flag=self.data_flag)
@@ -142,6 +149,14 @@ def train(model, train_loader, epochs, device, data_flag, lr, current_update_pla
                       client_id is not None and 
                       round_num is not None)
     
+    # Initialize regularizer metrics tracking
+    regularizer_metrics = {
+        'regularizer_distances': [],
+        'regularizer_type': None,
+        'num_regularizers': 0,
+        'regularization_strength': 0.0
+    }
+    
     total_loss = 0
     for epoch in range(epochs):
         for inputs, targets in train_loader:
@@ -178,10 +193,22 @@ def train(model, train_loader, epochs, device, data_flag, lr, current_update_pla
                 regularizer_type = REGULARIZER_PARAMS["type"]
                 regularization_strength = REGULARIZER_PARAMS["coefficient"]
                 
+                # Store regularizer metadata
+                regularizer_metrics['regularizer_type'] = regularizer_type
+                regularizer_metrics['num_regularizers'] = len(model_as_regularizer_list)
+                regularizer_metrics['regularization_strength'] = regularization_strength
+                
                 if regularizer_type == "weights":
                     # 3.1, 3.2, 3.3: Compute weight distance regularization
                     weight_regularizer = _compute_weight_regularizer(model_to_update, regularizer_models)
                     loss = base_loss + regularization_strength * weight_regularizer
+                    
+                    # Store regularizer distance for this batch
+                    regularizer_metrics['regularizer_distances'].append({
+                        'batch_regularizer_distance': float(weight_regularizer.item()),
+                        'base_loss': float(base_loss.item()),
+                        'total_loss': float(loss.item())
+                    })
                     
                 elif regularizer_type == "consistency loss":
                     # 4.1, 4.2, 4.3: Compute output consistency regularization
@@ -189,6 +216,13 @@ def train(model, train_loader, epochs, device, data_flag, lr, current_update_pla
                         model_to_update, regularizer_models, inputs, device
                     )
                     loss = base_loss + regularization_strength * consistency_regularizer
+                    
+                    # Store regularizer distance for this batch
+                    regularizer_metrics['regularizer_distances'].append({
+                        'batch_regularizer_distance': float(consistency_regularizer.item()),
+                        'base_loss': float(base_loss.item()),
+                        'total_loss': float(loss.item())
+                    })
                 
                 else:
                     # Fallback to base loss
@@ -217,11 +251,25 @@ def train(model, train_loader, epochs, device, data_flag, lr, current_update_pla
                 
                 # Standard training step
                 optimizer.zero_grad()
-                            # Backward pass and optimization step are handled above in each branch
+                loss.backward()
+                optimizer.step()
+            
             total_loss += loss.item()
 
     avg_loss = total_loss / len(train_loader)
-    return avg_loss
+    
+    # Return loss and regularizer metrics if available
+    if use_update_plan and regularizer_metrics['regularizer_distances']:
+        # Compute summary statistics for regularizer distances
+        distances = [d['batch_regularizer_distance'] for d in regularizer_metrics['regularizer_distances']]
+        regularizer_metrics['avg_regularizer_distance'] = float(np.mean(distances))
+        regularizer_metrics['max_regularizer_distance'] = float(np.max(distances))
+        regularizer_metrics['min_regularizer_distance'] = float(np.min(distances))
+        regularizer_metrics['std_regularizer_distance'] = float(np.std(distances))
+        
+        return avg_loss, regularizer_metrics
+    else:
+        return avg_loss
 
 def test(model, data_loader, device, data_flag):
     """Validate the model on the test set."""

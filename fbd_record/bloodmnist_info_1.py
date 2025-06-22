@@ -7,7 +7,7 @@ MODEL_PARTS = ['in_layer', 'layer1', 'layer2', 'layer3', 'layer4', 'out_layer']
 REGULARIZER_PARAMS = {
     "type": "weights",
     "distance_type": "L2",
-    "coefficient": 0.1,
+    "coefficient": 0.01,
     # maybe decay but not now
 }
 

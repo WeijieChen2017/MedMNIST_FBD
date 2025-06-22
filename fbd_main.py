@@ -119,7 +119,14 @@ class FBDFlowerClient(fl.client.Client):
         
         # Perform local training
         current_update_plan = config.get("current_update_plan", None)
-        train_loss = self._train_model(local_lr, current_update_plan=current_update_plan, round_num=round_num)
+        train_result = self._train_model(local_lr, current_update_plan=current_update_plan, round_num=round_num)
+        
+        # Handle different return types from train function
+        if isinstance(train_result, tuple):
+            train_loss, regularizer_metrics = train_result
+        else:
+            train_loss = train_result
+            regularizer_metrics = None
         
         # Evaluate after training
         train_loss, train_auc, train_acc = self._test_model(self.train_loader)
@@ -154,6 +161,19 @@ class FBDFlowerClient(fl.client.Client):
             "val_auc": val_auc,
             "val_acc": val_acc
         }
+        
+        # Add regularizer metrics if available
+        if regularizer_metrics is not None:
+            metrics_dict.update({
+                "regularizer_type": regularizer_metrics.get('regularizer_type'),
+                "num_regularizers": regularizer_metrics.get('num_regularizers', 0),
+                "regularization_strength": regularizer_metrics.get('regularization_strength', 0.0),
+                "avg_regularizer_distance": regularizer_metrics.get('avg_regularizer_distance', 0.0),
+                "max_regularizer_distance": regularizer_metrics.get('max_regularizer_distance', 0.0),
+                "min_regularizer_distance": regularizer_metrics.get('min_regularizer_distance', 0.0),
+                "std_regularizer_distance": regularizer_metrics.get('std_regularizer_distance', 0.0),
+                "regularizer_batch_details": regularizer_metrics.get('regularizer_distances', [])
+            })
         
         # Return empty parameters since FBD uses file-based communication
         empty_params = ndarrays_to_parameters([np.array([0.0])])
@@ -412,17 +432,46 @@ class FBDStrategy(FedAvg):
         
         # Return aggregated metrics (no parameter aggregation needed for FBD)
         metrics_aggregated = {}
+        client_regularizer_metrics = {}
+        
         if results:
             # Aggregate client metrics
             for client_proxy, fit_res in results:
+                client_id = int(client_proxy.cid)
+                
                 for key, value in fit_res.metrics.items():
                     if key not in metrics_aggregated:
                         metrics_aggregated[key] = []
                     metrics_aggregated[key].append(value)
+                
+                # Store per-client regularizer metrics if available
+                if any(k.startswith('regularizer_') for k in fit_res.metrics.keys()):
+                    client_regularizer_metrics[client_id] = {
+                        k: v for k, v in fit_res.metrics.items() 
+                        if k.startswith('regularizer_') or k in ['num_regularizers', 'regularization_strength']
+                    }
             
-            # Average the metrics
+            # Average the metrics (except regularizer batch details)
             for key, values in metrics_aggregated.items():
-                metrics_aggregated[key] = sum(values) / len(values)
+                if key != 'regularizer_batch_details':  # Skip averaging detailed batch data
+                    if isinstance(values[0], (int, float)):  # Only average numeric values
+                        metrics_aggregated[key] = sum(values) / len(values)
+                    else:
+                        metrics_aggregated[key] = values  # Keep lists as-is
+        
+        # Store regularizer metrics in training history
+        if client_regularizer_metrics:
+            if 'regularizer_metrics' not in self.training_history:
+                self.training_history['regularizer_metrics'] = {}
+            self.training_history['regularizer_metrics'][server_round] = client_regularizer_metrics
+            
+            # Log regularizer metrics summary
+            avg_reg_distance = metrics_aggregated.get('avg_regularizer_distance', 0)
+            if avg_reg_distance > 0:
+                logging.info(f"[FBD Strategy] Round {server_round} Regularizer Summary:")
+                logging.info(f"  Average regularizer distance: {avg_reg_distance:.6f}")
+                logging.info(f"  Regularizer type: {metrics_aggregated.get('regularizer_type', 'N/A')}")
+                logging.info(f"  Clients with regularizers: {len(client_regularizer_metrics)}")
         
         # Return current parameters (unchanged for FBD)
         return current_parameters, metrics_aggregated
@@ -531,8 +580,31 @@ class FBDStrategy(FedAvg):
         if 'ensemble_accuracy_centralized' not in self.training_history:
             self.training_history['ensemble_accuracy_centralized'] = {}
             self.training_history['ensemble_auc_centralized'] = {}
+            self.training_history['l2_distances'] = {}
         self.training_history['ensemble_accuracy_centralized'][server_round] = ensemble_acc
         self.training_history['ensemble_auc_centralized'][server_round] = ensemble_auc
+        
+        # Store L2 distances from ensemble evaluation
+        if ensemble_results.get('success', False):
+            ensemble_metrics = ensemble_results.get('evaluation_metrics', {})
+            l2_distances = ensemble_metrics.get('l2_distances', {})
+            if l2_distances:
+                self.training_history['l2_distances'][server_round] = l2_distances
+                
+                # Log L2 distance summary
+                position_comparisons = l2_distances.get('by_position_comparisons', {})
+                if position_comparisons:
+                    logging.info(f"[FBD Strategy] Round {server_round} L2 Distance Summary:")
+                    for position, comparisons in position_comparisons.items():
+                        avg_distance = comparisons.get('average', 0)
+                        if avg_distance > 0:
+                            logging.info(f"  {position}: Average L2 distance = {avg_distance:.6f}")
+                    
+                    # Log overall statistics
+                    all_avg_distances = [comp.get('average', 0) for comp in position_comparisons.values() if comp.get('average', 0) > 0]
+                    if all_avg_distances:
+                        overall_avg = sum(all_avg_distances) / len(all_avg_distances)
+                        logging.info(f"  Overall average L2 distance across positions: {overall_avg:.6f}")
         
         # Track round end time
         import time
@@ -712,7 +784,9 @@ class FBDStrategy(FedAvg):
                 "loss": self.training_history['loss_centralized'].get(self.training_history['total_rounds'], 0.0),
                 "auc": self.training_history['auc_centralized'].get(self.training_history['total_rounds'], 0.0),
                 "accuracy": self.training_history['accuracy_centralized'].get(self.training_history['total_rounds'], 0.0)
-            }
+            },
+            "regularizer_metrics": self.training_history.get('regularizer_metrics', {}),
+            "l2_distances": self.training_history.get('l2_distances', {})
         }
         
         # Save to JSON file
@@ -743,6 +817,12 @@ class FBDStrategy(FedAvg):
             },
             "history_ensemble_auc_centralized": {
                 f"round {k}": v for k, v in self.training_history.get('ensemble_auc_centralized', {}).items()
+            },
+            "history_regularizer_metrics": {
+                f"round {k}": v for k, v in self.training_history.get('regularizer_metrics', {}).items()
+            },
+            "history_l2_distances": {
+                f"round {k}": v for k, v in self.training_history.get('l2_distances', {}).items()
             }
         }
         
