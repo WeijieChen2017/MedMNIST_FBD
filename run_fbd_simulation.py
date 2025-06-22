@@ -13,6 +13,10 @@ from models import get_model_info
 # At the top, add configuration
 ARCHITECTURE = "resnet50"  # ← CHANGE THIS for ResNet50
 NORMALIZATION = "bn"       # ← CHANGE THIS for different normalization
+FLWR_COMM_DIR = "fbd_flower_comm"
+
+if not os.path.exists(FLWR_COMM_DIR):
+    os.makedirs(FLWR_COMM_DIR)
 
 # Load FBD configuration settings
 
@@ -93,7 +97,7 @@ def run_fbd_simulation():
         "--fbd_config", "fbd_record/bloodmnist_info_1.py",
         "--shipping_plan", "shipping_plan.json",
         "--request_plan", "request_plan.json",
-        "--communication_dir", "fbd_flower_comm",
+        "--communication_dir", FLWR_COMM_DIR,
         "--imagenet",
         "--output_dir", OUTPUT_DIR,
         "--ensemble_size", str(fbd_settings['ensemble_size']),
@@ -131,7 +135,7 @@ def run_fbd_simulation():
     print(f"  Regularizer coefficient: {fbd_settings['regularizer_params'].get('coefficient', 'N/A')}")
     print(f"  Seed: 42")
     print(f"  CPUs per client: 6")
-    print(f"  Communication dir: fbd_flower_comm")
+    print(f"  Communication dir: {FLWR_COMM_DIR}")
     print(f"  Using ImageNet pretrained weights: True")
     print(f"  Output dir: {OUTPUT_DIR}")
     print("="*30)
