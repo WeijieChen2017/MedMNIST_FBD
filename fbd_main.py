@@ -941,15 +941,8 @@ def main():
     # Load update plan
     update_plan = None
     if args.update_plan and os.path.exists(args.update_plan):
-        try:
-            import json
-            with open(args.update_plan, 'r') as f:
-                update_plan = json.load(f)
-            logging.info(f"Loaded update plan from {args.update_plan}")
-        except Exception as e:
-            logging.warning(f"Failed to load update plan: {e}")
-    else:
-        logging.info(f"No update plan provided or file not found")
+        with open(args.update_plan, 'r') as f:
+            update_plan = json.load(f)
     
     # FBD training is driven by shipping plan, not config
     max_shipping_round = max(shipping_plan.keys()) if shipping_plan else 0
