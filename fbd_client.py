@@ -45,7 +45,7 @@ from fbd_record.fbd_settings import REGULARIZER_PARAMS
 # TRAINING AND TESTING FUNCTIONS (moved from client.py)
 # ====================================================================================
 
-def train(model, train_loader, epochs, device, data_flag, lr, current_update_plan=None, client_id=None, round_num=None):
+def train(model, train_loader, epochs, device, data_flag, lr, current_update_plan=None, client_id=None, round_num=None, client_logger=None):
     """Train the model on the training set."""
     info = INFO[data_flag]
     task = info['task']
@@ -142,7 +142,12 @@ def train(model, train_loader, epochs, device, data_flag, lr, current_update_pla
                     # Fallback to base loss
                     loss = base_loss
                 
-                print(f"[Client {client_id}] Round {round_num}: Using {regularizer_type} regularization with {len(model_as_regularizer_list)} regularizers, loss={loss.item():.4f}")
+                # Log training details to client-specific log file
+                log_msg = f"Round {round_num}: Using {regularizer_type} regularization with {len(model_as_regularizer_list)} regularizers, loss={loss.item():.4f}"
+                if client_logger:
+                    client_logger.info(log_msg)
+                else:
+                    print(f"[Client {client_id}] {log_msg}")  # Fallback to print if no logger
                 
                 # Use the specialized optimizer for model_to_update
                 model_to_update_optimizer.zero_grad()
@@ -461,7 +466,7 @@ class FBDFlowerClient(fl.client.Client):
     """FBD-enabled Flower client that integrates with FBD warehouse system."""
     
     def __init__(self, cid, model, train_loader, val_loader, test_loader, data_flag, device, 
-                 fbd_config_path, communication_dir, client_palette, architecture='resnet18'):
+                 fbd_config_path, communication_dir, client_palette, architecture='resnet18', output_dir=None):
         self.cid = cid
         self.model = model
         self.train_loader = train_loader
@@ -475,6 +480,10 @@ class FBDFlowerClient(fl.client.Client):
         self.communication_dir = communication_dir
         self.client_palette = client_palette
         self.architecture = architecture
+        self.output_dir = output_dir
+        
+        # Initialize client-specific logger
+        self.client_logger = self._setup_client_logger()
         
         # Initialize FBD communication
         self.communication = WeightTransfer(communication_dir)
@@ -483,6 +492,39 @@ class FBDFlowerClient(fl.client.Client):
         self.fbd_trace, self.fbd_info, self.transparent_to_client = load_fbd_settings(fbd_config_path)
         
         logging.info(f"[FBD Client {cid}] Initialized with {len(client_palette)} FBD blocks")
+        self.client_logger.info(f"FBD Client {cid} initialized with {len(client_palette)} FBD blocks")
+
+    def _setup_client_logger(self):
+        """Set up client-specific logger that writes to a file."""
+        # Create client-specific logger
+        client_logger = logging.getLogger(f"FBDClient_{self.cid}")
+        client_logger.setLevel(logging.INFO)
+        
+        # Avoid adding handlers multiple times
+        if not client_logger.handlers:
+            # Create log file path
+            if self.output_dir:
+                log_file = os.path.join(self.output_dir, f"client_{self.cid}_training.log")
+                os.makedirs(self.output_dir, exist_ok=True)
+            else:
+                # Fallback to current directory if no output_dir provided
+                log_file = f"client_{self.cid}_training.log"
+            
+            # Create file handler
+            file_handler = logging.FileHandler(log_file, mode='w')
+            file_handler.setLevel(logging.INFO)
+            
+            # Create formatter
+            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            file_handler.setFormatter(formatter)
+            
+            # Add handler to logger
+            client_logger.addHandler(file_handler)
+            
+            # Prevent propagation to root logger to avoid duplicate logging
+            client_logger.propagate = False
+        
+        return client_logger
 
     def get_parameters(self, ins: fl.common.GetParametersIns) -> fl.common.GetParametersRes:
         """Extract model parameters."""
@@ -593,7 +635,7 @@ class FBDFlowerClient(fl.client.Client):
         """Train the model locally."""
         return train(self.model, self.train_loader, epochs=1, device=self.device, 
                     data_flag=self.data_flag, lr=lr, current_update_plan=current_update_plan,
-                    client_id=self.cid, round_num=round_num)
+                    client_id=self.cid, round_num=round_num, client_logger=self.client_logger)
 
     def _test_model(self, data_loader):
         """Test the model."""

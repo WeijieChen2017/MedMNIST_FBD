@@ -317,7 +317,8 @@ def main():
             fbd_config_path=args.fbd_config,
             communication_dir=args.communication_dir,
             client_palette=client_palette,
-            architecture=architecture
+            architecture=architecture,
+            output_dir=output_dir
         ).to_client()
     
     # Initialize FBD strategy
