@@ -1421,16 +1421,24 @@ class FBDEnsembleEvaluationStrategy(FBDEvaluationStrategy):
         for color in colors_ensemble:
             try:
                 color_weights = warehouse.get_model_weights(color)
+                print(f"[DEBUG] Color {color}: weights available = {color_weights is not None}")
                 if color_weights:
+                    print(f"[DEBUG] Color {color}: keys = {list(color_weights.keys())}")
                     for position in model_parts:
                         if position in color_weights:
                             # Flatten all parameters of this block into a single tensor
                             block_params = []
                             for param_name, param_tensor in color_weights[position].items():
+                                print(f"[DEBUG] Color {color}, Position {position}, Param {param_name}: shape = {param_tensor.shape}, norm = {torch.norm(param_tensor).item():.6f}")
                                 block_params.append(param_tensor.flatten())
                             if block_params:
                                 flattened_block = torch.cat(block_params)
+                                print(f"[DEBUG] Color {color}, Position {position}: flattened block norm = {torch.norm(flattened_block).item():.6f}, size = {flattened_block.size()}")
                                 color_position_blocks[color][position].append(flattened_block)
+                        else:
+                            print(f"[DEBUG] Color {color}: Position {position} not found in weights")
+                else:
+                    print(f"[DEBUG] Color {color}: No weights returned from warehouse")
             except Exception as e:
                 print(f"[FBD Ensemble] Warning: Could not extract weights for color {color}: {e}")
                 continue
@@ -1467,7 +1475,15 @@ class FBDEnsembleEvaluationStrategy(FBDEvaluationStrategy):
                             print(f"  Warning: {color1} and {color2} at {position} have different shapes!")
                             continue
                         
-                        l2_distance = torch.norm(block1 - block2, p=2).item()
+                        # Debug: Check individual block norms and difference
+                        block1_norm = torch.norm(block1, p=2).item()
+                        block2_norm = torch.norm(block2, p=2).item()
+                        diff_tensor = block1 - block2
+                        l2_distance = torch.norm(diff_tensor, p=2).item()
+                        
+                        print(f"[DEBUG] {position}: {color1} norm = {block1_norm:.6f}, {color2} norm = {block2_norm:.6f}")
+                        print(f"[DEBUG] {position}: {color1} vs {color2} - difference norm = {l2_distance:.6f}")
+                        print(f"[DEBUG] {position}: Are blocks identical? {torch.allclose(block1, block2, atol=1e-6)}")
                         
                         pair_key = f"{color1}_vs_{color2}"
                         position_comparisons[position][pair_key] = l2_distance

@@ -125,6 +125,14 @@ class FBDWarehouse:
         if block_id not in self.fbd_trace:
             raise ValueError(f"Unknown block ID: {block_id}")
         
+        # Debug: Check if weights are meaningful (not all zeros or identical)
+        total_norm = 0.0
+        for k, v in state_dict.items():
+            if isinstance(v, torch.Tensor):
+                total_norm += torch.norm(v).item()
+        
+        print(f"[WAREHOUSE DEBUG] Storing block {block_id}: total norm = {total_norm:.6f}")
+        
         self.warehouse[block_id] = {k: v.clone() if isinstance(v, torch.Tensor) else v 
                                    for k, v in state_dict.items()}
     
