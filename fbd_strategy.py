@@ -749,7 +749,8 @@ class FBDEnsembleEvaluationStrategy(FBDEvaluationStrategy):
     
     def _compute_color_block_l2_distances(self, warehouse, ensemble_records, colors_ensemble):
         """
-        Compute L2 distances between blocks with the same color across different positions.
+        Compute L2 distances between blocks of different colors at the same positions.
+        This measures how different the function blocks are between different model variants (colors).
         
         Args:
             warehouse: FBD warehouse containing function block weights
@@ -757,9 +758,12 @@ class FBDEnsembleEvaluationStrategy(FBDEvaluationStrategy):
             colors_ensemble: List of colors used in ensemble
             
         Returns:
-            Dict: L2 distance statistics by position and color
+            Dict: L2 distance statistics by position and color, including overall averages
         """
-        model_parts = ['in_layer', 'layer1', 'layer2', 'layer3', 'layer4', 'out_layer']
+        # Get model parts dynamically based on architecture
+        from fbd_models import get_model_parts
+        architecture_type = getattr(self, 'architecture', 'resnet18')
+        model_parts = get_model_parts(architecture_type)
         
         # Collect all block weights for each color and position
         color_position_blocks = {}  # color -> position -> list of weight tensors
@@ -790,8 +794,10 @@ class FBDEnsembleEvaluationStrategy(FBDEvaluationStrategy):
         # Compute L2 distances between blocks of different colors at the same position
         l2_distances = {}
         position_comparisons = {}
+        all_position_averages = []  # Track averages across all positions for overall computation
         
         print(f"[FBD Ensemble] Computing L2 distances between different colors at same positions:")
+        print(f"[FBD Ensemble] Architecture: {architecture_type}, Model parts: {model_parts}")
         
         # For each position, compare blocks of different colors
         for position in model_parts:
@@ -825,8 +831,33 @@ class FBDEnsembleEvaluationStrategy(FBDEvaluationStrategy):
             
             if position_distances:
                 avg_distance = np.mean(position_distances)
-                print(f"  {position}: Average L2 distance between colors = {avg_distance:.6f}")
+                print(f"  {position}: Average L2 distance between colors = {avg_distance:.6f} (from {len(position_distances)} comparisons)")
                 position_comparisons[position]['average'] = avg_distance
+                position_comparisons[position]['num_comparisons'] = len(position_distances)
+                position_comparisons[position]['std_dev'] = np.std(position_distances)
+                position_comparisons[position]['min'] = np.min(position_distances)
+                position_comparisons[position]['max'] = np.max(position_distances)
+                all_position_averages.append(avg_distance)
+        
+        # Compute overall averages across all positions
+        overall_metrics = {}
+        if all_position_averages:
+            overall_metrics = {
+                'overall_average_l2_distance': np.mean(all_position_averages),
+                'overall_std_dev': np.std(all_position_averages),
+                'overall_min': np.min(all_position_averages),
+                'overall_max': np.max(all_position_averages),
+                'num_positions_compared': len(all_position_averages),
+                'total_positions': len(model_parts)
+            }
+            
+            print(f"[FBD Ensemble] Overall L2 Distance Summary:")
+            print(f"  Overall average L2 distance: {overall_metrics['overall_average_l2_distance']:.6f}")
+            print(f"  Standard deviation: {overall_metrics['overall_std_dev']:.6f}")
+            print(f"  Range: {overall_metrics['overall_min']:.6f} - {overall_metrics['overall_max']:.6f}")
+            print(f"  Positions compared: {overall_metrics['num_positions_compared']}/{overall_metrics['total_positions']}")
+        else:
+            print(f"[FBD Ensemble] Warning: No L2 distances could be computed - insufficient colors or data")
             
         # Also store the individual color blocks for potential future analysis
         for color in colors_ensemble:
@@ -843,8 +874,11 @@ class FBDEnsembleEvaluationStrategy(FBDEvaluationStrategy):
         return {
             'by_color_and_position': l2_distances,
             'by_position_comparisons': position_comparisons,
+            'overall_metrics': overall_metrics,
             'colors_analyzed': colors_ensemble,
-            'positions_analyzed': model_parts
+            'positions_analyzed': model_parts,
+            'architecture': architecture_type,
+            'total_comparisons': sum(pos.get('num_comparisons', 0) for pos in position_comparisons.values())
         }
 
     def _evaluate_ensemble(self, warehouse, num_ensemble: int = 64, colors_ensemble: List[str] = None) -> Dict[str, Any]:
@@ -1129,6 +1163,143 @@ class FBDEnsembleEvaluationStrategy(FBDEvaluationStrategy):
                 'error': str(e),
                 'evaluation_time': time.time() - evaluation_start_time
             }
+
+def analyze_color_l2_distances(warehouse, 
+                              colors_ensemble: List[str] = None,
+                              architecture: str = 'resnet18') -> Dict[str, Any]:
+    """
+    Standalone function to analyze L2 distances between FBD colors without evaluation.
+    Useful for understanding model diversity and convergence.
+    
+    Args:
+        warehouse: FBD warehouse containing function block weights
+        colors_ensemble: List of colors to analyze (default: ['M0', 'M1', 'M2', 'M3', 'M4', 'M5'])
+        architecture: Model architecture ('resnet18', 'resnet50')
+    
+    Returns:
+        Dict: Comprehensive L2 distance analysis results
+    """
+    if colors_ensemble is None:
+        colors_ensemble = ['M0', 'M1', 'M2', 'M3', 'M4', 'M5']
+    
+    # Create a temporary strategy instance for L2 computation
+    class TempStrategy:
+        def __init__(self, architecture):
+            self.architecture = architecture
+        
+        def _compute_color_block_l2_distances(self, warehouse, ensemble_records, colors_ensemble):
+            # Use the same implementation as in FBDEnsembleEvaluationStrategy
+            from fbd_models import get_model_parts
+            import numpy as np
+            
+            architecture_type = getattr(self, 'architecture', 'resnet18')
+            model_parts = get_model_parts(architecture_type)
+            
+            # Collect all block weights for each color and position
+            color_position_blocks = {}  # color -> position -> list of weight tensors
+            
+            for color in colors_ensemble:
+                color_position_blocks[color] = {}
+                for position in model_parts:
+                    color_position_blocks[color][position] = []
+            
+            # Extract weights from warehouse for each color and position
+            for color in colors_ensemble:
+                try:
+                    color_weights = warehouse.get_model_weights(color)
+                    if color_weights:
+                        for position in model_parts:
+                            if position in color_weights:
+                                # Flatten all parameters of this block into a single tensor
+                                block_params = []
+                                for param_name, param_tensor in color_weights[position].items():
+                                    block_params.append(param_tensor.flatten())
+                                if block_params:
+                                    flattened_block = torch.cat(block_params)
+                                    color_position_blocks[color][position].append(flattened_block)
+                except Exception as e:
+                    print(f"[L2 Analysis] Warning: Could not extract weights for color {color}: {e}")
+                    continue
+            
+            # Compute L2 distances between blocks of different colors at the same position
+            l2_distances = {}
+            position_comparisons = {}
+            all_position_averages = []
+            
+            print(f"[L2 Analysis] Computing L2 distances between colors: {colors_ensemble}")
+            print(f"[L2 Analysis] Architecture: {architecture_type}, Model parts: {model_parts}")
+            
+            # For each position, compare blocks of different colors
+            for position in model_parts:
+                position_comparisons[position] = {}
+                position_distances = []
+                
+                # Get all colors that have blocks at this position
+                colors_at_position = [color for color in colors_ensemble if color_position_blocks[color][position]]
+                
+                if len(colors_at_position) < 2:
+                    print(f"  {position}: Only {len(colors_at_position)} colors available - skipping")
+                    continue
+                
+                # Compare all pairs of colors at this position
+                for i, color1 in enumerate(colors_at_position):
+                    for j, color2 in enumerate(colors_at_position):
+                        if i < j:  # Only compute upper triangle to avoid duplicates
+                            block1 = color_position_blocks[color1][position][0]  # First (and only) block
+                            block2 = color_position_blocks[color2][position][0]
+                            
+                            # These should have the same shape since they're at the same position
+                            if block1.shape != block2.shape:
+                                print(f"  Warning: {color1} and {color2} at {position} have different shapes!")
+                                continue
+                            
+                            l2_distance = torch.norm(block1 - block2, p=2).item()
+                            
+                            pair_key = f"{color1}_vs_{color2}"
+                            position_comparisons[position][pair_key] = l2_distance
+                            position_distances.append(l2_distance)
+                
+                if position_distances:
+                    avg_distance = np.mean(position_distances)
+                    print(f"  {position}: Average L2 distance = {avg_distance:.6f} (from {len(position_distances)} comparisons)")
+                    position_comparisons[position]['average'] = avg_distance
+                    position_comparisons[position]['num_comparisons'] = len(position_distances)
+                    position_comparisons[position]['std_dev'] = np.std(position_distances)
+                    position_comparisons[position]['min'] = np.min(position_distances)
+                    position_comparisons[position]['max'] = np.max(position_distances)
+                    all_position_averages.append(avg_distance)
+            
+            # Compute overall averages across all positions
+            overall_metrics = {}
+            if all_position_averages:
+                overall_metrics = {
+                    'overall_average_l2_distance': np.mean(all_position_averages),
+                    'overall_std_dev': np.std(all_position_averages),
+                    'overall_min': np.min(all_position_averages),
+                    'overall_max': np.max(all_position_averages),
+                    'num_positions_compared': len(all_position_averages),
+                    'total_positions': len(model_parts)
+                }
+                
+                print(f"[L2 Analysis] Overall L2 Distance Summary:")
+                print(f"  Overall average L2 distance: {overall_metrics['overall_average_l2_distance']:.6f}")
+                print(f"  Standard deviation: {overall_metrics['overall_std_dev']:.6f}")
+                print(f"  Range: {overall_metrics['overall_min']:.6f} - {overall_metrics['overall_max']:.6f}")
+                print(f"  Positions compared: {overall_metrics['num_positions_compared']}/{overall_metrics['total_positions']}")
+            else:
+                print(f"[L2 Analysis] Warning: No L2 distances could be computed - insufficient colors or data")
+            
+            return {
+                'by_position_comparisons': position_comparisons,
+                'overall_metrics': overall_metrics,
+                'colors_analyzed': colors_ensemble,
+                'positions_analyzed': model_parts,
+                'architecture': architecture_type,
+                'total_comparisons': sum(pos.get('num_comparisons', 0) for pos in position_comparisons.values())
+            }
+    
+    temp_strategy = TempStrategy(architecture)
+    return temp_strategy._compute_color_block_l2_distances(warehouse, [], colors_ensemble)
 
 def fbd_ensemble_evaluate(warehouse, 
                          round_num: int,

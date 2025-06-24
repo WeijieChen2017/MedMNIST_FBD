@@ -597,20 +597,28 @@ class FBDStrategy(FedAvg):
             if l2_distances:
                 self.training_history['l2_distances'][server_round] = l2_distances
                 
-                # Log L2 distance summary
+                # Log L2 distance summary with improved metrics
                 position_comparisons = l2_distances.get('by_position_comparisons', {})
+                overall_metrics = l2_distances.get('overall_metrics', {})
+                
                 if position_comparisons:
                     logging.info(f"[FBD Strategy] Round {server_round} L2 Distance Summary:")
+                    logging.info(f"  Architecture: {l2_distances.get('architecture', 'unknown')}")
+                    logging.info(f"  Total comparisons: {l2_distances.get('total_comparisons', 0)}")
+                    
                     for position, comparisons in position_comparisons.items():
                         avg_distance = comparisons.get('average', 0)
+                        num_comp = comparisons.get('num_comparisons', 0)
                         if avg_distance > 0:
-                            logging.info(f"  {position}: Average L2 distance = {avg_distance:.6f}")
+                            logging.info(f"    {position}: Avg={avg_distance:.6f}, Std={comparisons.get('std_dev', 0):.6f}, Range=[{comparisons.get('min', 0):.6f}-{comparisons.get('max', 0):.6f}], N={num_comp}")
                     
-                    # Log overall statistics
-                    all_avg_distances = [comp.get('average', 0) for comp in position_comparisons.values() if comp.get('average', 0) > 0]
-                    if all_avg_distances:
-                        overall_avg = sum(all_avg_distances) / len(all_avg_distances)
-                        logging.info(f"  Overall average L2 distance across positions: {overall_avg:.6f}")
+                    # Log overall statistics (new improved metrics)
+                    if overall_metrics:
+                        logging.info(f"  Overall L2 Distance Metrics:")
+                        logging.info(f"    Average: {overall_metrics.get('overall_average_l2_distance', 0):.6f}")
+                        logging.info(f"    Std Dev: {overall_metrics.get('overall_std_dev', 0):.6f}")
+                        logging.info(f"    Range: [{overall_metrics.get('overall_min', 0):.6f}-{overall_metrics.get('overall_max', 0):.6f}]")
+                        logging.info(f"    Positions: {overall_metrics.get('num_positions_compared', 0)}/{overall_metrics.get('total_positions', 0)}")
         
         # Track round end time
         import time
