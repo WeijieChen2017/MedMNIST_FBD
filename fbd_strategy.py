@@ -10,20 +10,10 @@ import numpy as np
 from typing import Dict, Any, List, Optional
 from sklearn.metrics import roc_auc_score, accuracy_score
 
-from fbd_models import ResNet18_FBD_BN, ResNet18_FBD_IN, ResNet18_FBD_LN
+from fbd_models import get_fbd_model
 
 
-def get_resnet18_fbd_model(norm: str, in_channels: int, num_classes: int):
-    """Get the appropriate ResNet18 FBD model based on normalization type."""
-    if norm == 'bn':
-        return ResNet18_FBD_BN(in_channels=in_channels, num_classes=num_classes)
-    elif norm == 'in':
-        return ResNet18_FBD_IN(in_channels=in_channels, num_classes=num_classes)
-    elif norm == 'ln':
-        return ResNet18_FBD_LN(in_channels=in_channels, num_classes=num_classes)
-    else:
-        # Default to batch normalization if norm type is not specified or unknown
-        return ResNet18_FBD_BN(in_channels=in_channels, num_classes=num_classes)
+# Removed duplicate function - now using get_fbd_model from fbd_models
 
 class FBDEvaluationStrategy:
     """
@@ -250,7 +240,10 @@ class FBDAverageEvaluationStrategy(FBDEvaluationStrategy):
             # Step 2: Create temporary model and load averaged weights
             # Use norm type stored on strategy instance, default to 'bn' if not set
             norm_type = getattr(self, 'norm', 'bn')
-            temp_model = get_resnet18_fbd_model(
+            # Use architecture type stored on strategy instance, default to 'resnet18' if not set
+            architecture_type = getattr(self, 'architecture', 'resnet18')
+            temp_model = get_fbd_model(
+                architecture=architecture_type,
                 norm=norm_type,
                 in_channels=self.input_shape[0], 
                 num_classes=self.num_classes
@@ -317,7 +310,8 @@ def fbd_average_evaluate(warehouse,
                         device: str = 'cpu',
                         test_batch_size: int = 64,
                         num_test_batches: int = 10,
-                        norm: str = 'bn') -> Dict[str, Any]:
+                        norm: str = 'bn',
+                        architecture: str = 'resnet18') -> Dict[str, Any]:
     """
     Convenience function for FBD average evaluation.
     
@@ -340,8 +334,9 @@ def fbd_average_evaluate(warehouse,
         test_batch_size=test_batch_size,
         num_test_batches=num_test_batches
     )
-    # Store norm type for temp_model creation
+    # Store norm type and architecture for temp_model creation
     strategy.norm = norm
+    strategy.architecture = architecture
     
     return strategy.evaluate(warehouse, round_num)
 
@@ -381,7 +376,10 @@ class FBDComprehensiveEvaluationStrategy(FBDEvaluationStrategy):
         """
         # Use norm type stored on strategy instance, default to 'bn' if not set
         norm_type = getattr(self, 'norm', 'bn')
-        model = get_resnet18_fbd_model(
+        # Use architecture type stored on strategy instance, default to 'resnet18' if not set
+        architecture_type = getattr(self, 'architecture', 'resnet18')
+        model = get_fbd_model(
+            architecture=architecture_type,
             norm=norm_type,
             in_channels=self.input_shape[0], 
             num_classes=self.num_classes
@@ -669,7 +667,8 @@ def fbd_comprehensive_evaluate(warehouse,
                               num_classes: int = 8,
                               input_shape: tuple = (1, 28, 28),
                               device: str = 'cpu',
-                              norm: str = 'bn') -> Dict[str, Any]:
+                              norm: str = 'bn',
+                              architecture: str = 'resnet18') -> Dict[str, Any]:
     """
     Convenience function for FBD comprehensive evaluation (M0-M5 + Averaging).
     
@@ -691,8 +690,9 @@ def fbd_comprehensive_evaluate(warehouse,
         input_shape=input_shape,
         device=device
     )
-    # Store norm type for use in model creation
+    # Store norm type and architecture for use in model creation
     strategy.norm = norm
+    strategy.architecture = architecture
     
     return strategy.evaluate(warehouse, round_num)
 
@@ -735,7 +735,10 @@ class FBDEnsembleEvaluationStrategy(FBDEvaluationStrategy):
         """
         # Use norm type stored on strategy instance, default to 'bn' if not set
         norm_type = getattr(self, 'norm', 'bn')
-        model = get_resnet18_fbd_model(
+        # Use architecture type stored on strategy instance, default to 'resnet18' if not set
+        architecture_type = getattr(self, 'architecture', 'resnet18')
+        model = get_fbd_model(
+            architecture=architecture_type,
             norm=norm_type,
             in_channels=self.input_shape[0], 
             num_classes=self.num_classes
@@ -1134,6 +1137,7 @@ def fbd_ensemble_evaluate(warehouse,
                          input_shape: tuple = (1, 28, 28),
                          device: str = 'cpu',
                          norm: str = 'bn',
+                         architecture: str = 'resnet18',
                          ensemble_method: str = 'voting',
                          num_ensemble: int = 64,
                          colors_ensemble: List[str] = None) -> Dict[str, Any]:
@@ -1162,7 +1166,8 @@ def fbd_ensemble_evaluate(warehouse,
         device=device,
         ensemble_method=ensemble_method
     )
-    # Store norm type for use in model creation
+    # Store norm type and architecture for use in model creation
     strategy.norm = norm
+    strategy.architecture = architecture
     
     return strategy.evaluate(warehouse, round_num, num_ensemble, colors_ensemble) 

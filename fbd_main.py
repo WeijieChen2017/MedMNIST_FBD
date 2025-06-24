@@ -25,7 +25,7 @@ from flwr.common import Scalar
 
 # Import existing components
 from fbd_dataset import load_data, partition_data, get_data_loader
-from fbd_models import ResNet18_FBD_BN, ResNet18_FBD_IN, ResNet18_FBD_LN
+from fbd_models import get_fbd_model
 from medmnist import INFO
 from fbd_utils import load_config
 
@@ -38,13 +38,13 @@ from fbd_communication import WeightTransfer
 from fbd_root_ckpt import get_pretrained_fbd_model
 
 
-def get_resnet18_fbd_model(norm: str, in_channels: int, num_classes: int, use_imagenet: bool = False, device: str = 'cpu'):
-    """Get the appropriate ResNet18 FBD model based on normalization type."""
+def get_fbd_model_with_pretrained(architecture: str, norm: str, in_channels: int, num_classes: int, use_imagenet: bool = False, device: str = 'cpu'):
+    """Get the appropriate FBD model based on architecture and normalization type."""
     if use_imagenet:
         # Use ImageNet pretrained weights
-        logging.info(f"🔄 Loading ResNet18 FBD with ImageNet pretrained weights ({norm.upper()} normalization)")
+        logging.info(f"🔄 Loading {architecture.upper()} FBD with ImageNet pretrained weights ({norm.upper()} normalization)")
         return get_pretrained_fbd_model(
-            architecture='resnet18',
+            architecture=architecture,
             norm=norm,
             in_channels=in_channels,
             num_classes=num_classes,
@@ -53,22 +53,14 @@ def get_resnet18_fbd_model(norm: str, in_channels: int, num_classes: int, use_im
         )
     else:
         # Use random initialization
-        if norm == 'bn':
-            return ResNet18_FBD_BN(in_channels=in_channels, num_classes=num_classes)
-        elif norm == 'in':
-            return ResNet18_FBD_IN(in_channels=in_channels, num_classes=num_classes)
-        elif norm == 'ln':
-            return ResNet18_FBD_LN(in_channels=in_channels, num_classes=num_classes)
-        else:
-            # Default to batch normalization if norm type is not specified or unknown
-            return ResNet18_FBD_BN(in_channels=in_channels, num_classes=num_classes)
+        return get_fbd_model(architecture, norm, in_channels, num_classes)
 
 
 class FBDFlowerClient(fl.client.Client):
     """FBD-enabled Flower client that integrates with FBD warehouse system."""
     
     def __init__(self, cid, model, train_loader, val_loader, test_loader, data_flag, device, 
-                 fbd_config_path, communication_dir, client_palette):
+                 fbd_config_path, communication_dir, client_palette, architecture='resnet18'):
         self.cid = cid
         self.model = model
         self.train_loader = train_loader
@@ -81,6 +73,7 @@ class FBDFlowerClient(fl.client.Client):
         self.fbd_config_path = fbd_config_path
         self.communication_dir = communication_dir
         self.client_palette = client_palette
+        self.architecture = architecture
         
         # Initialize FBD communication
         self.communication = WeightTransfer(communication_dir)
@@ -228,7 +221,7 @@ class FBDStrategy(FedAvg):
     def __init__(self, fbd_config_path, shipping_plan_path, request_plan_path, 
                  num_clients, communication_dir, model_template, output_dir, 
                  num_classes, input_shape, test_dataset, batch_size, norm_type='bn', 
-                 num_rounds=1, num_ensemble=64, ensemble_colors=None, 
+                 architecture='resnet18', num_rounds=1, num_ensemble=64, ensemble_colors=None, 
                  update_plan_path=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
@@ -244,6 +237,7 @@ class FBDStrategy(FedAvg):
         self.test_dataset = test_dataset
         self.batch_size = batch_size
         self.norm_type = norm_type  # Store normalization type
+        self.architecture = architecture  # Store model architecture
         self.num_rounds = num_rounds  # Store total number of rounds
         self.num_ensemble = num_ensemble  # Store number of ensemble models
         self.ensemble_colors = ensemble_colors  # Store ensemble colors
@@ -507,7 +501,8 @@ class FBDStrategy(FedAvg):
             num_classes=self.num_classes,
             input_shape=self.input_shape,
             device=device,
-            norm=self.norm_type  # Use stored norm type
+            norm=self.norm_type,  # Use stored norm type
+            architecture=self.architecture  # Use stored architecture
         )
         
         # 2. Use FBD ensemble evaluation strategy
@@ -520,9 +515,10 @@ class FBDStrategy(FedAvg):
             input_shape=self.input_shape,
             device=device,
             norm=self.norm_type,
+            architecture=self.architecture,  # Use stored architecture
             ensemble_method='voting',
-                    num_ensemble=self.num_ensemble,
-        colors_ensemble=self.ensemble_colors
+            num_ensemble=self.num_ensemble,
+            colors_ensemble=self.ensemble_colors
         )
         
         # Extract summary metrics from comprehensive evaluation
@@ -950,13 +946,19 @@ def main():
     # Get normalization type from config (default to 'bn' if not specified)
     norm_type = getattr(config, 'norm', 'bn')
     
+    # Extract architecture from model_flag (e.g., "resnet18_fbd" -> "resnet18")
+    if '_fbd' in args.model_flag:
+        architecture = args.model_flag.replace('_fbd', '')
+    else:
+        architecture = args.model_flag  # fallback if no _fbd suffix
+    
     # Create model with optional ImageNet pretraining
     if args.imagenet:
         logging.info(f"🎯 ImageNet pretraining enabled for server model")
-        model = get_resnet18_fbd_model(norm_type, n_channels, n_classes, use_imagenet=True, device=device)
+        model = get_fbd_model_with_pretrained(architecture, norm_type, n_channels, n_classes, use_imagenet=True, device=device)
     else:
         logging.info(f"🎯 Using random initialization for server model")
-        model = get_resnet18_fbd_model(norm_type, n_channels, n_classes, use_imagenet=False, device=device)
+        model = get_fbd_model_with_pretrained(architecture, norm_type, n_channels, n_classes, use_imagenet=False, device=device)
         model = model.to(device)
     
     # Load REGULARIZER_PARAMS for configuration saving
@@ -1078,9 +1080,9 @@ def main():
         
         # Create client-specific model (clients use same initialization as server)
         if args.imagenet:
-            client_model = get_resnet18_fbd_model(norm_type, n_channels, n_classes, use_imagenet=True, device=device)
+            client_model = get_fbd_model_with_pretrained(architecture, norm_type, n_channels, n_classes, use_imagenet=True, device=device)
         else:
-            client_model = get_resnet18_fbd_model(norm_type, n_channels, n_classes, use_imagenet=False, device=device)
+            client_model = get_fbd_model_with_pretrained(architecture, norm_type, n_channels, n_classes, use_imagenet=False, device=device)
             client_model = client_model.to(device)
         
         # Get client palette
@@ -1096,7 +1098,8 @@ def main():
             device=device,
             fbd_config_path=args.fbd_config,
             communication_dir=args.communication_dir,
-            client_palette=client_palette
+            client_palette=client_palette,
+            architecture=architecture
         ).to_client()
     
     # Initialize FBD strategy
@@ -1114,6 +1117,7 @@ def main():
         test_dataset=test_dataset,
         batch_size=config.batch_size,
         norm_type=norm_type,  # Pass normalization type
+        architecture=architecture,  # Pass model architecture
         num_rounds=config.num_rounds,  # Pass total number of rounds
         num_ensemble=config.num_ensemble,  # Pass number of ensemble models from config
         ensemble_colors=args.ensemble_colors,  # Pass ensemble colors from command line

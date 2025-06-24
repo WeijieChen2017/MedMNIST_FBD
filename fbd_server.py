@@ -9,7 +9,7 @@ import time
 import os
 import json
 
-from fbd_models import ResNet18_FBD
+from fbd_models import get_fbd_model
 from fbd_communication import WeightTransfer
 from fbd_utils import (FBDWarehouse, load_fbd_settings, 
                        load_shipping_plan, load_request_plan)
@@ -29,7 +29,8 @@ class FBDServer:
                  num_classes: int = 8,
                  input_shape: tuple = (1, 28, 28),
                  device: str = 'cpu',
-                 norm: str = 'bn'):
+                 norm: str = 'bn',
+                 architecture: str = 'resnet18'):
         """
         Initialize FBD server.
         
@@ -43,12 +44,14 @@ class FBDServer:
             input_shape: Input tensor shape
             device: Device for computation
             norm: Normalization type ('bn', 'in', 'ln')
+            architecture: Model architecture ('resnet18', 'resnet50')
         """
         self.device = device
         self.num_clients = num_clients
         self.num_classes = num_classes
         self.input_shape = input_shape
         self.norm = norm
+        self.architecture = architecture
         
         # Load FBD configuration
         self.fbd_trace, self.fbd_info, self.transparent_to_client = load_fbd_settings(fbd_config_path)
@@ -59,8 +62,8 @@ class FBDServer:
         self.total_rounds = len(self.shipping_plan)
         
         # Initialize warehouse with template model using proper normalization
-        from fbd_models import get_resnet18_fbd_model
-        template_model = get_resnet18_fbd_model(
+        template_model = get_fbd_model(
+            architecture=architecture,
             norm=norm,
             in_channels=input_shape[0], 
             num_classes=num_classes
@@ -189,9 +192,10 @@ class FBDServer:
                 model_weights = self.warehouse.get_model_weights(model_color)
                 
                 # Create temporary model for evaluation with proper normalization
-                from fbd_models import get_resnet18_fbd_model
                 norm_type = getattr(self, 'norm', 'bn')
-                temp_model = get_resnet18_fbd_model(
+                architecture_type = getattr(self, 'architecture', 'resnet18')
+                temp_model = get_fbd_model(
+                    architecture=architecture_type,
                     norm=norm_type,
                     in_channels=self.input_shape[0], 
                     num_classes=self.num_classes

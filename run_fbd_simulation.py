@@ -11,7 +11,7 @@ from fbd_utils import load_config
 from fbd_models import get_model_info
 
 # At the top, add configuration
-ARCHITECTURE = "resnet50"  # ← CHANGE THIS for ResNet50
+ARCHITECTURE = "resnet18"  # ← CHANGE THIS for ResNet18 or ResNet50
 NORMALIZATION = "bn"       # ← CHANGE THIS for different normalization
 FLWR_COMM_DIR = "fbd_flower_comm"
 

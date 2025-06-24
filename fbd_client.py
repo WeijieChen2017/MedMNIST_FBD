@@ -8,22 +8,10 @@ from typing import Dict, List, Any, Optional
 import time
 import os
 
-from fbd_models import ResNet18_FBD_BN, ResNet18_FBD_IN, ResNet18_FBD_LN
+from fbd_models import get_fbd_model
 from tests.test_trainer import LocalTrainer
 from fbd_communication import WeightTransfer
 from fbd_utils import load_fbd_settings
-
-def get_resnet18_fbd_model(norm: str, in_channels: int, num_classes: int):
-    """Get the appropriate ResNet18 FBD model based on normalization type."""
-    if norm == 'bn':
-        return ResNet18_FBD_BN(in_channels=in_channels, num_classes=num_classes)
-    elif norm == 'in':
-        return ResNet18_FBD_IN(in_channels=in_channels, num_classes=num_classes)
-    elif norm == 'ln':
-        return ResNet18_FBD_LN(in_channels=in_channels, num_classes=num_classes)
-    else:
-        # Default to batch normalization if norm type is not specified or unknown
-        return ResNet18_FBD_BN(in_channels=in_channels, num_classes=num_classes)
 
 class FBDClient:
     """
@@ -39,7 +27,8 @@ class FBDClient:
                  input_shape: tuple = (1, 28, 28),
                  learning_rate: float = 0.001,
                  device: str = 'cpu',
-                 norm: str = 'bn'):
+                 norm: str = 'bn',
+                 architecture: str = 'resnet18'):
         """
         Initialize FBD client.
         
@@ -52,17 +41,20 @@ class FBDClient:
             learning_rate: Learning rate for local training
             device: Device for computation
             norm: Normalization type ('bn', 'in', 'ln')
+            architecture: Model architecture ('resnet18', 'resnet50')
         """
         self.client_id = client_id
         self.device = device
         self.num_classes = num_classes
         self.input_shape = input_shape
+        self.architecture = architecture
+        self.norm = norm
         
         # Load FBD configuration
         self.fbd_trace, self.fbd_info, self.transparent_to_client = load_fbd_settings(fbd_config_path)
         
         # Initialize local model
-        self.model = get_resnet18_fbd_model(norm, input_shape[0], num_classes)
+        self.model = get_fbd_model(architecture, norm, input_shape[0], num_classes)
         self.model.to(device)
         
         # Initialize trainer
@@ -149,7 +141,7 @@ class FBDClient:
             print(f"Client {self.client_id}: No weights to update")
             return
         
-        # Use ResNet18_FBD's load_from_dict method
+        # Use FBD model's load_from_dict method
         self.model.load_from_dict(weights_dict)
         print(f"Client {self.client_id} updated model with {len(weights_dict)} parts")
     
@@ -232,7 +224,7 @@ class FBDClient:
                     parts_to_extract[model_part] = []
                 parts_to_extract[model_part].append(block_id)
         
-        # Extract weights using ResNet18_FBD's send_for_dict method
+        # Extract weights using FBD model's send_for_dict method
         model_weights = self.model.send_for_dict(list(parts_to_extract.keys()))
         
         # Map back to block IDs
