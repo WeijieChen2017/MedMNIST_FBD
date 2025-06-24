@@ -514,8 +514,20 @@ def _update_main_model_from_parts(main_model, model_to_update, model_to_update_p
         model_to_update: The trained model parts
         model_to_update_parts: Dict mapping layer names to FBD block IDs
     """
-    # For now, we update the entire main model with the trained model_to_update
-    # In a more sophisticated implementation, you would only update the specific parts
-    # specified in model_to_update_parts
+    # Update only the specific model parts that were trained for this FBD block
+    # This creates true block-level weight independence
     
-    main_model.load_state_dict(model_to_update.state_dict())
+    updated_state = model_to_update.state_dict()
+    current_state = main_model.state_dict()
+    
+    # Update only the layers specified in model_to_update_parts
+    for layer_name in model_to_update_parts.keys():
+        if hasattr(main_model, layer_name):
+            # Copy weights for this specific layer from trained model
+            layer_prefix = layer_name + "."
+            for param_name, param_tensor in updated_state.items():
+                if param_name.startswith(layer_prefix):
+                    current_state[param_name] = param_tensor.clone()
+    
+    # Load the updated state back to the main model
+    main_model.load_state_dict(current_state)
