@@ -37,6 +37,9 @@ from fbd_communication import WeightTransfer
 # Import pretrained weight loader
 from fbd_root_ckpt import get_pretrained_fbd_model
 
+# Import FBD client
+from fbd_client import FBDFlowerClient
+
 
 def get_fbd_model_with_pretrained(architecture: str, norm: str, in_channels: int, num_classes: int, use_imagenet: bool = False, device: str = 'cpu'):
     """Get the appropriate FBD model based on architecture and normalization type."""
@@ -56,163 +59,7 @@ def get_fbd_model_with_pretrained(architecture: str, norm: str, in_channels: int
         return get_fbd_model(architecture, norm, in_channels, num_classes)
 
 
-class FBDFlowerClient(fl.client.Client):
-    """FBD-enabled Flower client that integrates with FBD warehouse system."""
-    
-    def __init__(self, cid, model, train_loader, val_loader, test_loader, data_flag, device, 
-                 fbd_config_path, communication_dir, client_palette, architecture='resnet18'):
-        self.cid = cid
-        self.model = model
-        self.train_loader = train_loader
-        self.val_loader = val_loader
-        self.test_loader = test_loader
-        self.data_flag = data_flag
-        self.device = device
-        
-        # FBD specific attributes
-        self.fbd_config_path = fbd_config_path
-        self.communication_dir = communication_dir
-        self.client_palette = client_palette
-        self.architecture = architecture
-        
-        # Initialize FBD communication
-        self.communication = WeightTransfer(communication_dir)
-        
-        # Load FBD settings
-        self.fbd_trace, self.fbd_info, self.transparent_to_client = load_fbd_settings(fbd_config_path)
-        
-        logging.info(f"[FBD Client {cid}] Initialized with {len(client_palette)} FBD blocks")
 
-    def get_parameters(self, ins: fl.common.GetParametersIns) -> fl.common.GetParametersRes:
-        """Extract model parameters."""
-        ndarrays = [val.cpu().numpy() for _, val in self.model.state_dict().items()]
-        parameters = ndarrays_to_parameters(ndarrays)
-        return fl.common.GetParametersRes(
-            status=fl.common.Status(code=fl.common.Code.OK, message="Success"), 
-            parameters=parameters
-        )
-
-    def fit(self, ins: fl.common.FitIns) -> fl.common.FitRes:
-        """Perform FBD federated training."""
-        config = ins.config
-        round_num = config.get("server_round", 1)
-        local_lr = config.get("local_learning_rate", 0.001)
-        
-        # FBD: Receive weights from server (shipping phase)
-        try:
-            received_weights = self.communication.client_receive_weights(self.cid, round_num)
-            if received_weights:
-                logging.info(f"[FBD Client {self.cid}] Round {round_num}: Received {len(received_weights)} model parts")
-                self.model.load_from_dict(received_weights)
-        except (TimeoutError, FileNotFoundError) as e:
-            logging.info(f"[FBD Client {self.cid}] Round {round_num}: No weights received from server - using current model")
-        
-        # Perform local training
-        current_update_plan = config.get("current_update_plan", None)
-        train_result = self._train_model(local_lr, current_update_plan=current_update_plan, round_num=round_num)
-        
-        # Handle different return types from train function
-        if isinstance(train_result, tuple):
-            train_loss, regularizer_metrics = train_result
-        else:
-            train_loss = train_result
-            regularizer_metrics = None
-        
-        # Evaluate after training
-        train_loss, train_auc, train_acc = self._test_model(self.train_loader)
-        val_loss, val_auc, val_acc = self._test_model(self.val_loader)
-        
-        logging.info(f"[FBD Client {self.cid}] Round {round_num}: train_acc={train_acc:.4f}, val_acc={val_acc:.4f}")
-        
-        # FBD: Send updated weights to warehouse (always send trained weights)
-        # Extract weights according to client palette for this round
-        if self.client_palette:
-            extracted_weights = {}
-            for block_id, block_info in self.client_palette.items():
-                model_part = block_info['model_part']
-                # Extract weights for this model part
-                part_weights = self.model.send_for_dict([model_part])
-                if part_weights:
-                    extracted_weights[block_id] = part_weights[model_part]
-            
-            # Send all client's trained weights to warehouse
-            if extracted_weights:
-                self.communication.client_send_weights(self.cid, round_num, extracted_weights, list(extracted_weights.keys()))
-                logging.info(f"[FBD Client {self.cid}] Sent {len(extracted_weights)} trained FBD blocks to server")
-        
-        # Note: Collection phase will be handled by server using these weights
-        
-        # Return metrics (no parameters needed for FBD - using file communication)
-        metrics_dict = {
-            "train_loss": train_loss,
-            "train_auc": train_auc, 
-            "train_acc": train_acc,
-            "val_loss": val_loss,
-            "val_auc": val_auc,
-            "val_acc": val_acc
-        }
-        
-        # Add regularizer metrics if available
-        if regularizer_metrics is not None:
-            metrics_dict.update({
-                "regularizer_type": regularizer_metrics.get('regularizer_type'),
-                "num_regularizers": regularizer_metrics.get('num_regularizers', 0),
-                "regularization_strength": regularizer_metrics.get('regularization_strength', 0.0),
-                "avg_regularizer_distance": regularizer_metrics.get('avg_regularizer_distance', 0.0),
-                "max_regularizer_distance": regularizer_metrics.get('max_regularizer_distance', 0.0),
-                "min_regularizer_distance": regularizer_metrics.get('min_regularizer_distance', 0.0),
-                "std_regularizer_distance": regularizer_metrics.get('std_regularizer_distance', 0.0),
-                "regularizer_batch_details": regularizer_metrics.get('regularizer_distances', [])
-            })
-        
-        # Return empty parameters since FBD uses file-based communication
-        empty_params = ndarrays_to_parameters([np.array([0.0])])
-        
-        return FitRes(
-            status=fl.common.Status(code=fl.common.Code.OK, message="Success"),
-            parameters=empty_params,
-            num_examples=len(self.train_loader.dataset),
-            metrics=metrics_dict
-        )
-
-    def evaluate(self, ins: fl.common.EvaluateIns) -> fl.common.EvaluateRes:
-        """Evaluate model on validation set."""
-        loss, auc, acc = self._test_model(self.val_loader)
-        
-        metrics = {"loss": float(loss), "auc": float(auc), "acc": float(acc)}
-        
-        return fl.common.EvaluateRes(
-            status=fl.common.Status(code=fl.common.Code.OK, message="Success"),
-            loss=float(loss),
-            num_examples=len(self.val_loader.dataset),
-            metrics=metrics,
-        )
-
-    def _train_model(self, lr, current_update_plan=None, round_num=None):
-        """Train the model locally."""
-        from client import train  # Use existing training function
-        return train(self.model, self.train_loader, epochs=1, device=self.device, 
-                    data_flag=self.data_flag, lr=lr, current_update_plan=current_update_plan,
-                    client_id=self.cid, round_num=round_num)
-
-    def _test_model(self, data_loader):
-        """Test the model."""
-        from client import test  # Use existing test function
-        return test(self.model, data_loader, device=self.device, data_flag=self.data_flag)
-
-    def _extract_fbd_weights(self, request_list):
-        """Extract FBD weights according to request list and client palette."""
-        extracted_weights = {}
-        
-        for block_id in request_list:
-            if block_id in self.client_palette:
-                model_part = self.client_palette[block_id]['model_part']
-                # Extract weights for this model part
-                part_weights = self.model.send_for_dict([model_part])
-                if part_weights:
-                    extracted_weights[block_id] = part_weights[model_part]
-        
-        return extracted_weights
 
 
 class FBDStrategy(FedAvg):
