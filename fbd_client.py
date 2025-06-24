@@ -161,6 +161,13 @@ def train(model, train_loader, epochs, device, data_flag, lr, current_update_pla
                 # Standard training without update plan
                 outputs = model(inputs)
 
+                if task == 'multi-label, binary-class':
+                    targets = targets.to(torch.float32)
+                    loss = criterion(outputs, targets)
+                else:
+                    targets = torch.squeeze(targets, 1).long()
+                    loss = criterion(outputs, targets)
+
                 # add a log message
                 log_msg = f"Round {round_num}: Standard training, loss={loss.item():.4f}"
                 if client_logger:
@@ -168,13 +175,6 @@ def train(model, train_loader, epochs, device, data_flag, lr, current_update_pla
                 else:
                     print(f"[Client {client_id}] {log_msg}")  # Fallback to print if no logger
 
-                if task == 'multi-label, binary-class':
-                    targets = targets.to(torch.float32)
-                    loss = criterion(outputs, targets)
-                else:
-                    targets = torch.squeeze(targets, 1).long()
-                    loss = criterion(outputs, targets)
-                
                 # Standard training step
                 optimizer.zero_grad()
                 loss.backward()
