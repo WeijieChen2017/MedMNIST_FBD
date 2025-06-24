@@ -10,10 +10,16 @@ import time
 from fbd_utils import load_config
 from fbd_models import get_model_info
 
+current_time = time.strftime("%m%d_%H%M", time.localtime(time.time() - 5*60*60))
+
+OUTPUT_DIR = f"col5_fbd/bloodmnist_{current_time}"
+if not os.path.exists(OUTPUT_DIR):
+    os.makedirs(OUTPUT_DIR)
+
 # At the top, add configuration
 ARCHITECTURE = "resnet18"  # ← CHANGE THIS for ResNet18 or ResNet50
 NORMALIZATION = "bn"       # ← CHANGE THIS for different normalization
-FLWR_COMM_DIR = "fbd_flower_comm"
+FLWR_COMM_DIR = f"fbd_flower_comm_{current_time}"
 
 if not os.path.exists(FLWR_COMM_DIR):
     os.makedirs(FLWR_COMM_DIR)
@@ -47,12 +53,6 @@ blocks_per_stage_str = "".join(map(str, blocks_per_stage))
 # the time shown is 0618_2149, but current time is 0618_1649
 # this is because the time zone is different
 # so the time delay is 5 hours
-
-current_time = time.strftime("%m%d_%H%M", time.localtime(time.time() - 5*60*60))
-
-OUTPUT_DIR = f"col5_fbd/bloodmnist_{current_time}_{blocks_per_stage_str}"
-if not os.path.exists(OUTPUT_DIR):
-    os.makedirs(OUTPUT_DIR)
 
 def get_model_name_from_norm(architecture, norm_type):
     """Get the correct model name based on normalization type."""

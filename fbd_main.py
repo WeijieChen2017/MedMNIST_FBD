@@ -255,9 +255,6 @@ def main():
     client_palettes = generate_client_model_palettes(config.num_clients, args.fbd_config)
     
     # Clean up communication directory
-    if os.path.exists(args.communication_dir):
-        import shutil
-        shutil.rmtree(args.communication_dir)
     os.makedirs(args.communication_dir, exist_ok=True)
     
     # Load shipping, request, and update plans
