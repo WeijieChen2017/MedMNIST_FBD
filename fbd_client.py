@@ -8,10 +8,10 @@ from typing import Dict, List, Any, Optional
 import time
 import os
 
-from models import ResNet18_FBD_BN, ResNet18_FBD_IN, ResNet18_FBD_LN
-from trainer import LocalTrainer
+from fbd_models import ResNet18_FBD_BN, ResNet18_FBD_IN, ResNet18_FBD_LN
+from tests.test_trainer import LocalTrainer
 from fbd_communication import WeightTransfer
-from fbd_logic import load_fbd_settings
+from fbd_utils import load_fbd_settings
 
 def get_resnet18_fbd_model(norm: str, in_channels: int, num_classes: int):
     """Get the appropriate ResNet18 FBD model based on normalization type."""

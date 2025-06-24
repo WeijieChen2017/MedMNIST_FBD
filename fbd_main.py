@@ -27,14 +27,14 @@ from flwr.server.client_proxy import ClientProxy
 from flwr.common import Scalar
 
 # Import existing components
-from dataset import load_data, partition_data, get_data_loader
+from fbd_dataset import load_data, partition_data, get_data_loader
 from models import ResNet18_FBD_BN, ResNet18_FBD_IN, ResNet18_FBD_LN
 from medmnist import INFO
-from config_loader import load_config
+from fbd_utils import load_config
 
 # Import FBD components
-from fbd_logic import load_fbd_settings, load_shipping_plan, load_request_plan, FBDWarehouse, generate_client_model_palettes
-from fbd_eval_strategy import fbd_average_evaluate, fbd_comprehensive_evaluate, fbd_ensemble_evaluate
+from fbd_utils import load_fbd_settings, load_shipping_plan, load_request_plan, FBDWarehouse, generate_client_model_palettes
+from fbd_strategy import fbd_average_evaluate, fbd_comprehensive_evaluate, fbd_ensemble_evaluate
 from fbd_communication import WeightTransfer
 
 # Import pretrained weight loader

@@ -7,7 +7,7 @@ import subprocess
 import sys
 import os
 import time
-from config_loader import load_config
+from fbd_utils import load_config
 from models import get_model_info
 
 # At the top, add configuration
