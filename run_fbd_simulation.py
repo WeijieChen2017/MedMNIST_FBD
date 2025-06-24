@@ -8,7 +8,7 @@ import sys
 import os
 import time
 from fbd_utils import load_config
-from models import get_model_info
+from fbd_models import get_model_info
 
 # At the top, add configuration
 ARCHITECTURE = "resnet50"  # ← CHANGE THIS for ResNet50
