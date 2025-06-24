@@ -35,7 +35,7 @@ from config_loader import load_config
 # Import FBD components
 from fbd_logic import load_fbd_settings, load_shipping_plan, load_request_plan, FBDWarehouse, generate_client_model_palettes
 from fbd_eval_strategy import fbd_average_evaluate, fbd_comprehensive_evaluate, fbd_ensemble_evaluate
-from communication import WeightTransfer
+from fbd_communication import WeightTransfer
 
 # Import pretrained weight loader
 from fbd_root_ckpt import get_pretrained_fbd_model
