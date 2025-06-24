@@ -10,7 +10,7 @@ import numpy as np
 from typing import Dict, Any, List, Optional
 from sklearn.metrics import roc_auc_score, accuracy_score
 
-from models import ResNet18_FBD_BN, ResNet18_FBD_IN, ResNet18_FBD_LN
+from fbd_models import ResNet18_FBD_BN, ResNet18_FBD_IN, ResNet18_FBD_LN
 
 
 def get_resnet18_fbd_model(norm: str, in_channels: int, num_classes: int):
