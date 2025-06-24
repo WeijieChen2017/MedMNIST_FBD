@@ -13,14 +13,11 @@ import flwr as fl
 import torch
 import os
 import json
-import time
 import random
 import numpy as np
 import logging
 from flwr.client import Client
 from flwr.common import FitRes, Parameters, ndarrays_to_parameters, parameters_to_ndarrays
-from collections import OrderedDict
-import pickle
 from typing import Dict, List, Tuple, Optional
 from flwr.server.strategy import FedAvg
 from flwr.server.client_proxy import ClientProxy
@@ -28,7 +25,7 @@ from flwr.common import Scalar
 
 # Import existing components
 from fbd_dataset import load_data, partition_data, get_data_loader
-from models import ResNet18_FBD_BN, ResNet18_FBD_IN, ResNet18_FBD_LN
+from fbd_models import ResNet18_FBD_BN, ResNet18_FBD_IN, ResNet18_FBD_LN
 from medmnist import INFO
 from fbd_utils import load_config
 
