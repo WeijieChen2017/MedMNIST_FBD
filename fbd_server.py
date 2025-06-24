@@ -9,9 +9,9 @@ import time
 import os
 import json
 
-from models import ResNet18_FBD
-from communication import WeightTransfer
-from fbd_logic import (FBDWarehouse, load_fbd_settings, 
+from fbd_models import ResNet18_FBD
+from fbd_communication import WeightTransfer
+from fbd_utils import (FBDWarehouse, load_fbd_settings, 
                        load_shipping_plan, load_request_plan)
 
 class FBDServer:
@@ -59,7 +59,7 @@ class FBDServer:
         self.total_rounds = len(self.shipping_plan)
         
         # Initialize warehouse with template model using proper normalization
-        from models import get_resnet18_fbd_model
+        from fbd_models import get_resnet18_fbd_model
         template_model = get_resnet18_fbd_model(
             norm=norm,
             in_channels=input_shape[0], 
@@ -189,7 +189,7 @@ class FBDServer:
                 model_weights = self.warehouse.get_model_weights(model_color)
                 
                 # Create temporary model for evaluation with proper normalization
-                from models import get_resnet18_fbd_model
+                from fbd_models import get_resnet18_fbd_model
                 norm_type = getattr(self, 'norm', 'bn')
                 temp_model = get_resnet18_fbd_model(
                     norm=norm_type,

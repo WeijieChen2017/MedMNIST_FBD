@@ -14,7 +14,7 @@ import torch
 import torchvision.models as models
 import logging
 from typing import Dict, Any, Optional
-from models import (
+from fbd_models import (
     get_resnet18_fbd_model, 
     get_resnet50_fbd_model,
     get_fbd_model
