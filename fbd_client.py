@@ -80,6 +80,12 @@ def train(model, train_loader, epochs, device, data_flag, lr, current_update_pla
     else:
         print(f"  - Update plan is None - no plan received from server")
     
+    # 🛑 EXIT HERE TO DEBUG PATH DECISION
+    print(f"🛑 [DEBUG EXIT] Client {client_id} - Path decision made: use_update_plan={use_update_plan}")
+    print(f"📊 If use_update_plan=False, clients will take Path 2 (Standard Training)")
+    print(f"📊 If use_update_plan=True, clients will take Path 1 (FBD Training)")
+    exit()
+    
     # Initialize regularizer metrics tracking
     regularizer_metrics = {
         'regularizer_distances': [],
@@ -88,7 +94,7 @@ def train(model, train_loader, epochs, device, data_flag, lr, current_update_pla
         'regularization_strength': 0.0
     }
     
-    # Variables to hold models for cleanup
+    # Variables to hold models
     model_to_update = None
     model_to_update_optimizer = None
     regularizer_models = []
@@ -280,35 +286,7 @@ def train(model, train_loader, epochs, device, data_flag, lr, current_update_pla
             print(f"[Training Summary] Client {client_id} Round {round_num}: Used Path 2 (Standard) - processed {batch_count} batches")
 
     finally:
-        # ========== EXPLICIT MEMORY CLEANUP ==========
-        print(f"[Memory Cleanup] Client {client_id} Round {round_num}: Starting cleanup...")
-        
-        # Clean up model_to_update
-        if model_to_update is not None:
-            del model_to_update
-            print(f"[Memory Cleanup] Deleted model_to_update")
-        
-        # Clean up optimizer
-        if model_to_update_optimizer is not None:
-            del model_to_update_optimizer
-            print(f"[Memory Cleanup] Deleted model_to_update_optimizer")
-        
-        # Clean up regularizer models
-        if regularizer_models:
-            for i, reg_model in enumerate(regularizer_models):
-                del reg_model
-            regularizer_models.clear()
-            print(f"[Memory Cleanup] Deleted {len(regularizer_models)} regularizer models")
-        
-        # Force garbage collection
-        gc.collect()
-        
-        # Clear CUDA cache if using GPU
-        if device.type == 'cuda':
-            torch.cuda.empty_cache()
-            print(f"[Memory Cleanup] Cleared CUDA cache")
-        
-        print(f"[Memory Cleanup] ✅ Cleanup completed for Client {client_id} Round {round_num}")
+        pass
 
     avg_loss = total_loss / len(train_loader)
     
@@ -1127,41 +1105,7 @@ class FBDFlowerClient(fl.client.Client):
             )
             
         finally:
-            # ========== CLIENT-LEVEL MEMORY CLEANUP ==========
-            print(f"[Client Cleanup] Client {self.cid} Round {round_num}: Starting client-level cleanup...")
-            
-            # Clean up weight tracking dictionaries
-            if 'model_weights_before' in locals():
-                del model_weights_before
-            if 'model_weights_after' in locals():
-                del model_weights_after
-            if 'changed_layers' in locals():
-                del changed_layers
-            
-            # Force garbage collection
-            gc.collect()
-            
-            # Clear CUDA cache if using GPU  
-            if self.device.type == 'cuda':
-                torch.cuda.empty_cache()
-                print(f"[Client Cleanup] Cleared CUDA cache for Client {self.cid}")
-            
-            # Force Ray cleanup to prevent disk space issues
-            self._cleanup_ray_memory()
-            
-            # Track memory usage at end (if psutil is available)
-            if process is not None and memory_start is not None:
-                try:
-                    memory_end = process.memory_info().rss / (1024**2)  # MB
-                    memory_diff = memory_end - memory_start
-                    print(f"[Memory Monitor] Client {self.cid} Round {round_num} END: {memory_end:.2f} MB RAM used ({memory_diff:+.2f} MB change)")
-                    
-                    if memory_diff > 100:  # More than 100MB increase
-                        print(f"[Memory Monitor] ⚠️  WARNING: Client {self.cid} Round {round_num} increased memory by {memory_diff:.2f} MB!")
-                except Exception as e:
-                    print(f"[Memory Monitor] Error tracking memory usage: {e}")
-            
-            print(f"[Client Cleanup] ✅ Client-level cleanup completed for Client {self.cid} Round {round_num}")
+            pass
 
     def evaluate(self, ins: fl.common.EvaluateIns) -> fl.common.EvaluateRes:
         """Evaluate model on validation set."""
@@ -1201,60 +1145,7 @@ class FBDFlowerClient(fl.client.Client):
         
         return extracted_weights
 
-    def _cleanup_ray_memory(self):
-        """Force cleanup of Ray's object store and temporary files."""
-        try:
-            import ray
-            import gc
-            import torch
-            
-            print(f"[Ray Cleanup] Client {self.cid}: Starting Ray memory cleanup...")
-            
-            # Force garbage collection first
-            gc.collect()
-            
-            # Clear CUDA cache if using GPU
-            if self.device.type == 'cuda':
-                torch.cuda.empty_cache()
-            
-            # Try to force Ray to clean up its object store
-            if ray.is_initialized():
-                try:
-                    # Get object store stats before cleanup
-                    object_store_memory = ray.cluster_resources().get('object_store_memory', 0)
-                    print(f"[Ray Cleanup] Object store memory available: {object_store_memory / (1024**3):.2f} GB")
-                    
-                    # Force Ray to cleanup unused objects
-                    ray._private.worker.global_worker.core_worker.trigger_global_gc()
-                    
-                    print(f"[Ray Cleanup] ✅ Triggered Ray global GC for Client {self.cid}")
-                    
-                except Exception as e:
-                    print(f"[Ray Cleanup] Warning: Could not trigger Ray GC: {e}")
-            
-            # Additional manual cleanup
-            import os
-            import tempfile
-            
-            # Check if we can get Ray session directory
-            try:
-                ray_temp_dir = ray._private.services.get_ray_temp_dir()
-                if ray_temp_dir and os.path.exists(ray_temp_dir):
-                    # Get disk usage
-                    import shutil
-                    total, used, free = shutil.disk_usage(ray_temp_dir)
-                    print(f"[Ray Cleanup] Ray temp dir disk usage: {used / (1024**3):.2f} GB used, {free / (1024**3):.2f} GB free")
-                    
-                    if free / total < 0.1:  # Less than 10% free
-                        print(f"[Ray Cleanup] ⚠️  WARNING: Ray temp directory is running low on space!")
-                
-            except Exception as e:
-                print(f"[Ray Cleanup] Could not check Ray temp directory: {e}")
-            
-            print(f"[Ray Cleanup] ✅ Ray cleanup completed for Client {self.cid}")
-            
-        except Exception as e:
-            print(f"[Ray Cleanup] Error during Ray cleanup: {e}")
+
 
 
 
