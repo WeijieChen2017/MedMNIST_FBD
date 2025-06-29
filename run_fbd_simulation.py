@@ -159,6 +159,7 @@ def run_fbd_simulation():
         "--fbd_config", "fbd_record/fbd_settings.py",
         "--shipping_plan", "fbd_record/shipping_plan.json",
         "--request_plan", "fbd_record/request_plan.json",
+        "--update_plan", "fbd_record/update_plan.json",
         "--communication_dir", FLWR_COMM_DIR,
         "--imagenet",
         "--output_dir", OUTPUT_DIR,

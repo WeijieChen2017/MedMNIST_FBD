@@ -72,14 +72,25 @@ class FBDStrategy(FedAvg):
         
         # Load update plan
         self.update_plan = None
+        print(f"[Server Init Debug] Attempting to load update plan from: {update_plan_path}")
+        print(f"[Server Init Debug] update_plan_path provided: {update_plan_path is not None}")
+        if update_plan_path:
+            print(f"[Server Init Debug] File exists check: {os.path.exists(update_plan_path)}")
+        
         if update_plan_path and os.path.exists(update_plan_path):
             try:
                 with open(update_plan_path, 'r') as f:
                     self.update_plan = json.load(f)
+                print(f"[Server Init Debug] ✅ Successfully loaded update plan from {update_plan_path}")
+                print(f"[Server Init Debug] Update plan contains {len(self.update_plan)} rounds")
+                print(f"[Server Init Debug] Available rounds: {list(self.update_plan.keys())[:5]}...") # Show first 5 rounds
                 logging.info(f"[FBD Strategy] Loaded update plan from {update_plan_path}")
             except Exception as e:
+                print(f"[Server Init Debug] ❌ Failed to load update plan: {e}")
                 logging.warning(f"[FBD Strategy] Failed to load update plan: {e}")
         else:
+            print(f"[Server Init Debug] ❌ No update plan provided or file not found")
+            print(f"[Server Init Debug] This means clients will NOT receive update plans -> Path 2")
             logging.info(f"[FBD Strategy] No update plan provided or file not found")
         
         # Initialize FBD warehouse with logging
