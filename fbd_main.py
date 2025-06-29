@@ -367,8 +367,8 @@ def main():
         # Get client palette
         client_palette = client_palettes.get(int(cid), {})
         
-        print(f"🏗️ [CLIENT_FN CALLED] Creating client {cid}")
-        print(f"🏗️ [CLIENT_FN] About to create FBDFlowerClient...")
+        print(f"🏗️ [CLIENT_FN CALLED] Creating client {cid}", flush=True)
+        print(f"🏗️ [CLIENT_FN] About to create FBDFlowerClient...", flush=True)
         
         fbd_client = FBDFlowerClient(
             cid=int(cid),
@@ -385,20 +385,20 @@ def main():
             output_dir=output_dir
         )
         
-        print(f"🏗️ [CLIENT_FN] FBDFlowerClient created")
-        print(f"🏗️ [CLIENT_FN] FBDFlowerClient type: {type(fbd_client)}")
-        print(f"🏗️ [CLIENT_FN] FBDFlowerClient has fit method: {hasattr(fbd_client, 'fit')}")
+        print(f"🏗️ [CLIENT_FN] FBDFlowerClient created", flush=True)
+        print(f"🏗️ [CLIENT_FN] FBDFlowerClient type: {type(fbd_client)}", flush=True)
+        print(f"🏗️ [CLIENT_FN] FBDFlowerClient has fit method: {hasattr(fbd_client, 'fit')}", flush=True)
         
         # Let's try both approaches and see what works
         try:
-            print(f"🏗️ [CLIENT_FN] Calling .to_client()...")
+            print(f"🏗️ [CLIENT_FN] Calling .to_client()...", flush=True)
             client_wrapper = fbd_client.to_client()
-            print(f"🏗️ [CLIENT_FN] to_client() wrapper type: {type(client_wrapper)}")
-            print(f"🏗️ [CLIENT_FN] Wrapper has fit method: {hasattr(client_wrapper, 'fit')}")
+            print(f"🏗️ [CLIENT_FN] to_client() wrapper type: {type(client_wrapper)}", flush=True)
+            print(f"🏗️ [CLIENT_FN] Wrapper has fit method: {hasattr(client_wrapper, 'fit')}", flush=True)
             return client_wrapper
         except Exception as e:
-            print(f"🏗️ [CLIENT_FN] Error with .to_client(): {e}")
-            print(f"🏗️ [CLIENT_FN] Returning FBDFlowerClient directly...")
+            print(f"🏗️ [CLIENT_FN] Error with .to_client(): {e}", flush=True)
+            print(f"🏗️ [CLIENT_FN] Returning FBDFlowerClient directly...", flush=True)
             return fbd_client
     
     # Initialize FBD strategy

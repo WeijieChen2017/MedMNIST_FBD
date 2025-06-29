@@ -49,9 +49,9 @@ from fbd_record.fbd_settings import REGULARIZER_PARAMS
 
 def train(model, train_loader, epochs, device, data_flag, lr, current_update_plan=None, client_id=None, round_num=None, client_logger=None, warehouse_communication=None):
     """Train the model on the training set."""
-    print(f"🚀 [TRAIN FUNCTION CALLED] Client {client_id}, Round {round_num}")
-    print(f"🚀 [TRAIN FUNCTION] epochs={epochs}, lr={lr}, data_flag={data_flag}")
-    print(f"🚀 [TRAIN FUNCTION] current_update_plan provided: {current_update_plan is not None}")
+    print(f"🚀 [TRAIN FUNCTION CALLED] Client {client_id}, Round {round_num}", flush=True)
+    print(f"🚀 [TRAIN FUNCTION] epochs={epochs}, lr={lr}, data_flag={data_flag}", flush=True)
+    print(f"🚀 [TRAIN FUNCTION] current_update_plan provided: {current_update_plan is not None}", flush=True)
     exit()  # Exit immediately to see if train() is being called
     
     info = INFO[data_flag]
@@ -804,7 +804,7 @@ class FBDFlowerClient(fl.client.Client):
     
     def __init__(self, cid, model, train_loader, val_loader, test_loader, data_flag, device, 
                  fbd_config_path, communication_dir, client_palette, architecture='resnet18', output_dir=None):
-        print(f"🔧 [FBDFLOWERCLIENT INIT] Client {cid} initialization started")
+        print(f"🔧 [FBDFLOWERCLIENT INIT] Client {cid} initialization started", flush=True)
         self.cid = cid
         self.model = model
         self.train_loader = train_loader
@@ -935,6 +935,8 @@ class FBDFlowerClient(fl.client.Client):
 
     def get_parameters(self, ins: fl.common.GetParametersIns) -> fl.common.GetParametersRes:
         """Extract model parameters."""
+        print(f"📥 [GET_PARAMETERS CALLED] Client {self.cid}", flush=True)
+        print(f"📥 [GET_PARAMETERS] This method IS being called by Flower!", flush=True)
         ndarrays = [val.cpu().numpy() for _, val in self.model.state_dict().items()]
         parameters = ndarrays_to_parameters(ndarrays)
         return fl.common.GetParametersRes(
@@ -944,8 +946,8 @@ class FBDFlowerClient(fl.client.Client):
 
     def fit(self, ins: fl.common.FitIns) -> fl.common.FitRes:
         """Perform FBD federated training."""
-        print(f"🚀 [CLIENT FIT CALLED] Client {self.cid} - fit() method started!")
-        print(f"🚀 [CLIENT FIT] ins.config keys: {list(ins.config.keys())}")
+        print(f"🚀 [CLIENT FIT CALLED] Client {self.cid} - fit() method started!", flush=True)
+        print(f"🚀 [CLIENT FIT] ins.config keys: {list(ins.config.keys())}", flush=True)
         exit()  # Exit immediately to see if fit() is being called
         
         import gc
@@ -1119,6 +1121,8 @@ class FBDFlowerClient(fl.client.Client):
 
     def evaluate(self, ins: fl.common.EvaluateIns) -> fl.common.EvaluateRes:
         """Evaluate model on validation set."""
+        print(f"📊 [EVALUATE CALLED] Client {self.cid}", flush=True)
+        print(f"📊 [EVALUATE] This method IS being called by Flower!", flush=True)
         loss, auc, acc = self._test_model(self.val_loader)
         
         metrics = {"loss": float(loss), "auc": float(auc), "acc": float(acc)}
