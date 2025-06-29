@@ -31,7 +31,6 @@ from sklearn.metrics import roc_auc_score, accuracy_score
 import pickle
 import json
 import gc
-import psutil
 
 from fbd_models import get_fbd_model
 from tests.test_trainer import LocalTrainer
@@ -794,17 +793,22 @@ class FBDFlowerClient(fl.client.Client):
         """Perform FBD federated training."""
         import gc
         import torch
-        import psutil
         import os
         
         config = ins.config
         round_num = config.get("server_round", 1)
         local_lr = config.get("local_learning_rate", 0.001)
         
-        # Track memory usage at start
-        process = psutil.Process(os.getpid())
-        memory_start = process.memory_info().rss / (1024**2)  # MB
-        print(f"[Memory Monitor] Client {self.cid} Round {round_num} START: {memory_start:.2f} MB RAM used")
+        # Track memory usage at start (if psutil is available)
+        memory_start = None
+        try:
+            import psutil
+            process = psutil.Process(os.getpid())
+            memory_start = process.memory_info().rss / (1024**2)  # MB
+            print(f"[Memory Monitor] Client {self.cid} Round {round_num} START: {memory_start:.2f} MB RAM used")
+        except ImportError:
+            print(f"[Memory Monitor] psutil not available - skipping memory monitoring")
+            process = None
         
         try:
             # Debug: Check if update plan was received from server
@@ -976,13 +980,17 @@ class FBDFlowerClient(fl.client.Client):
             # Force Ray cleanup to prevent disk space issues
             self._cleanup_ray_memory()
             
-            # Track memory usage at end
-            memory_end = process.memory_info().rss / (1024**2)  # MB
-            memory_diff = memory_end - memory_start
-            print(f"[Memory Monitor] Client {self.cid} Round {round_num} END: {memory_end:.2f} MB RAM used ({memory_diff:+.2f} MB change)")
-            
-            if memory_diff > 100:  # More than 100MB increase
-                print(f"[Memory Monitor] ⚠️  WARNING: Client {self.cid} Round {round_num} increased memory by {memory_diff:.2f} MB!")
+            # Track memory usage at end (if psutil is available)
+            if process is not None and memory_start is not None:
+                try:
+                    memory_end = process.memory_info().rss / (1024**2)  # MB
+                    memory_diff = memory_end - memory_start
+                    print(f"[Memory Monitor] Client {self.cid} Round {round_num} END: {memory_end:.2f} MB RAM used ({memory_diff:+.2f} MB change)")
+                    
+                    if memory_diff > 100:  # More than 100MB increase
+                        print(f"[Memory Monitor] ⚠️  WARNING: Client {self.cid} Round {round_num} increased memory by {memory_diff:.2f} MB!")
+                except Exception as e:
+                    print(f"[Memory Monitor] Error tracking memory usage: {e}")
             
             print(f"[Client Cleanup] ✅ Client-level cleanup completed for Client {self.cid} Round {round_num}")
 
