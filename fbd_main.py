@@ -19,6 +19,7 @@ import logging
 import shutil
 import glob
 import time
+import ray
 from flwr.client import Client
 from flwr.common import FitRes, Parameters, ndarrays_to_parameters, parameters_to_ndarrays
 from typing import Dict, List, Tuple, Optional
@@ -432,10 +433,25 @@ def main():
     gpus_per_client = 1 / (config.num_clients + 1) if device.type == "cuda" else 0
     client_resources = {"num_cpus": args.cpus_per_client, "num_gpus": gpus_per_client}
     
+    # Configure Ray with custom temporary directory
+    ray_temp_dir = "/local/ray_temp/"
+    os.makedirs(ray_temp_dir, exist_ok=True)
+    
+    # Initialize Ray with custom temp directory before Flower simulation starts
+    if not ray.is_initialized():
+        logging.info(f"🔧 Initializing Ray with temp directory: {ray_temp_dir}")
+        ray.init(
+            _temp_dir=ray_temp_dir,
+            object_store_memory_fraction=0.3,  # Limit object store memory usage
+            ignore_reinit_error=True,
+            logging_level=logging.ERROR  # Reduce Ray's verbose logging
+        )
+    
     logging.info(f"🚀 Starting FBD Federated Learning Simulation")
     logging.info(f"Clients: {config.num_clients}, Rounds: {config.num_rounds}")
     logging.info(f"GPU per client: {gpus_per_client:.3f}")
     logging.info(f"📄 Training progress will be saved to JSON files instead of verbose console output")
+    logging.info(f"💾 Ray temp directory: {ray_temp_dir}")
     
     # Temporarily reduce Flower's logging verbosity during simulation
     fl_logger = logging.getLogger("flwr")
@@ -454,6 +470,12 @@ def main():
     finally:
         # Restore original logging level
         fl_logger.setLevel(original_level)
+        
+        # Clean up Ray resources
+        if ray.is_initialized():
+            logging.info("🧹 Shutting down Ray...")
+            ray.shutdown()
+            logging.info("✅ Ray shutdown complete")
     
     # Save final results after training completion
     strategy.save_final_results()
