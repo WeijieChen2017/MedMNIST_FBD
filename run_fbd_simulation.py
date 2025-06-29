@@ -135,8 +135,8 @@ def run_fbd_simulation():
     # Check required files
     required_files = [
         "fbd_record/fbd_settings.py",
-        "shipping_plan.json", 
-        "request_plan.json"
+        "fbd_record/shipping_plan.json", 
+        "fbd_record/request_plan.json"
     ]
     
     for file in required_files:
