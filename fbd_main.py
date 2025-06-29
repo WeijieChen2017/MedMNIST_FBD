@@ -385,8 +385,21 @@ def main():
             output_dir=output_dir
         )
         
-        print(f"🏗️ [CLIENT_FN] FBDFlowerClient created, returning WITHOUT .to_client()...")
-        return fbd_client  # Return FBDFlowerClient directly without .to_client()
+        print(f"🏗️ [CLIENT_FN] FBDFlowerClient created")
+        print(f"🏗️ [CLIENT_FN] FBDFlowerClient type: {type(fbd_client)}")
+        print(f"🏗️ [CLIENT_FN] FBDFlowerClient has fit method: {hasattr(fbd_client, 'fit')}")
+        
+        # Let's try both approaches and see what works
+        try:
+            print(f"🏗️ [CLIENT_FN] Calling .to_client()...")
+            client_wrapper = fbd_client.to_client()
+            print(f"🏗️ [CLIENT_FN] to_client() wrapper type: {type(client_wrapper)}")
+            print(f"🏗️ [CLIENT_FN] Wrapper has fit method: {hasattr(client_wrapper, 'fit')}")
+            return client_wrapper
+        except Exception as e:
+            print(f"🏗️ [CLIENT_FN] Error with .to_client(): {e}")
+            print(f"🏗️ [CLIENT_FN] Returning FBDFlowerClient directly...")
+            return fbd_client
     
     # Initialize FBD strategy
     strategy = FBDStrategy(

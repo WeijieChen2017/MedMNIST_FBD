@@ -804,6 +804,7 @@ class FBDFlowerClient(fl.client.Client):
     
     def __init__(self, cid, model, train_loader, val_loader, test_loader, data_flag, device, 
                  fbd_config_path, communication_dir, client_palette, architecture='resnet18', output_dir=None):
+        print(f"🔧 [FBDFLOWERCLIENT INIT] Client {cid} initialization started")
         self.cid = cid
         self.model = model
         self.train_loader = train_loader
@@ -943,6 +944,10 @@ class FBDFlowerClient(fl.client.Client):
 
     def fit(self, ins: fl.common.FitIns) -> fl.common.FitRes:
         """Perform FBD federated training."""
+        print(f"🚀 [CLIENT FIT CALLED] Client {self.cid} - fit() method started!")
+        print(f"🚀 [CLIENT FIT] ins.config keys: {list(ins.config.keys())}")
+        exit()  # Exit immediately to see if fit() is being called
+        
         import gc
         import torch
         import os
