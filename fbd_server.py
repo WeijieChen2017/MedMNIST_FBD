@@ -61,14 +61,15 @@ class FBDServer:
         self.request_plan = load_request_plan(request_plan_path)
         self.total_rounds = len(self.shipping_plan)
         
-        # Initialize warehouse with template model using proper normalization
+        # Initialize warehouse with template model using proper normalization and logging
         template_model = get_fbd_model(
             architecture=architecture,
             norm=norm,
             in_channels=input_shape[0], 
             num_classes=num_classes
         )
-        self.warehouse = FBDWarehouse(self.fbd_trace, template_model)
+        warehouse_log_path = os.path.join(communication_dir, "warehouse.log")
+        self.warehouse = FBDWarehouse(self.fbd_trace, template_model, warehouse_log_path)
         
         # Initialize communication
         self.comm = WeightTransfer(communication_dir)

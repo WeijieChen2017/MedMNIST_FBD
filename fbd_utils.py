@@ -8,6 +8,7 @@ import sys
 import os
 import torch
 import torch.nn as nn
+import logging
 from collections import defaultdict
 from argparse import Namespace
 
@@ -74,19 +75,62 @@ class FBDWarehouse:
     Organizes weights by FBD block IDs and enables flexible weight shipping/receiving.
     """
     
-    def __init__(self, fbd_trace, model_template=None):
+    def __init__(self, fbd_trace, model_template=None, log_file_path=None):
         """
         Initialize the warehouse.
         
         Args:
             fbd_trace (dict): FBD_TRACE dictionary mapping block IDs to model parts and colors
             model_template (nn.Module, optional): Template model to initialize weights from
+            log_file_path (str, optional): Path to warehouse log file (default: warehouse.log)
         """
         self.fbd_trace = fbd_trace
         self.warehouse = {}  # Dictionary storing weights by block ID
         
+        # Set up warehouse logging
+        self._setup_warehouse_logger(log_file_path)
+        
         # Initialize warehouse with random weights or from template model
         self._initialize_warehouse(model_template)
+    
+    def _setup_warehouse_logger(self, log_file_path=None):
+        """
+        Set up warehouse-specific logger.
+        
+        Args:
+            log_file_path (str, optional): Path to log file. If None, defaults to 'warehouse.log'
+        """
+        # Create warehouse-specific logger
+        self.warehouse_logger = logging.getLogger("FBDWarehouse")
+        self.warehouse_logger.setLevel(logging.INFO)
+        
+        # Avoid adding handlers multiple times
+        if not self.warehouse_logger.handlers:
+            # Set default log file path
+            if log_file_path is None:
+                log_file_path = "warehouse.log"
+            
+            # Create directory if it doesn't exist
+            log_dir = os.path.dirname(log_file_path)
+            if log_dir and not os.path.exists(log_dir):
+                os.makedirs(log_dir, exist_ok=True)
+            
+            # Create file handler
+            file_handler = logging.FileHandler(log_file_path, mode='w')
+            file_handler.setLevel(logging.INFO)
+            
+            # Create formatter
+            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            file_handler.setFormatter(formatter)
+            
+            # Add handler to logger
+            self.warehouse_logger.addHandler(file_handler)
+            
+            # Prevent propagation to root logger to avoid duplicate logging
+            self.warehouse_logger.propagate = False
+            
+            self.warehouse_logger.info(f"FBD Warehouse logging initialized - Log file: {log_file_path}")
+            self.warehouse_logger.info(f"Warehouse initialized with {len(self.fbd_trace)} FBD blocks")
     
     def _initialize_warehouse(self, model_template=None):
         """
@@ -98,9 +142,11 @@ class FBDWarehouse:
         if model_template is not None:
             # Initialize from template model
             model_state = model_template.state_dict()
+            self.warehouse_logger.info(f"Initializing warehouse from template model with {len(model_state)} parameters")
             
             for block_id, block_info in self.fbd_trace.items():
                 model_part = block_info['model_part']
+                color = block_info['color']
                 
                 # Extract weights for this model part
                 part_weights = {}
@@ -109,10 +155,14 @@ class FBDWarehouse:
                         part_weights[param_name] = param_tensor.clone()
                 
                 self.warehouse[block_id] = part_weights
+                self.warehouse_logger.info(f"Initialized block {block_id} (color: {color}, part: {model_part}) with {len(part_weights)} parameters")
         else:
             # Initialize with empty dictionaries - will be populated later
+            self.warehouse_logger.info("Initializing warehouse with empty blocks - will be populated during training")
             for block_id in self.fbd_trace.keys():
                 self.warehouse[block_id] = {}
+                
+        self.warehouse_logger.info(f"Warehouse initialization complete - {len(self.warehouse)} blocks ready")
     
     def store_weights(self, block_id, state_dict):
         """
@@ -123,12 +173,25 @@ class FBDWarehouse:
             state_dict (dict): State dictionary containing the weights
         """
         if block_id not in self.fbd_trace:
-            raise ValueError(f"Unknown block ID: {block_id}")
+            error_msg = f"Unknown block ID: {block_id}"
+            self.warehouse_logger.error(error_msg)
+            raise ValueError(error_msg)
         
-        # Debug: Check if weights are meaningful (not all zeros or identical)
+        # Get block info for logging
+        block_info = self.fbd_trace[block_id]
+        color = block_info['color']
+        model_part = block_info['model_part']
+        
+        # Analyze weights quality (not all zeros or identical)
         total_norm = 0.0
+        param_count = 0
+        tensor_types = set()
+        
         for k, v in state_dict.items():
             if isinstance(v, torch.Tensor):
+                param_count += 1
+                tensor_types.add(str(v.dtype))
+                
                 # Convert integer tensors to float before computing norm
                 if v.dtype in [torch.long, torch.int, torch.short, torch.uint8, torch.int32, torch.int64]:
                     # For integer tensors, convert to float temporarily for norm calculation
@@ -138,10 +201,16 @@ class FBDWarehouse:
                     # For floating point tensors, compute norm directly
                     total_norm += torch.norm(v).item()
         
-        print(f"[WAREHOUSE DEBUG] Storing block {block_id}: total norm = {total_norm:.6f}")
+        # Log detailed warehouse storage information
+        self.warehouse_logger.info(f"Storing block {block_id} (color: {color}, part: {model_part})")
+        self.warehouse_logger.info(f"  └─ Parameters: {param_count}, Total norm: {total_norm:.6f}")
+        self.warehouse_logger.info(f"  └─ Tensor types: {', '.join(sorted(tensor_types))}")
         
+        # Store the weights
         self.warehouse[block_id] = {k: v.clone() if isinstance(v, torch.Tensor) else v 
                                    for k, v in state_dict.items()}
+        
+        self.warehouse_logger.info(f"Successfully stored block {block_id} in warehouse")
     
     def store_weights_batch(self, weights_dict):
         """
@@ -150,8 +219,17 @@ class FBDWarehouse:
         Args:
             weights_dict (dict): Dictionary mapping block IDs to their state_dicts
         """
+        self.warehouse_logger.info(f"Starting batch storage of {len(weights_dict)} blocks: {list(weights_dict.keys())}")
+        
+        success_count = 0
         for block_id, state_dict in weights_dict.items():
-            self.store_weights(block_id, state_dict)
+            try:
+                self.store_weights(block_id, state_dict)
+                success_count += 1
+            except Exception as e:
+                self.warehouse_logger.error(f"Failed to store block {block_id}: {e}")
+                
+        self.warehouse_logger.info(f"Batch storage complete: {success_count}/{len(weights_dict)} blocks stored successfully")
     
     def retrieve_weights(self, block_id):
         """
@@ -164,10 +242,21 @@ class FBDWarehouse:
             dict: State dictionary containing the weights
         """
         if block_id not in self.warehouse:
-            raise ValueError(f"Block ID not found in warehouse: {block_id}")
+            error_msg = f"Block ID not found in warehouse: {block_id}"
+            self.warehouse_logger.error(error_msg)
+            raise ValueError(error_msg)
         
-        return {k: v.clone() if isinstance(v, torch.Tensor) else v 
-                for k, v in self.warehouse[block_id].items()}
+        # Get block info for logging
+        block_info = self.fbd_trace[block_id]
+        color = block_info['color']
+        model_part = block_info['model_part']
+        
+        weights = {k: v.clone() if isinstance(v, torch.Tensor) else v 
+                   for k, v in self.warehouse[block_id].items()}
+        
+        self.warehouse_logger.info(f"Retrieved block {block_id} (color: {color}, part: {model_part}) - {len(weights)} parameters")
+        
+        return weights
     
     def retrieve_weights_batch(self, block_ids):
         """
@@ -191,7 +280,10 @@ class FBDWarehouse:
         Returns:
             dict: Complete state dictionary for the model organized by model parts
         """
+        self.warehouse_logger.info(f"Reconstructing complete model weights for color: {model_color}")
+        
         model_weights = {}
+        blocks_found = []
         
         # Find all blocks belonging to this model
         for block_id, block_info in self.fbd_trace.items():
@@ -199,6 +291,12 @@ class FBDWarehouse:
                 model_part = block_info['model_part']
                 block_weights = self.retrieve_weights(block_id)
                 model_weights[model_part] = block_weights
+                blocks_found.append(f"{block_id}({model_part})")
+        
+        if model_weights:
+            self.warehouse_logger.info(f"Model {model_color} reconstruction complete - {len(model_weights)} parts from blocks: {', '.join(blocks_found)}")
+        else:
+            self.warehouse_logger.warning(f"No blocks found for model color: {model_color}")
         
         return model_weights
     

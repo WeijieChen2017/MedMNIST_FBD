@@ -82,8 +82,9 @@ class FBDStrategy(FedAvg):
         else:
             logging.info(f"[FBD Strategy] No update plan provided or file not found")
         
-        # Initialize FBD warehouse
-        self.warehouse = FBDWarehouse(self.fbd_trace, model_template)
+        # Initialize FBD warehouse with logging
+        warehouse_log_path = os.path.join(output_dir, "warehouse.log") if output_dir else "warehouse.log"
+        self.warehouse = FBDWarehouse(self.fbd_trace, model_template, warehouse_log_path)
         
         # Initialize communication
         self.communication = WeightTransfer(communication_dir)
