@@ -79,6 +79,10 @@ def train(model, train_loader, epochs, device, data_flag, lr, current_update_pla
             optimizer.zero_grad()
             
             if use_update_plan:
+
+                # Training Path 1
+                print(f"[Client {client_id}] Round {round_num}: Entering Training Path 1 (FBD Regularized Training)")
+
                 # Get current update plan for this client
                 model_to_update_parts = current_update_plan["model_to_update"]
                 model_as_regularizer_list = current_update_plan["model_as_regularizer"]
@@ -159,6 +163,10 @@ def train(model, train_loader, epochs, device, data_flag, lr, current_update_pla
                 _update_main_model_from_parts(model, model_to_update, model_to_update_parts)
                 
             else:
+
+                # Training Path 2
+                print(f"[Client {client_id}] Round {round_num}: Entering Training Path 2 (Standard Training)")
+
                 # Standard training without update plan
                 outputs = model(inputs)
 
@@ -474,7 +482,7 @@ class FBDFlowerClient(fl.client.Client):
     """FBD-enabled Flower client that integrates with FBD warehouse system."""
     
     def __init__(self, cid, model, train_loader, val_loader, test_loader, data_flag, device, 
-                 fbd_config_path, communication_dir, client_palette, architecture='resnet18', output_dir=None):
+                 fbd_config_path, communication_dir, client_palette, architecture='resnet18', output_dir=None, debug_mode=True):
         self.cid = cid
         self.model = model
         self.train_loader = train_loader
@@ -489,6 +497,7 @@ class FBDFlowerClient(fl.client.Client):
         self.client_palette = client_palette
         self.architecture = architecture
         self.output_dir = output_dir
+        self.debug_mode = debug_mode
         
         # Initialize client-specific logger
         self.client_logger = self._setup_client_logger()
@@ -643,6 +652,45 @@ class FBDFlowerClient(fl.client.Client):
         val_loss, val_auc, val_acc = self._test_model(self.val_loader)
         
         logging.info(f"[FBD Client {self.cid}] Round {round_num}: train_acc={train_acc:.4f}, val_acc={val_acc:.4f}")
+        
+        # Debug mode: Interactive prompt to review output before proceeding
+        if self.debug_mode:
+            print(f"\n{'='*60}")
+            print(f"[Client {self.cid}] Round {round_num} Training Complete")
+            print(f"{'='*60}")
+            print(f"Training Loss: {train_loss:.4f}")
+            print(f"Training Accuracy: {train_acc:.4f}")
+            print(f"Training AUC: {train_auc:.4f}")
+            print(f"Validation Loss: {val_loss:.4f}")
+            print(f"Validation Accuracy: {val_acc:.4f}")
+            print(f"Validation AUC: {val_auc:.4f}")
+            
+            if regularizer_metrics is not None:
+                print(f"Regularizer Type: {regularizer_metrics.get('regularizer_type', 'N/A')}")
+                print(f"Number of Regularizers: {regularizer_metrics.get('num_regularizers', 0)}")
+                print(f"Regularization Strength: {regularizer_metrics.get('regularization_strength', 0.0):.4f}")
+                print(f"Average Regularizer Distance: {regularizer_metrics.get('avg_regularizer_distance', 0.0):.6f}")
+            
+            print(f"{'='*60}")
+            
+            while True:
+                try:
+                    user_input = input("Continue to next round? [Y/n]: ").strip().lower()
+                    if user_input in ['', 'y', 'yes']:
+                        print("Proceeding to next round...\n")
+                        break
+                    elif user_input in ['n', 'no']:
+                        print("Training halted by user.")
+                        # You could raise an exception here to stop training entirely
+                        # For now, we'll just proceed but log the user's intention
+                        self.client_logger.warning(f"Round {round_num}: User requested to halt training")
+                        break
+                    else:
+                        print("Please enter Y/y/yes to continue, or N/n/no to halt.")
+                except (EOFError, KeyboardInterrupt):
+                    print("\nTraining interrupted by user.")
+                    self.client_logger.warning(f"Round {round_num}: Training interrupted by user")
+                    break
         
         # FBD: Send updated weights to warehouse (ONLY send blocks that were actually updated)
         # Use update plan to determine which blocks this client updated in this round
