@@ -30,6 +30,8 @@ import numpy as np
 from sklearn.metrics import roc_auc_score, accuracy_score
 import pickle
 import json
+import gc
+import psutil
 
 from fbd_models import get_fbd_model
 from tests.test_trainer import LocalTrainer
@@ -87,174 +89,211 @@ def train(model, train_loader, epochs, device, data_flag, lr, current_update_pla
         'regularization_strength': 0.0
     }
     
-    # ========== MOVE MODEL BUILDING OUTSIDE THE LOOP ==========
-    if use_update_plan:
-        print(f"[Client {client_id}] Round {round_num}: Entering Training Path 1 (FBD Regularized Training)")
-        print(f"[Model Building] Building models and optimizers for Path 1...")
-        
-        # Get current update plan for this client
-        model_to_update_parts = current_update_plan["model_to_update"]
-        model_as_regularizer_list = current_update_plan["model_as_regularizer"]
-        
-        print(f"[Model Building] Update plan details:")
-        print(f"  - model_to_update_parts: {model_to_update_parts}")
-        print(f"  - model_as_regularizer_list: {model_as_regularizer_list}")
-        
-        # 1. Build the model_to_update from the main model (ONCE per round)
-        print(f"[Model Building] Step 1: Extracting model parts...")
-        model_to_update = _extract_model_parts(model, model_to_update_parts)
-        print(f"[Model Building] ✅ model_to_update created with {sum(p.numel() for p in model_to_update.parameters())} parameters")
-        
-        # 2. Build the optimizer for the model_to_update (ONCE per round)
-        print(f"[Model Building] Step 2: Creating optimizer...")
-        model_to_update_optimizer = torch.optim.Adam(model_to_update.parameters(), lr=lr)
-        print(f"[Model Building] ✅ Optimizer created for model_to_update")
-        
-        # 3. Load regularizer models from shipped weights (ONCE per round)
-        print(f"[Model Building] Step 3: Loading regularizer models...")
-        regularizer_models = _load_regularizer_models(model_as_regularizer_list, model, device)
-        print(f"[Model Building] ✅ Loaded {len(regularizer_models)} regularizer models")
-        
-        # Get regularizer configuration (ONCE per round)
-        regularizer_type = REGULARIZER_PARAMS["type"]
-        regularization_strength = REGULARIZER_PARAMS["coefficient"]
-        
-        # Store regularizer metadata
-        regularizer_metrics['regularizer_type'] = regularizer_type
-        regularizer_metrics['num_regularizers'] = len(model_as_regularizer_list)
-        regularizer_metrics['regularization_strength'] = regularization_strength
-        
-        print(f"[Model Building] ✅ Built {len(regularizer_models)} regularizer models")
-        print(f"[Model Building] Using {regularizer_type} regularization with strength {regularization_strength}")
-    else:
-        print(f"[Client {client_id}] Round {round_num}: Will use Training Path 2 (Standard Training)")
+    # Variables to hold models for cleanup
+    model_to_update = None
+    model_to_update_optimizer = None
+    regularizer_models = []
     
-    # ========== TRAINING LOOP ==========
-    total_loss = 0
-    batch_count = 0
-    for epoch in range(epochs):
-        print(f"[Training Loop] Client {client_id} Round {round_num}: Starting epoch {epoch+1}/{epochs}")
-        for inputs, targets in train_loader:
-            batch_count += 1
-            inputs, targets = inputs.to(device), targets.to(device)
+    try:
+        # ========== MOVE MODEL BUILDING OUTSIDE THE LOOP ==========
+        if use_update_plan:
+            print(f"[Client {client_id}] Round {round_num}: Entering Training Path 1 (FBD Regularized Training)")
+            print(f"[Model Building] Building models and optimizers for Path 1...")
             
-            if use_update_plan:
-                # Training Path 1 - FBD Regularized Training
-                # Models are already built above, just do forward/backward pass
-                
-                if batch_count == 1:  # Log details for first batch only
-                    print(f"[Training Path 1] Client {client_id} Round {round_num}: Processing batch {batch_count} with FBD regularization")
-                    print(f"[Training Path 1] Input shape: {inputs.shape}, Target shape: {targets.shape}")
-                
-                # Forward pass through model_to_update
-                outputs_main = model_to_update(inputs)
-                
-                # Compute base loss
-                if task == 'multi-label, binary-class':
-                    targets = targets.to(torch.float32)
-                    base_loss = criterion(outputs_main, targets)
-                else:
-                    targets = torch.squeeze(targets, 1).long()
-                    base_loss = criterion(outputs_main, targets)
-                
-                # Compute regularized loss using pre-built models
-                if regularizer_type == "weights":
-                    # 3.1, 3.2, 3.3: Compute weight distance regularization
-                    weight_regularizer = _compute_weight_regularizer(model_to_update, regularizer_models)
-                    loss = base_loss + regularization_strength * weight_regularizer
-                    
-                    if batch_count == 1:  # Log details for first batch only
-                        print(f"[Training Path 1] Batch {batch_count}: base_loss={base_loss.item():.6f}, weight_reg={weight_regularizer.item():.6f}, total_loss={loss.item():.6f}")
-                    
-                    # Store regularizer distance for this batch
-                    regularizer_metrics['regularizer_distances'].append({
-                        'batch_regularizer_distance': float(weight_regularizer.item()),
-                        'base_loss': float(base_loss.item()),
-                        'total_loss': float(loss.item())
-                    })
-                    
-                elif regularizer_type == "consistency loss":
-                    # 4.1, 4.2, 4.3: Compute output consistency regularization
-                    consistency_regularizer = _compute_consistency_regularizer(
-                        model_to_update, regularizer_models, inputs, device
-                    )
-                    loss = base_loss + regularization_strength * consistency_regularizer
-                    
-                    if batch_count == 1:  # Log details for first batch only
-                        print(f"[Training Path 1] Batch {batch_count}: base_loss={base_loss.item():.6f}, consistency_reg={consistency_regularizer.item():.6f}, total_loss={loss.item():.6f}")
-                    
-                    # Store regularizer distance for this batch
-                    regularizer_metrics['regularizer_distances'].append({
-                        'batch_regularizer_distance': float(consistency_regularizer.item()),
-                        'base_loss': float(base_loss.item()),
-                        'total_loss': float(loss.item())
-                    })
-                
-                else:
-                    # Fallback to base loss
-                    loss = base_loss
-                    if batch_count == 1:
-                        print(f"[Training Path 1] Batch {batch_count}: No regularization applied, loss={loss.item():.6f}")
-                
-                # Use the pre-built optimizer for model_to_update
-                model_to_update_optimizer.zero_grad()
-                loss.backward()
-                model_to_update_optimizer.step()
-                
-                # Update the main model with the trained model_to_update parts
-                _update_main_model_from_parts(model, model_to_update, model_to_update_parts)
-                
-            else:
-                # Training Path 2 - Standard Training
-                if batch_count == 1:  # Log details for first batch only
-                    print(f"[Training Path 2] Client {client_id} Round {round_num}: Processing batch {batch_count} with standard training")
-                    print(f"[Update Strategy] Client {client_id} Round {round_num}: Using standard FL training strategy")
-                    print(f"[Update Strategy] Reason for Path 2: update_plan_received={current_update_plan is not None}, client_id_provided={client_id is not None}, round_num_provided={round_num is not None}")
-                    print(f"[Update Strategy] Training mode: Standard federated learning without FBD regularization")
-                    print(f"[Update Strategy] Optimizer: Adam with lr={lr}")
-                    print(f"[Update Strategy] Model architecture: Full model training (no part-based updates)")
-
-                # Standard training without update plan
-                outputs = model(inputs)
-
-                if task == 'multi-label, binary-class':
-                    targets = targets.to(torch.float32)
-                    loss = criterion(outputs, targets)
-                else:
-                    targets = torch.squeeze(targets, 1).long()
-                    loss = criterion(outputs, targets)
-
-                if batch_count == 1:  # Log details for first batch only
-                    print(f"[Training Path 2] Batch {batch_count}: Standard training loss={loss.item():.6f}")
-
-                # Enhanced log message for Path 2
-                log_msg = f"Round {round_num}: [Update Strategy] Standard training, loss={loss.item():.4f}, task={task}"
-                if client_logger:
-                    client_logger.info(log_msg)
-                else:
-                    print(f"[Client {client_id}] {log_msg}")  # Fallback to print if no logger
-
-                print(f"[Update Strategy] Client {client_id} Round {round_num}: Batch loss={loss.item():.6f}, task_type={task}")
-
-                # Standard training step
-                optimizer.zero_grad()
-                loss.backward()
-                optimizer.step()
+            # Get current update plan for this client
+            model_to_update_parts = current_update_plan["model_to_update"]
+            model_as_regularizer_list = current_update_plan["model_as_regularizer"]
             
-            total_loss += loss.item()
-        
-        print(f"[Training Loop] Client {client_id} Round {round_num}: Completed epoch {epoch+1}/{epochs}, avg_loss_so_far={total_loss/batch_count:.6f}")
-
-    # Log training summary after all epochs
-    if use_update_plan:
-        log_msg = f"Round {round_num}: FBD training completed - {regularizer_type} regularization with {len(model_as_regularizer_list)} regularizers, avg_loss={total_loss/len(train_loader):.4f}"
-        if client_logger:
-            client_logger.info(log_msg)
+            print(f"[Model Building] Update plan details:")
+            print(f"  - model_to_update_parts: {model_to_update_parts}")
+            print(f"  - model_as_regularizer_list: {model_as_regularizer_list}")
+            
+            # 1. Build the model_to_update from the main model (ONCE per round)
+            print(f"[Model Building] Step 1: Extracting model parts...")
+            model_to_update = _extract_model_parts(model, model_to_update_parts)
+            print(f"[Model Building] ✅ model_to_update created with {sum(p.numel() for p in model_to_update.parameters())} parameters")
+            
+            # 2. Build the optimizer for the model_to_update (ONCE per round)
+            print(f"[Model Building] Step 2: Creating optimizer...")
+            model_to_update_optimizer = torch.optim.Adam(model_to_update.parameters(), lr=lr)
+            print(f"[Model Building] ✅ Optimizer created for model_to_update")
+            
+            # 3. Load regularizer models from shipped weights (ONCE per round)
+            print(f"[Model Building] Step 3: Loading regularizer models...")
+            regularizer_models = _load_regularizer_models(model_as_regularizer_list, model, device)
+            print(f"[Model Building] ✅ Loaded {len(regularizer_models)} regularizer models")
+            
+            # Get regularizer configuration (ONCE per round)
+            regularizer_type = REGULARIZER_PARAMS["type"]
+            regularization_strength = REGULARIZER_PARAMS["coefficient"]
+            
+            # Store regularizer metadata
+            regularizer_metrics['regularizer_type'] = regularizer_type
+            regularizer_metrics['num_regularizers'] = len(model_as_regularizer_list)
+            regularizer_metrics['regularization_strength'] = regularization_strength
+            
+            print(f"[Model Building] ✅ Built {len(regularizer_models)} regularizer models")
+            print(f"[Model Building] Using {regularizer_type} regularization with strength {regularization_strength}")
         else:
-            print(f"[Client {client_id}] {log_msg}")
-        print(f"[Training Summary] Client {client_id} Round {round_num}: Used Path 1 (FBD) - processed {batch_count} batches")
-    else:
-        print(f"[Training Summary] Client {client_id} Round {round_num}: Used Path 2 (Standard) - processed {batch_count} batches")
+            print(f"[Client {client_id}] Round {round_num}: Will use Training Path 2 (Standard Training)")
+        
+        # ========== TRAINING LOOP ==========
+        total_loss = 0
+        batch_count = 0
+        for epoch in range(epochs):
+            print(f"[Training Loop] Client {client_id} Round {round_num}: Starting epoch {epoch+1}/{epochs}")
+            for inputs, targets in train_loader:
+                batch_count += 1
+                inputs, targets = inputs.to(device), targets.to(device)
+                
+                if use_update_plan:
+                    # Training Path 1 - FBD Regularized Training
+                    # Models are already built above, just do forward/backward pass
+                    
+                    if batch_count == 1:  # Log details for first batch only
+                        print(f"[Training Path 1] Client {client_id} Round {round_num}: Processing batch {batch_count} with FBD regularization")
+                        print(f"[Training Path 1] Input shape: {inputs.shape}, Target shape: {targets.shape}")
+                    
+                    # Forward pass through model_to_update
+                    outputs_main = model_to_update(inputs)
+                    
+                    # Compute base loss
+                    if task == 'multi-label, binary-class':
+                        targets = targets.to(torch.float32)
+                        base_loss = criterion(outputs_main, targets)
+                    else:
+                        targets = torch.squeeze(targets, 1).long()
+                        base_loss = criterion(outputs_main, targets)
+                    
+                    # Compute regularized loss using pre-built models
+                    if regularizer_type == "weights":
+                        # 3.1, 3.2, 3.3: Compute weight distance regularization
+                        weight_regularizer = _compute_weight_regularizer(model_to_update, regularizer_models)
+                        loss = base_loss + regularization_strength * weight_regularizer
+                        
+                        if batch_count == 1:  # Log details for first batch only
+                            print(f"[Training Path 1] Batch {batch_count}: base_loss={base_loss.item():.6f}, weight_reg={weight_regularizer.item():.6f}, total_loss={loss.item():.6f}")
+                        
+                        # Store regularizer distance for this batch
+                        regularizer_metrics['regularizer_distances'].append({
+                            'batch_regularizer_distance': float(weight_regularizer.item()),
+                            'base_loss': float(base_loss.item()),
+                            'total_loss': float(loss.item())
+                        })
+                        
+                    elif regularizer_type == "consistency loss":
+                        # 4.1, 4.2, 4.3: Compute output consistency regularization
+                        consistency_regularizer = _compute_consistency_regularizer(
+                            model_to_update, regularizer_models, inputs, device
+                        )
+                        loss = base_loss + regularization_strength * consistency_regularizer
+                        
+                        if batch_count == 1:  # Log details for first batch only
+                            print(f"[Training Path 1] Batch {batch_count}: base_loss={base_loss.item():.6f}, consistency_reg={consistency_regularizer.item():.6f}, total_loss={loss.item():.6f}")
+                        
+                        # Store regularizer distance for this batch
+                        regularizer_metrics['regularizer_distances'].append({
+                            'batch_regularizer_distance': float(consistency_regularizer.item()),
+                            'base_loss': float(base_loss.item()),
+                            'total_loss': float(loss.item())
+                        })
+                    
+                    else:
+                        # Fallback to base loss
+                        loss = base_loss
+                        if batch_count == 1:
+                            print(f"[Training Path 1] Batch {batch_count}: No regularization applied, loss={loss.item():.6f}")
+                    
+                    # Use the pre-built optimizer for model_to_update
+                    model_to_update_optimizer.zero_grad()
+                    loss.backward()
+                    model_to_update_optimizer.step()
+                    
+                    # Update the main model with the trained model_to_update parts
+                    _update_main_model_from_parts(model, model_to_update, model_to_update_parts)
+                    
+                else:
+                    # Training Path 2 - Standard Training
+                    if batch_count == 1:  # Log details for first batch only
+                        print(f"[Training Path 2] Client {client_id} Round {round_num}: Processing batch {batch_count} with standard training")
+                        print(f"[Update Strategy] Client {client_id} Round {round_num}: Using standard FL training strategy")
+                        print(f"[Update Strategy] Reason for Path 2: update_plan_received={current_update_plan is not None}, client_id_provided={client_id is not None}, round_num_provided={round_num is not None}")
+                        print(f"[Update Strategy] Training mode: Standard federated learning without FBD regularization")
+                        print(f"[Update Strategy] Optimizer: Adam with lr={lr}")
+                        print(f"[Update Strategy] Model architecture: Full model training (no part-based updates)")
+
+                    # Standard training without update plan
+                    outputs = model(inputs)
+
+                    if task == 'multi-label, binary-class':
+                        targets = targets.to(torch.float32)
+                        loss = criterion(outputs, targets)
+                    else:
+                        targets = torch.squeeze(targets, 1).long()
+                        loss = criterion(outputs, targets)
+
+                    if batch_count == 1:  # Log details for first batch only
+                        print(f"[Training Path 2] Batch {batch_count}: Standard training loss={loss.item():.6f}")
+
+                    # Enhanced log message for Path 2
+                    log_msg = f"Round {round_num}: [Update Strategy] Standard training, loss={loss.item():.4f}, task={task}"
+                    if client_logger:
+                        client_logger.info(log_msg)
+                    else:
+                        print(f"[Client {client_id}] {log_msg}")  # Fallback to print if no logger
+
+                    print(f"[Update Strategy] Client {client_id} Round {round_num}: Batch loss={loss.item():.6f}, task_type={task}")
+
+                    # Standard training step
+                    optimizer.zero_grad()
+                    loss.backward()
+                    optimizer.step()
+                
+                total_loss += loss.item()
+            
+            print(f"[Training Loop] Client {client_id} Round {round_num}: Completed epoch {epoch+1}/{epochs}, avg_loss_so_far={total_loss/batch_count:.6f}")
+
+        # Log training summary after all epochs
+        if use_update_plan:
+            log_msg = f"Round {round_num}: FBD training completed - {regularizer_type} regularization with {len(model_as_regularizer_list)} regularizers, avg_loss={total_loss/len(train_loader):.4f}"
+            if client_logger:
+                client_logger.info(log_msg)
+            else:
+                print(f"[Client {client_id}] {log_msg}")
+            print(f"[Training Summary] Client {client_id} Round {round_num}: Used Path 1 (FBD) - processed {batch_count} batches")
+        else:
+            print(f"[Training Summary] Client {client_id} Round {round_num}: Used Path 2 (Standard) - processed {batch_count} batches")
+
+    finally:
+        # ========== EXPLICIT MEMORY CLEANUP ==========
+        print(f"[Memory Cleanup] Client {client_id} Round {round_num}: Starting cleanup...")
+        
+        # Clean up model_to_update
+        if model_to_update is not None:
+            del model_to_update
+            print(f"[Memory Cleanup] Deleted model_to_update")
+        
+        # Clean up optimizer
+        if model_to_update_optimizer is not None:
+            del model_to_update_optimizer
+            print(f"[Memory Cleanup] Deleted model_to_update_optimizer")
+        
+        # Clean up regularizer models
+        if regularizer_models:
+            for i, reg_model in enumerate(regularizer_models):
+                del reg_model
+            regularizer_models.clear()
+            print(f"[Memory Cleanup] Deleted {len(regularizer_models)} regularizer models")
+        
+        # Force garbage collection
+        gc.collect()
+        
+        # Clear CUDA cache if using GPU
+        if device.type == 'cuda':
+            torch.cuda.empty_cache()
+            print(f"[Memory Cleanup] Cleared CUDA cache")
+        
+        print(f"[Memory Cleanup] ✅ Cleanup completed for Client {client_id} Round {round_num}")
 
     avg_loss = total_loss / len(train_loader)
     
@@ -371,6 +410,8 @@ def _load_regularizer_models(model_as_regularizer_list, template_model, device):
     Returns:
         List[nn.Module]: List of regularizer models
     """
+    import gc
+    
     print(f"[_load_regularizer_models] Loading {len(model_as_regularizer_list)} regularizer models")
     print(f"[_load_regularizer_models] Regularizer specs: {model_as_regularizer_list}")
     print(f"[_load_regularizer_models] Template model type: {type(template_model)}")
@@ -378,22 +419,32 @@ def _load_regularizer_models(model_as_regularizer_list, template_model, device):
     
     regularizer_models = []
     
-    for i, regularizer_spec in enumerate(model_as_regularizer_list):
-        print(f"[_load_regularizer_models] Creating regularizer {i+1}/{len(model_as_regularizer_list)}: {regularizer_spec}")
-        
-        # Create a copy of the template model for this regularizer
-        import copy
-        regularizer_model = copy.deepcopy(template_model)
-        regularizer_model.to(device)
-        regularizer_model.eval()  # Set to eval mode for regularization
-        
-        print(f"[_load_regularizer_models] ✅ Created regularizer model {i+1} with {sum(p.numel() for p in regularizer_model.parameters())} parameters")
-        
-        # In a full implementation, you would load the specific weights
-        # from the FBD warehouse based on the regularizer_spec
-        # For now, we use the current model as a placeholder
-        
-        regularizer_models.append(regularizer_model)
+    try:
+        for i, regularizer_spec in enumerate(model_as_regularizer_list):
+            print(f"[_load_regularizer_models] Creating regularizer {i+1}/{len(model_as_regularizer_list)}: {regularizer_spec}")
+            
+            # Create a copy of the template model for this regularizer
+            import copy
+            regularizer_model = copy.deepcopy(template_model)
+            regularizer_model.to(device)
+            regularizer_model.eval()  # Set to eval mode for regularization
+            
+            print(f"[_load_regularizer_models] ✅ Created regularizer model {i+1} with {sum(p.numel() for p in regularizer_model.parameters())} parameters")
+            
+            # In a full implementation, you would load the specific weights
+            # from the FBD warehouse based on the regularizer_spec
+            # For now, we use the current model as a placeholder
+            
+            regularizer_models.append(regularizer_model)
+    
+    except Exception as e:
+        # If there's an error, clean up any models we've created so far
+        print(f"[_load_regularizer_models] Error during model loading: {e}")
+        for model in regularizer_models:
+            del model
+        regularizer_models.clear()
+        gc.collect()
+        raise
     
     print(f"[_load_regularizer_models] ✅ Loaded {len(regularizer_models)} regularizer models")
     return regularizer_models
@@ -741,155 +792,199 @@ class FBDFlowerClient(fl.client.Client):
 
     def fit(self, ins: fl.common.FitIns) -> fl.common.FitRes:
         """Perform FBD federated training."""
+        import gc
+        import torch
+        import psutil
+        import os
+        
         config = ins.config
         round_num = config.get("server_round", 1)
         local_lr = config.get("local_learning_rate", 0.001)
         
-        # Debug: Check if update plan was received from server
-        current_update_plan = config.get("current_update_plan", None)
-        print(f"[Update Plan Debug] Client {self.cid} Round {round_num}:")
-        print(f"  - Config keys received: {list(config.keys())}")
-        print(f"  - current_update_plan in config: {'current_update_plan' in config}")
-        print(f"  - current_update_plan is not None: {current_update_plan is not None}")
-        if current_update_plan is not None:
-            print(f"  - Update plan structure: {list(current_update_plan.keys())}")
-            print(f"  - CLIENT {self.cid} RECEIVED UPDATE PLAN from server!")
-            print(f"  - model_to_update: {current_update_plan.get('model_to_update', 'Not found')}")
-            print(f"  - model_as_regularizer: {current_update_plan.get('model_as_regularizer', 'Not found')}")
-        else:
-            print(f"  - CLIENT {self.cid} DID NOT RECEIVE UPDATE PLAN from server")
-            print(f"  - This will lead to Path 2 (Standard Training)")
+        # Track memory usage at start
+        process = psutil.Process(os.getpid())
+        memory_start = process.memory_info().rss / (1024**2)  # MB
+        print(f"[Memory Monitor] Client {self.cid} Round {round_num} START: {memory_start:.2f} MB RAM used")
         
-        # Store model weights BEFORE training for comparison
-        model_weights_before = {}
-        for name, param in self.model.named_parameters():
-            model_weights_before[name] = param.data.clone()
-        print(f"[Weight Tracking] Client {self.cid} Round {round_num}: Stored {len(model_weights_before)} parameter tensors before training")
-        
-        # FBD: Receive weights from server (shipping phase)
         try:
-            received_weights = self.communication.client_receive_weights(self.cid, round_num)
-            if received_weights:
-                # print(f"[FBD Shipping] Client {self.cid} Round {round_num}: Received {len(received_weights)} model parts from warehouse")
-                # print(f"[FBD Shipping] Received weight keys: {list(received_weights.keys())}")
-                self.model.load_from_dict(received_weights)
-                # print(f"[FBD Shipping] ✅ Successfully loaded received weights into model")
-            # else:
-                # print(f"[FBD Shipping] Client {self.cid} Round {round_num}: No weights received from warehouse - using current model")
-        except (TimeoutError, FileNotFoundError) as e:
-            # print(f"[FBD Shipping] Client {self.cid} Round {round_num}: Exception during weight receiving: {e}")
-            # print(f"[FBD Shipping] Using current model weights")
-            pass
-        
-        # Perform local training
-        train_result = self._train_model(local_lr, current_update_plan=current_update_plan, round_num=round_num)
-        
-        # Handle different return types from train function
-        if isinstance(train_result, tuple):
-            train_loss, regularizer_metrics = train_result
-        else:
-            train_loss = train_result
-            regularizer_metrics = None
-        
-        # Check if model weights actually changed during training
-        model_weights_after = {}
-        total_weight_change = 0.0
-        changed_layers = []
-        for name, param in self.model.named_parameters():
-            model_weights_after[name] = param.data.clone()
-            weight_diff = torch.norm(model_weights_after[name] - model_weights_before[name]).item()
-            total_weight_change += weight_diff
-            if weight_diff > 1e-8:  # Threshold for detecting change
-                changed_layers.append(f"{name}:{weight_diff:.6f}")
-        
-        print(f"[Weight Tracking] Client {self.cid} Round {round_num}: Total weight change = {total_weight_change:.6f}")
-        print(f"[Weight Tracking] Changed layers ({len(changed_layers)}): {changed_layers[:5]}...")  # Show first 5
-        
-        if total_weight_change < 1e-6:
-            print(f"[Weight Tracking] ⚠️  WARNING: Model weights barely changed during training!")
-        else:
-            print(f"[Weight Tracking] ✅ Model weights were updated during training")
-        
-        # Evaluate after training
-        train_loss, train_auc, train_acc = self._test_model(self.train_loader)
-        val_loss, val_auc, val_acc = self._test_model(self.val_loader)
-        
-        logging.info(f"[FBD Client {self.cid}] Round {round_num}: train_acc={train_acc:.4f}, val_acc={val_acc:.4f}")
-        
-        # FBD: Send updated weights to warehouse (ONLY send blocks that were actually updated)
-        # Use update plan to determine which blocks this client updated in this round
-        blocks_to_send = self._get_updated_blocks_for_round(round_num)
-        # print(f"[FBD Update] Client {self.cid} Round {round_num}: Planning to send {len(blocks_to_send)} blocks: {blocks_to_send}")
-        
-        if blocks_to_send:
-            extracted_weights = {}
-            for block_id in blocks_to_send:
-                if block_id in self.client_palette:
-                    model_part = self.client_palette[block_id]['model_part']
-                    # print(f"[FBD Update] Extracting weights for block {block_id} (model_part: {model_part})")
-                    # Extract weights for this model part
-                    part_weights = self.model.send_for_dict([model_part])
-                    if part_weights:
-                        extracted_weights[block_id] = part_weights[model_part]
-                        # print(f"[FBD Update] ✅ Extracted weights for block {block_id}: {len(part_weights[model_part])} parameters")
-                    # else:
-                        # print(f"[FBD Update] ❌ Failed to extract weights for block {block_id}")
-                # else:
-                    # print(f"[FBD Update] ❌ Block {block_id} not found in client palette")
+            # Debug: Check if update plan was received from server
+            current_update_plan = config.get("current_update_plan", None)
+            print(f"[Update Plan Debug] Client {self.cid} Round {round_num}:")
+            print(f"  - Config keys received: {list(config.keys())}")
+            print(f"  - current_update_plan in config: {'current_update_plan' in config}")
+            print(f"  - current_update_plan is not None: {current_update_plan is not None}")
+            if current_update_plan is not None:
+                print(f"  - Update plan structure: {list(current_update_plan.keys())}")
+                print(f"  - CLIENT {self.cid} RECEIVED UPDATE PLAN from server!")
+                print(f"  - model_to_update: {current_update_plan.get('model_to_update', 'Not found')}")
+                print(f"  - model_as_regularizer: {current_update_plan.get('model_as_regularizer', 'Not found')}")
+            else:
+                print(f"  - CLIENT {self.cid} DID NOT RECEIVE UPDATE PLAN from server")
+                print(f"  - This will lead to Path 2 (Standard Training)")
             
-            # Send only the blocks that were actually updated to warehouse
-            if extracted_weights:
-                # print(f"[FBD Update] Client {self.cid} Round {round_num}: Sending {len(extracted_weights)} blocks to warehouse...")
-                self.communication.client_send_weights(self.cid, round_num, extracted_weights, list(extracted_weights.keys()))
-                # print(f"[FBD Update] ✅ Successfully sent {len(extracted_weights)} UPDATED FBD blocks to warehouse")
-                # print(f"[FBD Update] Sent block IDs: {list(extracted_weights.keys())}")
-                logging.info(f"[FBD Client {self.cid}] Sent {len(extracted_weights)} UPDATED FBD blocks to server (from {len(blocks_to_send)} planned updates)")
-                self.client_logger.info(f"Round {round_num}: Sent updated blocks {list(extracted_weights.keys())} to server")
+            # Store model weights BEFORE training for comparison
+            model_weights_before = {}
+            for name, param in self.model.named_parameters():
+                model_weights_before[name] = param.data.clone()
+            print(f"[Weight Tracking] Client {self.cid} Round {round_num}: Stored {len(model_weights_before)} parameter tensors before training")
+            
+            # FBD: Receive weights from server (shipping phase)
+            try:
+                received_weights = self.communication.client_receive_weights(self.cid, round_num)
+                if received_weights:
+                    # print(f"[FBD Shipping] Client {self.cid} Round {round_num}: Received {len(received_weights)} model parts from warehouse")
+                    # print(f"[FBD Shipping] Received weight keys: {list(received_weights.keys())}")
+                    self.model.load_from_dict(received_weights)
+                    # print(f"[FBD Shipping] ✅ Successfully loaded received weights into model")
+                # else:
+                    # print(f"[FBD Shipping] Client {self.cid} Round {round_num}: No weights received from warehouse - using current model")
+            except (TimeoutError, FileNotFoundError) as e:
+                # print(f"[FBD Shipping] Client {self.cid} Round {round_num}: Exception during weight receiving: {e}")
+                # print(f"[FBD Shipping] Using current model weights")
+                pass
+            
+            # Perform local training
+            train_result = self._train_model(local_lr, current_update_plan=current_update_plan, round_num=round_num)
+            
+            # Handle different return types from train function
+            if isinstance(train_result, tuple):
+                train_loss, regularizer_metrics = train_result
+            else:
+                train_loss = train_result
+                regularizer_metrics = None
+            
+            # Check if model weights actually changed during training
+            model_weights_after = {}
+            total_weight_change = 0.0
+            changed_layers = []
+            for name, param in self.model.named_parameters():
+                model_weights_after[name] = param.data.clone()
+                weight_diff = torch.norm(model_weights_after[name] - model_weights_before[name]).item()
+                total_weight_change += weight_diff
+                if weight_diff > 1e-8:  # Threshold for detecting change
+                    changed_layers.append(f"{name}:{weight_diff:.6f}")
+            
+            print(f"[Weight Tracking] Client {self.cid} Round {round_num}: Total weight change = {total_weight_change:.6f}")
+            print(f"[Weight Tracking] Changed layers ({len(changed_layers)}): {changed_layers[:5]}...")  # Show first 5
+            
+            if total_weight_change < 1e-6:
+                print(f"[Weight Tracking] ⚠️  WARNING: Model weights barely changed during training!")
+            else:
+                print(f"[Weight Tracking] ✅ Model weights were updated during training")
+            
+            # Evaluate after training
+            train_loss, train_auc, train_acc = self._test_model(self.train_loader)
+            val_loss, val_auc, val_acc = self._test_model(self.val_loader)
+            
+            logging.info(f"[FBD Client {self.cid}] Round {round_num}: train_acc={train_acc:.4f}, val_acc={val_acc:.4f}")
+            
+            # FBD: Send updated weights to warehouse (ONLY send blocks that were actually updated)
+            # Use update plan to determine which blocks this client updated in this round
+            blocks_to_send = self._get_updated_blocks_for_round(round_num)
+            # print(f"[FBD Update] Client {self.cid} Round {round_num}: Planning to send {len(blocks_to_send)} blocks: {blocks_to_send}")
+            
+            if blocks_to_send:
+                extracted_weights = {}
+                for block_id in blocks_to_send:
+                    if block_id in self.client_palette:
+                        model_part = self.client_palette[block_id]['model_part']
+                        # print(f"[FBD Update] Extracting weights for block {block_id} (model_part: {model_part})")
+                        # Extract weights for this model part
+                        part_weights = self.model.send_for_dict([model_part])
+                        if part_weights:
+                            extracted_weights[block_id] = part_weights[model_part]
+                            # print(f"[FBD Update] ✅ Extracted weights for block {block_id}: {len(part_weights[model_part])} parameters")
+                        # else:
+                            # print(f"[FBD Update] ❌ Failed to extract weights for block {block_id}")
+                    # else:
+                        # print(f"[FBD Update] ❌ Block {block_id} not found in client palette")
+                
+                # Send only the blocks that were actually updated to warehouse
+                if extracted_weights:
+                    # print(f"[FBD Update] Client {self.cid} Round {round_num}: Sending {len(extracted_weights)} blocks to warehouse...")
+                    self.communication.client_send_weights(self.cid, round_num, extracted_weights, list(extracted_weights.keys()))
+                    # print(f"[FBD Update] ✅ Successfully sent {len(extracted_weights)} UPDATED FBD blocks to warehouse")
+                    # print(f"[FBD Update] Sent block IDs: {list(extracted_weights.keys())}")
+                    logging.info(f"[FBD Client {self.cid}] Sent {len(extracted_weights)} UPDATED FBD blocks to server (from {len(blocks_to_send)} planned updates)")
+                    self.client_logger.info(f"Round {round_num}: Sent updated blocks {list(extracted_weights.keys())} to server")
+                # else:
+                    # print(f"[FBD Update] ❌ No weights extracted for planned update blocks: {blocks_to_send}")
+                    # logging.warning(f"[FBD Client {self.cid}] No weights extracted for planned update blocks: {blocks_to_send}")
             # else:
-                # print(f"[FBD Update] ❌ No weights extracted for planned update blocks: {blocks_to_send}")
-                # logging.warning(f"[FBD Client {self.cid}] No weights extracted for planned update blocks: {blocks_to_send}")
-        # else:
-            # print(f"[FBD Update] ❌ No blocks to update in round {round_num} according to update plan")
-            # logging.warning(f"[FBD Client {self.cid}] No blocks to update in round {round_num} according to update plan")
-        
-        # Note: Collection phase will be handled by server using these weights
-        
-        # Return metrics (no parameters needed for FBD - using file communication)
-        metrics_dict = {
-            "train_loss": train_loss,
-            "train_auc": train_auc, 
-            "train_acc": train_acc,
-            "val_loss": val_loss,
-            "val_auc": val_auc,
-            "val_acc": val_acc,
-            "total_weight_change": total_weight_change,  # Add weight change tracking
-            "num_changed_layers": len(changed_layers)
-        }
-        
-        # Add regularizer metrics if available
-        if regularizer_metrics is not None:
-            metrics_dict.update({
-                "regularizer_type": regularizer_metrics.get('regularizer_type'),
-                "num_regularizers": regularizer_metrics.get('num_regularizers', 0),
-                "regularization_strength": regularizer_metrics.get('regularization_strength', 0.0),
-                "avg_regularizer_distance": regularizer_metrics.get('avg_regularizer_distance', 0.0),
-                "max_regularizer_distance": regularizer_metrics.get('max_regularizer_distance', 0.0),
-                "min_regularizer_distance": regularizer_metrics.get('min_regularizer_distance', 0.0),
-                "std_regularizer_distance": regularizer_metrics.get('std_regularizer_distance', 0.0),
-                "regularizer_batch_details": regularizer_metrics.get('regularizer_distances', [])
-            })
-        
-        print(f"[FBD Client {self.cid}] Round {round_num} COMPLETE: train_acc={train_acc:.4f}, val_acc={val_acc:.4f}, weight_change={total_weight_change:.6f}")
-        
-        # Return empty parameters since FBD uses file-based communication
-        empty_params = ndarrays_to_parameters([np.array([0.0])])
-        
-        return FitRes(
-            status=fl.common.Status(code=fl.common.Code.OK, message="Success"),
-            parameters=empty_params,
-            num_examples=len(self.train_loader.dataset),
-            metrics=metrics_dict
-        )
+                # print(f"[FBD Update] ❌ No blocks to update in round {round_num} according to update plan")
+                # logging.warning(f"[FBD Client {self.cid}] No blocks to update in round {round_num} according to update plan")
+            
+            # Note: Collection phase will be handled by server using these weights
+            
+            # Return metrics (no parameters needed for FBD - using file communication)
+            metrics_dict = {
+                "train_loss": train_loss,
+                "train_auc": train_auc, 
+                "train_acc": train_acc,
+                "val_loss": val_loss,
+                "val_auc": val_auc,
+                "val_acc": val_acc,
+                "total_weight_change": total_weight_change,  # Add weight change tracking
+                "num_changed_layers": len(changed_layers)
+            }
+            
+            # Add regularizer metrics if available
+            if regularizer_metrics is not None:
+                metrics_dict.update({
+                    "regularizer_type": regularizer_metrics.get('regularizer_type'),
+                    "num_regularizers": regularizer_metrics.get('num_regularizers', 0),
+                    "regularization_strength": regularizer_metrics.get('regularization_strength', 0.0),
+                    "avg_regularizer_distance": regularizer_metrics.get('avg_regularizer_distance', 0.0),
+                    "max_regularizer_distance": regularizer_metrics.get('max_regularizer_distance', 0.0),
+                    "min_regularizer_distance": regularizer_metrics.get('min_regularizer_distance', 0.0),
+                    "std_regularizer_distance": regularizer_metrics.get('std_regularizer_distance', 0.0),
+                    "regularizer_batch_details": regularizer_metrics.get('regularizer_distances', [])
+                })
+            
+            print(f"[FBD Client {self.cid}] Round {round_num} COMPLETE: train_acc={train_acc:.4f}, val_acc={val_acc:.4f}, weight_change={total_weight_change:.6f}")
+            
+            # Return empty parameters since FBD uses file-based communication
+            empty_params = ndarrays_to_parameters([np.array([0.0])])
+            
+            return FitRes(
+                status=fl.common.Status(code=fl.common.Code.OK, message="Success"),
+                parameters=empty_params,
+                num_examples=len(self.train_loader.dataset),
+                metrics=metrics_dict
+            )
+            
+        finally:
+            # ========== CLIENT-LEVEL MEMORY CLEANUP ==========
+            print(f"[Client Cleanup] Client {self.cid} Round {round_num}: Starting client-level cleanup...")
+            
+            # Clean up weight tracking dictionaries
+            if 'model_weights_before' in locals():
+                del model_weights_before
+            if 'model_weights_after' in locals():
+                del model_weights_after
+            if 'changed_layers' in locals():
+                del changed_layers
+            
+            # Force garbage collection
+            gc.collect()
+            
+            # Clear CUDA cache if using GPU  
+            if self.device.type == 'cuda':
+                torch.cuda.empty_cache()
+                print(f"[Client Cleanup] Cleared CUDA cache for Client {self.cid}")
+            
+            # Force Ray cleanup to prevent disk space issues
+            self._cleanup_ray_memory()
+            
+            # Track memory usage at end
+            memory_end = process.memory_info().rss / (1024**2)  # MB
+            memory_diff = memory_end - memory_start
+            print(f"[Memory Monitor] Client {self.cid} Round {round_num} END: {memory_end:.2f} MB RAM used ({memory_diff:+.2f} MB change)")
+            
+            if memory_diff > 100:  # More than 100MB increase
+                print(f"[Memory Monitor] ⚠️  WARNING: Client {self.cid} Round {round_num} increased memory by {memory_diff:.2f} MB!")
+            
+            print(f"[Client Cleanup] ✅ Client-level cleanup completed for Client {self.cid} Round {round_num}")
 
     def evaluate(self, ins: fl.common.EvaluateIns) -> fl.common.EvaluateRes:
         """Evaluate model on validation set."""
@@ -927,6 +1022,61 @@ class FBDFlowerClient(fl.client.Client):
                     extracted_weights[block_id] = part_weights[model_part]
         
         return extracted_weights
+
+    def _cleanup_ray_memory(self):
+        """Force cleanup of Ray's object store and temporary files."""
+        try:
+            import ray
+            import gc
+            import torch
+            
+            print(f"[Ray Cleanup] Client {self.cid}: Starting Ray memory cleanup...")
+            
+            # Force garbage collection first
+            gc.collect()
+            
+            # Clear CUDA cache if using GPU
+            if self.device.type == 'cuda':
+                torch.cuda.empty_cache()
+            
+            # Try to force Ray to clean up its object store
+            if ray.is_initialized():
+                try:
+                    # Get object store stats before cleanup
+                    object_store_memory = ray.cluster_resources().get('object_store_memory', 0)
+                    print(f"[Ray Cleanup] Object store memory available: {object_store_memory / (1024**3):.2f} GB")
+                    
+                    # Force Ray to cleanup unused objects
+                    ray._private.worker.global_worker.core_worker.trigger_global_gc()
+                    
+                    print(f"[Ray Cleanup] ✅ Triggered Ray global GC for Client {self.cid}")
+                    
+                except Exception as e:
+                    print(f"[Ray Cleanup] Warning: Could not trigger Ray GC: {e}")
+            
+            # Additional manual cleanup
+            import os
+            import tempfile
+            
+            # Check if we can get Ray session directory
+            try:
+                ray_temp_dir = ray._private.services.get_ray_temp_dir()
+                if ray_temp_dir and os.path.exists(ray_temp_dir):
+                    # Get disk usage
+                    import shutil
+                    total, used, free = shutil.disk_usage(ray_temp_dir)
+                    print(f"[Ray Cleanup] Ray temp dir disk usage: {used / (1024**3):.2f} GB used, {free / (1024**3):.2f} GB free")
+                    
+                    if free / total < 0.1:  # Less than 10% free
+                        print(f"[Ray Cleanup] ⚠️  WARNING: Ray temp directory is running low on space!")
+                
+            except Exception as e:
+                print(f"[Ray Cleanup] Could not check Ray temp directory: {e}")
+            
+            print(f"[Ray Cleanup] ✅ Ray cleanup completed for Client {self.cid}")
+            
+        except Exception as e:
+            print(f"[Ray Cleanup] Error during Ray cleanup: {e}")
 
 
 
