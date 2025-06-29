@@ -117,80 +117,11 @@ def train(model, train_loader, epochs, device, data_flag, lr, current_update_pla
             )
             print(f"[Model Building] ✅ model_to_update created with {sum(p.numel() for p in model_to_update.parameters())} parameters")
             
-            # =================================================================
-            # 🔍 SELECTIVE DEBUG CHECKPOINT (for specific client only)
-            # =================================================================
-            print(f"\n🔍 [DEBUG CHECKPOINT] Client {client_id} Round {round_num}")
-            print(f"    - model_to_update type: {type(model_to_update)}")
-            print(f"    - Total parameters: {sum(p.numel() for p in model_to_update.parameters())}")
-            print(f"    - Trainable parameters: {sum(p.numel() for p in model_to_update.parameters() if p.requires_grad)}")
-            print(f"    - Frozen parameters: {sum(p.numel() for p in model_to_update.parameters() if not p.requires_grad)}")
-            print(f"    - Training ratio: {sum(p.numel() for p in model_to_update.parameters() if p.requires_grad) / sum(p.numel() for p in model_to_update.parameters()):.1%}")
-            print(f"    - model_to_update_parts: {model_to_update_parts}")
-            print(f"    - model_as_regularizer_list: {model_as_regularizer_list}")
-            
-            # Detailed parameter freezing verification
-            trainable_layers = []
-            frozen_layers = []
-            for name, param in model_to_update.named_parameters():
-                if param.requires_grad:
-                    trainable_layers.append(name)
-                else:
-                    frozen_layers.append(name)
-            
-            print(f"    - Trainable layers: {len(trainable_layers)} (first 3: {trainable_layers[:3]})")
-            print(f"    - Frozen layers: {len(frozen_layers)} (first 3: {frozen_layers[:3]})")
-            
-            # Check warehouse weight loading status
-            if warehouse_communication:
-                try:
-                    received_weights = warehouse_communication.client_receive_weights(client_id, round_num)
-                    if received_weights:
-                        print(f"    - Warehouse weights available: {list(received_weights.keys())}")
-                        
-                        # Sample some actual weights for verification
-                        for layer_name, block_id in list(model_to_update_parts.items())[:2]:  # Check first 2 layers
-                            if hasattr(model_to_update, layer_name) and block_id in received_weights:
-                                layer = getattr(model_to_update, layer_name)
-                                if hasattr(layer, 'weight'):
-                                    weight_sample = layer.weight.flatten()[:5]  # First 5 values
-                                    print(f"    - {layer_name} weight sample: {weight_sample.tolist()}")
-                    else:
-                        print(f"    - ⚠️ No warehouse weights received")
-                except:
-                    print(f"    - ❌ Could not check warehouse weights")
-            else:
-                print(f"    - ⚠️ No warehouse communication available")
-            
-            # =================================================================
-            # 🛑 INTERACTIVE BREAKPOINT (Client 0 only, with env var control)
-            # =================================================================
-            import os
-            debug_client = os.environ.get('FBD_DEBUG_CLIENT', '0')  # Default to client 0
-            enable_breakpoint = os.environ.get('FBD_DEBUG_BREAKPOINT', 'false').lower() == 'true'
-            
-            if str(client_id) == debug_client and enable_breakpoint:
-                print(f"\n🔴 [INTERACTIVE BREAKPOINT] Client {client_id} - DEBUGGER ACTIVATED")
-                print(f"📝 [DEBUG COMMANDS] Available debugging commands:")
-                print(f"    - Type 'c' or 'continue' to proceed with training")
-                print(f"    - Type 'l' to list current code")
-                print(f"    - Type 'p <variable>' to print variable value")
-                print(f"    - Type 'pp <variable>' to pretty-print variable")
-                print(f"    - Type 'h' for help with debugger commands")
-                print(f"    - Type 'q' to quit (will cause training to fail)")
-                print(f"💡 [TIP] Check: model_to_update, model_to_update_parts, trainable_layers")
-                
-                # Only client 0 (or specified client) gets interactive breakpoint
-                breakpoint()
-                
-                print(f"🚀 [INTERACTIVE BREAKPOINT] Client {client_id} continuing execution...")
-            else:
-                if enable_breakpoint:
-                    print(f"ℹ️  [BREAKPOINT SKIPPED] Client {client_id} (only client {debug_client} gets interactive debug)")
-                else:
-                    print(f"ℹ️  [BREAKPOINT DISABLED] Set FBD_DEBUG_BREAKPOINT=true to enable interactive debugging")
-            
-            print(f"✅ [DEBUG CHECKPOINT] Client {client_id} proceeding to optimizer creation...")
+            # Simple halt for model inspection (All clients)
+            print(f"🛑 [HALT] Client {client_id} - Model inspection point")
+            print(f"📊 model_to_update created with {sum(p.numel() for p in model_to_update.parameters())} total parameters")
+            print(f"📊 Trainable parameters: {sum(p.numel() for p in model_to_update.parameters() if p.requires_grad)}")
+            exit()
 
             # 2. Build the optimizer for the model_to_update (ONCE per round)
             print(f"[Model Building] Step 2: Creating optimizer...")
