@@ -29,6 +29,7 @@ import flwr as fl
 import numpy as np
 from sklearn.metrics import roc_auc_score, accuracy_score
 import pickle
+import json
 
 from fbd_models import get_fbd_model
 from tests.test_trainer import LocalTrainer
@@ -498,8 +499,13 @@ class FBDFlowerClient(fl.client.Client):
         # Load FBD settings
         self.fbd_trace, self.fbd_info, self.transparent_to_client = load_fbd_settings(fbd_config_path)
         
+        # Load update plan for determining which blocks to send back
+        self.update_plan = self._load_update_plan()
+        
         logging.info(f"[FBD Client {cid}] Initialized with {len(client_palette)} FBD blocks")
         self.client_logger.info(f"FBD Client {cid} initialized with {len(client_palette)} FBD blocks")
+        if self.update_plan:
+            logging.info(f"[FBD Client {cid}] Loaded update plan for {len(self.update_plan)} rounds")
 
     def _setup_client_logger(self):
         """Set up client-specific logger that writes to a file."""
@@ -532,6 +538,70 @@ class FBDFlowerClient(fl.client.Client):
             client_logger.propagate = False
         
         return client_logger
+
+    def _load_update_plan(self):
+        """Load the update plan to determine which blocks this client should update each round."""
+        try:
+            # Try multiple possible locations for update plan
+            update_plan_paths = [
+                "fbd_record/update_plan.json",
+                "update_plan.json",
+                os.path.join(self.communication_dir, "update_plan.json")
+            ]
+            
+            for plan_path in update_plan_paths:
+                if os.path.exists(plan_path):
+                    with open(plan_path, 'r') as f:
+                        update_plan = json.load(f)
+                    logging.info(f"[FBD Client {self.cid}] Loaded update plan from {plan_path}")
+                    return update_plan
+            
+            logging.warning(f"[FBD Client {self.cid}] No update plan found - will send all palette blocks")
+            return None
+            
+        except Exception as e:
+            logging.warning(f"[FBD Client {self.cid}] Failed to load update plan: {e}")
+            return None
+    
+    def _get_updated_blocks_for_round(self, round_num):
+        """
+        Get the list of block IDs that this client should send back for the given round.
+        Only blocks in 'model_to_update' should be sent, not regularizer blocks.
+        
+        Args:
+            round_num (int): Current round number
+            
+        Returns:
+            list: List of block IDs this client should send back
+        """
+        if not self.update_plan:
+            # Fallback: send all palette blocks if no update plan
+            logging.warning(f"[FBD Client {self.cid}] No update plan - sending all palette blocks")
+            return list(self.client_palette.keys())
+        
+        round_str = str(round_num)
+        client_str = str(self.cid)
+        
+        # Check if this round and client exist in update plan
+        if round_str not in self.update_plan:
+            logging.warning(f"[FBD Client {self.cid}] Round {round_num} not found in update plan")
+            return []
+        
+        if client_str not in self.update_plan[round_str]:
+            logging.warning(f"[FBD Client {self.cid}] Client {self.cid} not found in round {round_num} update plan")
+            return []
+        
+        # Extract the blocks this client should update (not regularize)
+        client_plan = self.update_plan[round_str][client_str]
+        model_to_update = client_plan.get("model_to_update", {})
+        
+        # Get the block IDs from model_to_update values
+        blocks_to_update = list(model_to_update.values())
+        
+        logging.info(f"[FBD Client {self.cid}] Round {round_num}: Should update blocks {blocks_to_update}")
+        self.client_logger.info(f"Round {round_num}: Update plan specifies updating blocks {blocks_to_update}")
+        
+        return blocks_to_update
 
     def get_parameters(self, ins: fl.common.GetParametersIns) -> fl.common.GetParametersRes:
         """Extract model parameters."""
@@ -574,21 +644,29 @@ class FBDFlowerClient(fl.client.Client):
         
         logging.info(f"[FBD Client {self.cid}] Round {round_num}: train_acc={train_acc:.4f}, val_acc={val_acc:.4f}")
         
-        # FBD: Send updated weights to warehouse (always send trained weights)
-        # Extract weights according to client palette for this round
-        if self.client_palette:
+        # FBD: Send updated weights to warehouse (ONLY send blocks that were actually updated)
+        # Use update plan to determine which blocks this client updated in this round
+        blocks_to_send = self._get_updated_blocks_for_round(round_num)
+        
+        if blocks_to_send:
             extracted_weights = {}
-            for block_id, block_info in self.client_palette.items():
-                model_part = block_info['model_part']
-                # Extract weights for this model part
-                part_weights = self.model.send_for_dict([model_part])
-                if part_weights:
-                    extracted_weights[block_id] = part_weights[model_part]
+            for block_id in blocks_to_send:
+                if block_id in self.client_palette:
+                    model_part = self.client_palette[block_id]['model_part']
+                    # Extract weights for this model part
+                    part_weights = self.model.send_for_dict([model_part])
+                    if part_weights:
+                        extracted_weights[block_id] = part_weights[model_part]
             
-            # Send all client's trained weights to warehouse
+            # Send only the blocks that were actually updated to warehouse
             if extracted_weights:
                 self.communication.client_send_weights(self.cid, round_num, extracted_weights, list(extracted_weights.keys()))
-                logging.info(f"[FBD Client {self.cid}] Sent {len(extracted_weights)} trained FBD blocks to server")
+                logging.info(f"[FBD Client {self.cid}] Sent {len(extracted_weights)} UPDATED FBD blocks to server (from {len(blocks_to_send)} planned updates)")
+                self.client_logger.info(f"Round {round_num}: Sent updated blocks {list(extracted_weights.keys())} to server")
+            else:
+                logging.warning(f"[FBD Client {self.cid}] No weights extracted for planned update blocks: {blocks_to_send}")
+        else:
+            logging.warning(f"[FBD Client {self.cid}] No blocks to update in round {round_num} according to update plan")
         
         # Note: Collection phase will be handled by server using these weights
         
