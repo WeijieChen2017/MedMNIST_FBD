@@ -436,12 +436,15 @@ def main():
     # Configure Ray with custom temporary directory
     ray_temp_dir = "/local/ray_temp/"
     os.makedirs(ray_temp_dir, exist_ok=True)
+    plasma_path = os.path.join(ray_temp_dir, "plasma")
+    os.makedirs(plasma_path, exist_ok=True)
     
     # Initialize Ray with custom temp directory before Flower simulation starts
     if not ray.is_initialized():
         logging.info(f"🔧 Initializing Ray with temp directory: {ray_temp_dir}")
         ray.init(
             _temp_dir=ray_temp_dir,
+            _plasma_directory=plasma_path,  # Bypass /dev/shm issues in Docker
             ignore_reinit_error=True,
             logging_level=logging.ERROR  # Reduce Ray's verbose logging
         )
@@ -451,6 +454,7 @@ def main():
     logging.info(f"GPU per client: {gpus_per_client:.3f}")
     logging.info(f"📄 Training progress will be saved to JSON files instead of verbose console output")
     logging.info(f"💾 Ray temp directory: {ray_temp_dir}")
+    logging.info(f"💾 Ray plasma directory: {plasma_path}")
     
     # Temporarily reduce Flower's logging verbosity during simulation
     fl_logger = logging.getLogger("flwr")
