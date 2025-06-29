@@ -770,15 +770,16 @@ class FBDFlowerClient(fl.client.Client):
         try:
             received_weights = self.communication.client_receive_weights(self.cid, round_num)
             if received_weights:
-                print(f"[FBD Shipping] Client {self.cid} Round {round_num}: Received {len(received_weights)} model parts from warehouse")
-                print(f"[FBD Shipping] Received weight keys: {list(received_weights.keys())}")
+                # print(f"[FBD Shipping] Client {self.cid} Round {round_num}: Received {len(received_weights)} model parts from warehouse")
+                # print(f"[FBD Shipping] Received weight keys: {list(received_weights.keys())}")
                 self.model.load_from_dict(received_weights)
-                print(f"[FBD Shipping] ✅ Successfully loaded received weights into model")
-            else:
-                print(f"[FBD Shipping] Client {self.cid} Round {round_num}: No weights received from warehouse - using current model")
+                # print(f"[FBD Shipping] ✅ Successfully loaded received weights into model")
+            # else:
+                # print(f"[FBD Shipping] Client {self.cid} Round {round_num}: No weights received from warehouse - using current model")
         except (TimeoutError, FileNotFoundError) as e:
-            print(f"[FBD Shipping] Client {self.cid} Round {round_num}: Exception during weight receiving: {e}")
-            print(f"[FBD Shipping] Using current model weights")
+            # print(f"[FBD Shipping] Client {self.cid} Round {round_num}: Exception during weight receiving: {e}")
+            # print(f"[FBD Shipping] Using current model weights")
+            pass
         
         # Perform local training
         train_result = self._train_model(local_lr, current_update_plan=current_update_plan, round_num=round_num)
@@ -818,38 +819,38 @@ class FBDFlowerClient(fl.client.Client):
         # FBD: Send updated weights to warehouse (ONLY send blocks that were actually updated)
         # Use update plan to determine which blocks this client updated in this round
         blocks_to_send = self._get_updated_blocks_for_round(round_num)
-        print(f"[FBD Update] Client {self.cid} Round {round_num}: Planning to send {len(blocks_to_send)} blocks: {blocks_to_send}")
+        # print(f"[FBD Update] Client {self.cid} Round {round_num}: Planning to send {len(blocks_to_send)} blocks: {blocks_to_send}")
         
         if blocks_to_send:
             extracted_weights = {}
             for block_id in blocks_to_send:
                 if block_id in self.client_palette:
                     model_part = self.client_palette[block_id]['model_part']
-                    print(f"[FBD Update] Extracting weights for block {block_id} (model_part: {model_part})")
+                    # print(f"[FBD Update] Extracting weights for block {block_id} (model_part: {model_part})")
                     # Extract weights for this model part
                     part_weights = self.model.send_for_dict([model_part])
                     if part_weights:
                         extracted_weights[block_id] = part_weights[model_part]
-                        print(f"[FBD Update] ✅ Extracted weights for block {block_id}: {len(part_weights[model_part])} parameters")
-                    else:
-                        print(f"[FBD Update] ❌ Failed to extract weights for block {block_id}")
-                else:
-                    print(f"[FBD Update] ❌ Block {block_id} not found in client palette")
+                        # print(f"[FBD Update] ✅ Extracted weights for block {block_id}: {len(part_weights[model_part])} parameters")
+                    # else:
+                        # print(f"[FBD Update] ❌ Failed to extract weights for block {block_id}")
+                # else:
+                    # print(f"[FBD Update] ❌ Block {block_id} not found in client palette")
             
             # Send only the blocks that were actually updated to warehouse
             if extracted_weights:
-                print(f"[FBD Update] Client {self.cid} Round {round_num}: Sending {len(extracted_weights)} blocks to warehouse...")
+                # print(f"[FBD Update] Client {self.cid} Round {round_num}: Sending {len(extracted_weights)} blocks to warehouse...")
                 self.communication.client_send_weights(self.cid, round_num, extracted_weights, list(extracted_weights.keys()))
-                print(f"[FBD Update] ✅ Successfully sent {len(extracted_weights)} UPDATED FBD blocks to warehouse")
-                print(f"[FBD Update] Sent block IDs: {list(extracted_weights.keys())}")
+                # print(f"[FBD Update] ✅ Successfully sent {len(extracted_weights)} UPDATED FBD blocks to warehouse")
+                # print(f"[FBD Update] Sent block IDs: {list(extracted_weights.keys())}")
                 logging.info(f"[FBD Client {self.cid}] Sent {len(extracted_weights)} UPDATED FBD blocks to server (from {len(blocks_to_send)} planned updates)")
                 self.client_logger.info(f"Round {round_num}: Sent updated blocks {list(extracted_weights.keys())} to server")
-            else:
-                print(f"[FBD Update] ❌ No weights extracted for planned update blocks: {blocks_to_send}")
-                logging.warning(f"[FBD Client {self.cid}] No weights extracted for planned update blocks: {blocks_to_send}")
-        else:
-            print(f"[FBD Update] ❌ No blocks to update in round {round_num} according to update plan")
-            logging.warning(f"[FBD Client {self.cid}] No blocks to update in round {round_num} according to update plan")
+            # else:
+                # print(f"[FBD Update] ❌ No weights extracted for planned update blocks: {blocks_to_send}")
+                # logging.warning(f"[FBD Client {self.cid}] No weights extracted for planned update blocks: {blocks_to_send}")
+        # else:
+            # print(f"[FBD Update] ❌ No blocks to update in round {round_num} according to update plan")
+            # logging.warning(f"[FBD Client {self.cid}] No blocks to update in round {round_num} according to update plan")
         
         # Note: Collection phase will be handled by server using these weights
         
