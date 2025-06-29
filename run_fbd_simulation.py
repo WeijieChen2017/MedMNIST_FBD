@@ -7,6 +7,9 @@ import subprocess
 import sys
 import os
 import time
+import shutil
+import glob
+import logging
 from fbd_utils import load_config
 from fbd_models import get_model_info
 
@@ -54,6 +57,61 @@ blocks_per_stage_str = "".join(map(str, blocks_per_stage))
 # this is because the time zone is different
 # so the time delay is 5 hours
 
+def cleanup_ray_sessions():
+    """
+    Clean up old Ray session directories to prevent disk space issues.
+    This removes all Ray session directories in /tmp/ray/ that are older than current session.
+    """
+    try:
+        ray_tmp_dir = "/tmp/ray"
+        if not os.path.exists(ray_tmp_dir):
+            print("No Ray temp directory found - skipping cleanup")
+            return
+        
+        # Get all session directories
+        session_dirs = glob.glob(os.path.join(ray_tmp_dir, "session_*"))
+        
+        if not session_dirs:
+            print("No Ray session directories found - skipping cleanup")
+            return
+        
+        print("🧹 Cleaning up Ray session directories...")
+        
+        # Get current time for comparison
+        current_time = time.time()
+        cleaned_count = 0
+        total_size_cleaned = 0
+        
+        for session_dir in session_dirs:
+            try:
+                # Check if directory is older than 1 hour (3600 seconds) or if it's not being used
+                dir_mtime = os.path.getmtime(session_dir)
+                if current_time - dir_mtime > 3600:  # Older than 1 hour
+                    # Calculate directory size before deletion
+                    dir_size = sum(os.path.getsize(os.path.join(dirpath, filename))
+                                 for dirpath, dirnames, filenames in os.walk(session_dir)
+                                 for filename in filenames)
+                    
+                    # Remove the directory
+                    shutil.rmtree(session_dir)
+                    cleaned_count += 1
+                    total_size_cleaned += dir_size
+                    print(f"   Removed: {os.path.basename(session_dir)} ({dir_size / (1024**3):.2f} GB)")
+                    
+            except (OSError, PermissionError) as e:
+                # Some directories might be in use - skip them
+                print(f"   Skipped {session_dir}: {e}")
+                continue
+        
+        if cleaned_count > 0:
+            print(f"✅ Cleaned {cleaned_count} Ray session directories, freed {total_size_cleaned / (1024**3):.2f} GB")
+        else:
+            print("✅ No old Ray session directories to clean")
+            
+    except Exception as e:
+        print(f"Warning: Failed to cleanup Ray sessions: {e}")
+
+
 def get_model_name_from_norm(architecture, norm_type):
     """Get the correct model name based on normalization type."""
     try:
@@ -64,6 +122,10 @@ def get_model_name_from_norm(architecture, norm_type):
 
 def run_fbd_simulation():
     """Run FBD federated learning simulation with predefined parameters."""
+    
+    # Clean up old Ray session directories before starting
+    cleanup_ray_sessions()
+    print()  # Add spacing after cleanup
     
     # Check if we're in the right directory
     if not os.path.exists("fbd_main.py"):

@@ -16,6 +16,9 @@ import json
 import random
 import numpy as np
 import logging
+import shutil
+import glob
+import time
 from flwr.client import Client
 from flwr.common import FitRes, Parameters, ndarrays_to_parameters, parameters_to_ndarrays
 from typing import Dict, List, Tuple, Optional
@@ -39,6 +42,61 @@ from fbd_root_ckpt import get_pretrained_fbd_model
 
 # Import FBD client
 from fbd_client import FBDFlowerClient
+
+
+def cleanup_ray_sessions():
+    """
+    Clean up old Ray session directories to prevent disk space issues.
+    This removes all Ray session directories in /tmp/ray/ that are older than current session.
+    """
+    try:
+        ray_tmp_dir = "/tmp/ray"
+        if not os.path.exists(ray_tmp_dir):
+            logging.info("No Ray temp directory found - skipping cleanup")
+            return
+        
+        # Get all session directories
+        session_dirs = glob.glob(os.path.join(ray_tmp_dir, "session_*"))
+        
+        if not session_dirs:
+            logging.info("No Ray session directories found - skipping cleanup")
+            return
+        
+        logging.info(f"🧹 Cleaning up Ray session directories...")
+        
+        # Get current time for comparison
+        current_time = time.time()
+        cleaned_count = 0
+        total_size_cleaned = 0
+        
+        for session_dir in session_dirs:
+            try:
+                # Check if directory is older than 1 hour (3600 seconds) or if it's not being used
+                dir_mtime = os.path.getmtime(session_dir)
+                if current_time - dir_mtime > 3600:  # Older than 1 hour
+                    # Calculate directory size before deletion
+                    dir_size = sum(os.path.getsize(os.path.join(dirpath, filename))
+                                 for dirpath, dirnames, filenames in os.walk(session_dir)
+                                 for filename in filenames)
+                    
+                    # Remove the directory
+                    shutil.rmtree(session_dir)
+                    cleaned_count += 1
+                    total_size_cleaned += dir_size
+                    logging.info(f"   Removed: {os.path.basename(session_dir)} ({dir_size / (1024**3):.2f} GB)")
+                    
+            except (OSError, PermissionError) as e:
+                # Some directories might be in use - skip them
+                logging.debug(f"   Skipped {session_dir}: {e}")
+                continue
+        
+        if cleaned_count > 0:
+            logging.info(f"✅ Cleaned {cleaned_count} Ray session directories, freed {total_size_cleaned / (1024**3):.2f} GB")
+        else:
+            logging.info("✅ No old Ray session directories to clean")
+            
+    except Exception as e:
+        logging.warning(f"Failed to cleanup Ray sessions: {e}")
 
 
 def get_fbd_model_with_pretrained(architecture: str, norm: str, in_channels: int, num_classes: int, use_imagenet: bool = False, device: str = 'cpu'):
@@ -119,6 +177,9 @@ def main():
                        help="List of model colors for ensemble (e.g., M1 M2)")
     
     args = parser.parse_args()
+    
+    # Clean up old Ray session directories before starting
+    cleanup_ray_sessions()
     
     # Set random seed
     random.seed(args.seed)
