@@ -442,7 +442,6 @@ def main():
         logging.info(f"🔧 Initializing Ray with temp directory: {ray_temp_dir}")
         ray.init(
             _temp_dir=ray_temp_dir,
-            object_store_memory_fraction=0.3,  # Limit object store memory usage
             ignore_reinit_error=True,
             logging_level=logging.ERROR  # Reduce Ray's verbose logging
         )
