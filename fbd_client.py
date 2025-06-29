@@ -47,7 +47,7 @@ from fbd_record.fbd_settings import REGULARIZER_PARAMS
 # TRAINING AND TESTING FUNCTIONS (moved from client.py)
 # ====================================================================================
 
-def train(model, train_loader, epochs, device, data_flag, lr, current_update_plan=None, client_id=None, round_num=None, client_logger=None):
+def train(model, train_loader, epochs, device, data_flag, lr, current_update_plan=None, client_id=None, round_num=None, client_logger=None, warehouse_communication=None):
     """Train the model on the training set."""
     info = INFO[data_flag]
     task = info['task']
@@ -107,9 +107,14 @@ def train(model, train_loader, epochs, device, data_flag, lr, current_update_pla
             print(f"  - model_to_update_parts: {model_to_update_parts}")
             print(f"  - model_as_regularizer_list: {model_as_regularizer_list}")
             
-            # 1. Build the model_to_update from the main model (ONCE per round)
-            print(f"[Model Building] Step 1: Extracting model parts...")
-            model_to_update = _extract_model_parts(model, model_to_update_parts)
+            # 1. Build the model_to_update from the main model with block-specific weights (ONCE per round)
+            print(f"[Model Building] Step 1: Extracting model parts with block-specific weights...")
+            model_to_update = _extract_model_parts(
+                model, model_to_update_parts, 
+                warehouse_communication=warehouse_communication, 
+                client_id=client_id, 
+                round_num=round_num
+            )
             print(f"[Model Building] ✅ model_to_update created with {sum(p.numel() for p in model_to_update.parameters())} parameters")
             
             # 2. Build the optimizer for the model_to_update (ONCE per round)
@@ -117,9 +122,14 @@ def train(model, train_loader, epochs, device, data_flag, lr, current_update_pla
             model_to_update_optimizer = torch.optim.Adam(model_to_update.parameters(), lr=lr)
             print(f"[Model Building] ✅ Optimizer created for model_to_update")
             
-            # 3. Load regularizer models from shipped weights (ONCE per round)
-            print(f"[Model Building] Step 3: Loading regularizer models...")
-            regularizer_models = _load_regularizer_models(model_as_regularizer_list, model, device)
+            # 3. Load regularizer models with block-specific weights from warehouse (ONCE per round)
+            print(f"[Model Building] Step 3: Loading regularizer models with block-specific weights...")
+            regularizer_models = _load_regularizer_models(
+                model_as_regularizer_list, model, device,
+                warehouse_communication=warehouse_communication,
+                client_id=client_id,
+                round_num=round_num
+            )
             print(f"[Model Building] ✅ Loaded {len(regularizer_models)} regularizer models")
             
             # Get regularizer configuration (ONCE per round)
@@ -367,60 +377,173 @@ def test(model, data_loader, device, data_flag):
     return [avg_loss, auc, acc]
 
 
-def _extract_model_parts(model, model_to_update_parts):
+def _extract_model_parts(model, model_to_update_parts, warehouse_communication=None, client_id=None, round_num=None):
     """
-    Extract specific model parts to create model_to_update.
+    Extract specific model parts and load their weights from warehouse based on block IDs.
     
     Args:
-        model: The main model
-        model_to_update_parts: Dict mapping layer names to FBD block IDs
+        model: The skeleton model (template)
+        model_to_update_parts: Dict mapping layer names to FBD block IDs (e.g., {"in_layer": "AFA79", "layer1": "BFF56"})
+        warehouse_communication: Communication object to receive weights from warehouse
+        client_id: Client ID for warehouse communication
+        round_num: Current round number
         
     Returns:
-        nn.Module: A model containing only the specified parts
+        nn.Module: A model with block-specific weights loaded from warehouse
     """
     print(f"[_extract_model_parts] Input model_to_update_parts: {model_to_update_parts}")
-    print(f"[_extract_model_parts] Main model type: {type(model)}")
-    print(f"[_extract_model_parts] Main model parameters: {sum(p.numel() for p in model.parameters())}")
+    print(f"[_extract_model_parts] Skeleton model type: {type(model)}")
+    print(f"[_extract_model_parts] Skeleton model parameters: {sum(p.numel() for p in model.parameters())}")
     
-    # Create a new model with the same architecture
-    # For now, we'll create a copy and only keep the specified parts active
+    # Create a copy of the skeleton model
     import copy
     model_to_update = copy.deepcopy(model)
     
-    print(f"[_extract_model_parts] ✅ Created deep copy of model")
-    print(f"[_extract_model_parts] model_to_update parameters: {sum(p.numel() for p in model_to_update.parameters())}")
+    print(f"[_extract_model_parts] ✅ Created copy of skeleton model")
     
-    # Note: For a more sophisticated implementation, you could create a custom
-    # model that only contains the specified layers, but for now we use the full model
-    # and rely on the optimizer to only update the relevant parts
+    # Load specific block weights from warehouse for each model part
+    if warehouse_communication and model_to_update_parts:
+        print(f"[_extract_model_parts] Loading block-specific weights from warehouse...")
+        
+        # Collect all block IDs we need
+        block_ids_needed = list(model_to_update_parts.values())
+        print(f"[_extract_model_parts] Block IDs needed: {block_ids_needed}")
+        
+        try:
+            # Receive weights from warehouse for these specific blocks
+            received_weights = warehouse_communication.client_receive_weights(client_id, round_num)
+            
+            if received_weights:
+                print(f"[_extract_model_parts] Received weights from warehouse: {list(received_weights.keys())}")
+                
+                # Apply weights to specific model parts
+                updated_parts = []
+                for layer_name, block_id in model_to_update_parts.items():
+                    if block_id in received_weights:
+                        print(f"[_extract_model_parts] Loading block {block_id} weights into {layer_name}")
+                        
+                        # Get the layer in the model
+                        if hasattr(model_to_update, layer_name):
+                            layer = getattr(model_to_update, layer_name)
+                            layer_state = layer.state_dict()
+                            
+                            # Update layer weights with warehouse weights for this block
+                            block_weights = received_weights[block_id]
+                            updated_params = 0
+                            
+                            for param_name, param_tensor in block_weights.items():
+                                # Extract the layer-specific parameter name (remove layer prefix if present)
+                                if param_name.startswith(layer_name + "."):
+                                    layer_param_name = param_name[len(layer_name) + 1:]
+                                else:
+                                    layer_param_name = param_name
+                                
+                                if layer_param_name in layer_state:
+                                    layer_state[layer_param_name] = param_tensor.clone()
+                                    updated_params += 1
+                            
+                            # Load updated state back to layer
+                            layer.load_state_dict(layer_state)
+                            updated_parts.append(f"{layer_name}({updated_params})")
+                            print(f"[_extract_model_parts] ✅ Updated {layer_name} with {updated_params} parameters from block {block_id}")
+                        else:
+                            print(f"[_extract_model_parts] ❌ Layer {layer_name} not found in model")
+                    else:
+                        print(f"[_extract_model_parts] ⚠️ Block {block_id} not found in received weights")
+                
+                print(f"[_extract_model_parts] ✅ Successfully updated model parts: {updated_parts}")
+            else:
+                print(f"[_extract_model_parts] ⚠️ No weights received from warehouse - using skeleton model")
+                
+        except Exception as e:
+            print(f"[_extract_model_parts] ❌ Error loading weights from warehouse: {e}")
+            print(f"[_extract_model_parts] Falling back to skeleton model")
+    else:
+        print(f"[_extract_model_parts] ⚠️ No warehouse communication or model parts specified - using skeleton model")
+    
+    print(f"[_extract_model_parts] Final model_to_update parameters: {sum(p.numel() for p in model_to_update.parameters())}")
+    
+    # Set parameter training - only specified parts should be trainable
+    if model_to_update_parts:
+        print(f"[_extract_model_parts] Setting up parameter training for FBD block-level training...")
+        
+        # First, freeze all parameters
+        for param in model_to_update.parameters():
+            param.requires_grad = False
+        
+        # Then, unfreeze only the specified model parts
+        trainable_parts = []
+        total_trainable_params = 0
+        
+        for layer_name in model_to_update_parts.keys():
+            if hasattr(model_to_update, layer_name):
+                layer = getattr(model_to_update, layer_name)
+                layer_trainable_params = 0
+                
+                for param in layer.parameters():
+                    param.requires_grad = True
+                    layer_trainable_params += param.numel()
+                
+                trainable_parts.append(f"{layer_name}({layer_trainable_params})")
+                total_trainable_params += layer_trainable_params
+                print(f"[_extract_model_parts] ✅ Set {layer_name} as trainable: {layer_trainable_params} parameters")
+            else:
+                print(f"[_extract_model_parts] ❌ Layer {layer_name} not found for parameter freezing")
+        
+        total_params = sum(p.numel() for p in model_to_update.parameters())
+        frozen_params = total_params - total_trainable_params
+        
+        print(f"[_extract_model_parts] ✅ FBD Parameter Training Setup:")
+        print(f"[_extract_model_parts]   - Total parameters: {total_params}")
+        print(f"[_extract_model_parts]   - Trainable parameters: {total_trainable_params}")
+        print(f"[_extract_model_parts]   - Frozen parameters: {frozen_params}")
+        print(f"[_extract_model_parts]   - Trainable parts: {trainable_parts}")
+        print(f"[_extract_model_parts]   - Training ratio: {total_trainable_params/total_params:.1%}")
+    else:
+        print(f"[_extract_model_parts] ⚠️ No model parts specified - all parameters remain trainable")
     
     return model_to_update
 
 
-def _load_regularizer_models(model_as_regularizer_list, template_model, device):
+def _load_regularizer_models(model_as_regularizer_list, template_model, device, warehouse_communication=None, client_id=None, round_num=None):
     """
-    Load regularizer models from shipped weights.
+    Load regularizer models with specific weights from warehouse based on block IDs.
     
     Args:
-        model_as_regularizer_list: List of regularizer specifications
-        template_model: Template model to use for creating regularizer models
+        model_as_regularizer_list: List of regularizer block IDs (e.g., ["AKY64", "BVD88", ...])
+        template_model: Template skeleton model to use for creating regularizer models
         device: Device to load models on
+        warehouse_communication: Communication object to receive weights from warehouse
+        client_id: Client ID for warehouse communication  
+        round_num: Current round number
         
     Returns:
-        List[nn.Module]: List of regularizer models
+        List[nn.Module]: List of regularizer models with warehouse-specific weights
     """
     import gc
     
     print(f"[_load_regularizer_models] Loading {len(model_as_regularizer_list)} regularizer models")
-    print(f"[_load_regularizer_models] Regularizer specs: {model_as_regularizer_list}")
+    print(f"[_load_regularizer_models] Regularizer block IDs: {model_as_regularizer_list}")
     print(f"[_load_regularizer_models] Template model type: {type(template_model)}")
     print(f"[_load_regularizer_models] Device: {device}")
     
     regularizer_models = []
     
     try:
-        for i, regularizer_spec in enumerate(model_as_regularizer_list):
-            print(f"[_load_regularizer_models] Creating regularizer {i+1}/{len(model_as_regularizer_list)}: {regularizer_spec}")
+        # First, try to get weights from warehouse for all regularizer blocks
+        received_weights = {}
+        if warehouse_communication:
+            try:
+                received_weights = warehouse_communication.client_receive_weights(client_id, round_num)
+                if received_weights:
+                    print(f"[_load_regularizer_models] Received weights from warehouse: {list(received_weights.keys())}")
+                else:
+                    print(f"[_load_regularizer_models] ⚠️ No weights received from warehouse")
+            except Exception as e:
+                print(f"[_load_regularizer_models] ❌ Error receiving weights from warehouse: {e}")
+        
+        for i, regularizer_block_id in enumerate(model_as_regularizer_list):
+            print(f"[_load_regularizer_models] Creating regularizer {i+1}/{len(model_as_regularizer_list)}: block {regularizer_block_id}")
             
             # Create a copy of the template model for this regularizer
             import copy
@@ -428,24 +551,64 @@ def _load_regularizer_models(model_as_regularizer_list, template_model, device):
             regularizer_model.to(device)
             regularizer_model.eval()  # Set to eval mode for regularization
             
-            print(f"[_load_regularizer_models] ✅ Created regularizer model {i+1} with {sum(p.numel() for p in regularizer_model.parameters())} parameters")
+            # Load specific block weights if available
+            if regularizer_block_id in received_weights:
+                print(f"[_load_regularizer_models] Loading warehouse weights for block {regularizer_block_id}")
+                
+                try:
+                    # Get the weights for this specific block
+                    block_weights = received_weights[regularizer_block_id]
+                    
+                    # Load weights into the regularizer model
+                    # We need to match the block weights to the correct model part
+                    model_state = regularizer_model.state_dict()
+                    updated_params = 0
+                    
+                    for param_name, param_tensor in block_weights.items():
+                        if param_name in model_state:
+                            model_state[param_name] = param_tensor.clone()
+                            updated_params += 1
+                    
+                    # Load the updated state back to the model
+                    regularizer_model.load_state_dict(model_state)
+                    
+                    print(f"[_load_regularizer_models] ✅ Loaded {updated_params} parameters from warehouse for block {regularizer_block_id}")
+                    
+                except Exception as e:
+                    print(f"[_load_regularizer_models] ❌ Error loading weights for block {regularizer_block_id}: {e}")
+                    print(f"[_load_regularizer_models] Using template weights for this regularizer")
+            else:
+                print(f"[_load_regularizer_models] ⚠️ Block {regularizer_block_id} not found in warehouse weights - using template model")
             
-            # In a full implementation, you would load the specific weights
-            # from the FBD warehouse based on the regularizer_spec
-            # For now, we use the current model as a placeholder
+            # Calculate and log model norm for debugging
+            total_norm = sum(torch.norm(p).item() for p in regularizer_model.parameters() if p.requires_grad)
+            print(f"[_load_regularizer_models] ✅ Created regularizer model {i+1} with {sum(p.numel() for p in regularizer_model.parameters())} parameters, norm={total_norm:.6f}")
             
             regularizer_models.append(regularizer_model)
     
     except Exception as e:
         # If there's an error, clean up any models we've created so far
-        print(f"[_load_regularizer_models] Error during model loading: {e}")
+        print(f"[_load_regularizer_models] ❌ Error during regularizer model loading: {e}")
         for model in regularizer_models:
             del model
         regularizer_models.clear()
         gc.collect()
         raise
     
-    print(f"[_load_regularizer_models] ✅ Loaded {len(regularizer_models)} regularizer models")
+    print(f"[_load_regularizer_models] ✅ Successfully loaded {len(regularizer_models)} regularizer models")
+    
+    # Debug: Check if regularizer models are actually different
+    if len(regularizer_models) >= 2:
+        model1_norm = sum(torch.norm(p).item() for p in regularizer_models[0].parameters())
+        model2_norm = sum(torch.norm(p).item() for p in regularizer_models[1].parameters())
+        norm_diff = abs(model1_norm - model2_norm)
+        print(f"[_load_regularizer_models] Debug: Regularizer model norm difference = {norm_diff:.6f}")
+        
+        if norm_diff < 1e-6:
+            print(f"[_load_regularizer_models] ⚠️ WARNING: Regularizer models appear to be identical!")
+        else:
+            print(f"[_load_regularizer_models] ✅ Regularizer models are properly differentiated")
+    
     return regularizer_models
 
 
@@ -1011,7 +1174,8 @@ class FBDFlowerClient(fl.client.Client):
         """Train the model locally."""
         return train(self.model, self.train_loader, epochs=1, device=self.device, 
                     data_flag=self.data_flag, lr=lr, current_update_plan=current_update_plan,
-                    client_id=self.cid, round_num=round_num, client_logger=self.client_logger)
+                    client_id=self.cid, round_num=round_num, client_logger=self.client_logger,
+                    warehouse_communication=self.communication)
 
     def _test_model(self, data_loader):
         """Test the model."""
