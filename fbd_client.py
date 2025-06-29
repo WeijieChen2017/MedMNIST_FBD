@@ -87,29 +87,45 @@ def train(model, train_loader, epochs, device, data_flag, lr, current_update_pla
         'regularization_strength': 0.0
     }
     
+    # ========== MOVE MODEL BUILDING OUTSIDE THE LOOP ==========
+    if use_update_plan:
+        print(f"[Client {client_id}] Round {round_num}: Entering Training Path 1 (FBD Regularized Training)")
+        print(f"[Model Building] Building models and optimizers for Path 1...")
+        
+        # Get current update plan for this client
+        model_to_update_parts = current_update_plan["model_to_update"]
+        model_as_regularizer_list = current_update_plan["model_as_regularizer"]
+        
+        # 1. Build the model_to_update from the main model (ONCE per round)
+        model_to_update = _extract_model_parts(model, model_to_update_parts)
+        
+        # 2. Build the optimizer for the model_to_update (ONCE per round)
+        model_to_update_optimizer = torch.optim.Adam(model_to_update.parameters(), lr=lr)
+        
+        # 3. Load regularizer models from shipped weights (ONCE per round)
+        regularizer_models = _load_regularizer_models(model_as_regularizer_list, model, device)
+        
+        # Get regularizer configuration (ONCE per round)
+        regularizer_type = REGULARIZER_PARAMS["type"]
+        regularization_strength = REGULARIZER_PARAMS["coefficient"]
+        
+        # Store regularizer metadata
+        regularizer_metrics['regularizer_type'] = regularizer_type
+        regularizer_metrics['num_regularizers'] = len(model_as_regularizer_list)
+        regularizer_metrics['regularization_strength'] = regularization_strength
+        
+        print(f"[Model Building] ✅ Built {len(regularizer_models)} regularizer models")
+        print(f"[Model Building] Using {regularizer_type} regularization with strength {regularization_strength}")
+    
+    # ========== TRAINING LOOP ==========
     total_loss = 0
     for epoch in range(epochs):
         for inputs, targets in train_loader:
             inputs, targets = inputs.to(device), targets.to(device)
-            optimizer.zero_grad()
             
             if use_update_plan:
-
-                # Training Path 1
-                print(f"[Client {client_id}] Round {round_num}: Entering Training Path 1 (FBD Regularized Training)")
-
-                # Get current update plan for this client
-                model_to_update_parts = current_update_plan["model_to_update"]
-                model_as_regularizer_list = current_update_plan["model_as_regularizer"]
-                
-                # 1. Build the model_to_update from the main model
-                model_to_update = _extract_model_parts(model, model_to_update_parts)
-                
-                # 2. Build the optimizer for the model_to_update
-                model_to_update_optimizer = torch.optim.Adam(model_to_update.parameters(), lr=lr)
-                
-                # 3. Load regularizer models from shipped weights
-                regularizer_models = _load_regularizer_models(model_as_regularizer_list, model, device)
+                # Training Path 1 - FBD Regularized Training
+                # Models are already built above, just do forward/backward pass
                 
                 # Forward pass through model_to_update
                 outputs_main = model_to_update(inputs)
@@ -122,16 +138,7 @@ def train(model, train_loader, epochs, device, data_flag, lr, current_update_pla
                     targets = torch.squeeze(targets, 1).long()
                     base_loss = criterion(outputs_main, targets)
                 
-                # Determine regularizer type and compute regularized loss
-                # Use configuration from REGULARIZER_PARAMS at top of file
-                regularizer_type = REGULARIZER_PARAMS["type"]
-                regularization_strength = REGULARIZER_PARAMS["coefficient"]
-                
-                # Store regularizer metadata
-                regularizer_metrics['regularizer_type'] = regularizer_type
-                regularizer_metrics['num_regularizers'] = len(model_as_regularizer_list)
-                regularizer_metrics['regularization_strength'] = regularization_strength
-                
+                # Compute regularized loss using pre-built models
                 if regularizer_type == "weights":
                     # 3.1, 3.2, 3.3: Compute weight distance regularization
                     weight_regularizer = _compute_weight_regularizer(model_to_update, regularizer_models)
@@ -162,14 +169,7 @@ def train(model, train_loader, epochs, device, data_flag, lr, current_update_pla
                     # Fallback to base loss
                     loss = base_loss
                 
-                # Log training details to client-specific log file
-                log_msg = f"Round {round_num}: Using {regularizer_type} regularization with {len(model_as_regularizer_list)} regularizers, loss={loss.item():.4f}"
-                if client_logger:
-                    client_logger.info(log_msg)
-                else:
-                    print(f"[Client {client_id}] {log_msg}")  # Fallback to print if no logger
-                
-                # Use the specialized optimizer for model_to_update
+                # Use the pre-built optimizer for model_to_update
                 model_to_update_optimizer.zero_grad()
                 loss.backward()
                 model_to_update_optimizer.step()
@@ -178,8 +178,7 @@ def train(model, train_loader, epochs, device, data_flag, lr, current_update_pla
                 _update_main_model_from_parts(model, model_to_update, model_to_update_parts)
                 
             else:
-
-                # Training Path 2
+                # Training Path 2 - Standard Training
                 print(f"[Client {client_id}] Round {round_num}: Entering Training Path 2 (Standard Training)")
                 print(f"[Update Strategy] Client {client_id} Round {round_num}: Using standard FL training strategy")
                 print(f"[Update Strategy] Reason for Path 2: update_plan_received={current_update_plan is not None}, client_id_provided={client_id is not None}, round_num_provided={round_num is not None}")
@@ -212,6 +211,14 @@ def train(model, train_loader, epochs, device, data_flag, lr, current_update_pla
                 optimizer.step()
             
             total_loss += loss.item()
+
+    # Log training summary after all epochs
+    if use_update_plan:
+        log_msg = f"Round {round_num}: FBD training completed - {regularizer_type} regularization with {len(model_as_regularizer_list)} regularizers, avg_loss={total_loss/len(train_loader):.4f}"
+        if client_logger:
+            client_logger.info(log_msg)
+        else:
+            print(f"[Client {client_id}] {log_msg}")
 
     avg_loss = total_loss / len(train_loader)
     
