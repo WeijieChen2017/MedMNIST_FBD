@@ -367,7 +367,10 @@ def main():
         # Get client palette
         client_palette = client_palettes.get(int(cid), {})
         
-        return FBDFlowerClient(
+        print(f"🏗️ [CLIENT_FN CALLED] Creating client {cid}")
+        print(f"🏗️ [CLIENT_FN] About to create FBDFlowerClient...")
+        
+        fbd_client = FBDFlowerClient(
             cid=int(cid),
             model=client_model,
             train_loader=train_loader,
@@ -380,7 +383,10 @@ def main():
             client_palette=client_palette,
             architecture=architecture,
             output_dir=output_dir
-        ).to_client()
+        )
+        
+        print(f"🏗️ [CLIENT_FN] FBDFlowerClient created, returning WITHOUT .to_client()...")
+        return fbd_client  # Return FBDFlowerClient directly without .to_client()
     
     # Initialize FBD strategy
     strategy = FBDStrategy(
