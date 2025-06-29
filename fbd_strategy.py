@@ -1429,11 +1429,21 @@ class FBDEnsembleEvaluationStrategy(FBDEvaluationStrategy):
                             # Flatten all parameters of this block into a single tensor
                             block_params = []
                             for param_name, param_tensor in color_weights[position].items():
-                                print(f"[DEBUG] Color {color}, Position {position}, Param {param_name}: shape = {param_tensor.shape}, norm = {torch.norm(param_tensor).item():.6f}")
+                                # Handle different tensor types for norm calculation
+                                if param_tensor.dtype in [torch.long, torch.int, torch.short, torch.uint8, torch.int32, torch.int64]:
+                                    param_norm = torch.norm(param_tensor.float()).item()
+                                else:
+                                    param_norm = torch.norm(param_tensor).item()
+                                print(f"[DEBUG] Color {color}, Position {position}, Param {param_name}: shape = {param_tensor.shape}, norm = {param_norm:.6f}")
                                 block_params.append(param_tensor.flatten())
                             if block_params:
                                 flattened_block = torch.cat(block_params)
-                                print(f"[DEBUG] Color {color}, Position {position}: flattened block norm = {torch.norm(flattened_block).item():.6f}, size = {flattened_block.size()}")
+                                # Handle different tensor types for norm calculation
+                                if flattened_block.dtype in [torch.long, torch.int, torch.short, torch.uint8, torch.int32, torch.int64]:
+                                    block_norm = torch.norm(flattened_block.float()).item()
+                                else:
+                                    block_norm = torch.norm(flattened_block).item()
+                                print(f"[DEBUG] Color {color}, Position {position}: flattened block norm = {block_norm:.6f}, size = {flattened_block.size()}")
                                 color_position_blocks[color][position].append(flattened_block)
                         else:
                             print(f"[DEBUG] Color {color}: Position {position} not found in weights")
@@ -1525,8 +1535,13 @@ class FBDEnsembleEvaluationStrategy(FBDEvaluationStrategy):
             for position in model_parts:
                 if color_position_blocks[color][position]:
                     block = color_position_blocks[color][position][0]
+                    # Handle different tensor types for norm calculation
+                    if block.dtype in [torch.long, torch.int, torch.short, torch.uint8, torch.int32, torch.int64]:
+                        block_norm = torch.norm(block.float(), p=2).item()
+                    else:
+                        block_norm = torch.norm(block, p=2).item()
                     l2_distances[color][position] = {
-                        'norm': torch.norm(block, p=2).item(),  # L2 norm of the block itself
+                        'norm': block_norm,  # L2 norm of the block itself
                         'shape': list(block.shape),
                         'num_params': block.numel()
                     }

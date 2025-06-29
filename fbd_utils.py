@@ -129,7 +129,14 @@ class FBDWarehouse:
         total_norm = 0.0
         for k, v in state_dict.items():
             if isinstance(v, torch.Tensor):
-                total_norm += torch.norm(v).item()
+                # Convert integer tensors to float before computing norm
+                if v.dtype in [torch.long, torch.int, torch.short, torch.uint8, torch.int32, torch.int64]:
+                    # For integer tensors, convert to float temporarily for norm calculation
+                    v_float = v.float()
+                    total_norm += torch.norm(v_float).item()
+                else:
+                    # For floating point tensors, compute norm directly
+                    total_norm += torch.norm(v).item()
         
         print(f"[WAREHOUSE DEBUG] Storing block {block_id}: total norm = {total_norm:.6f}")
         
