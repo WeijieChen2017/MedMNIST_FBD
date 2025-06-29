@@ -49,6 +49,11 @@ from fbd_record.fbd_settings import REGULARIZER_PARAMS
 
 def train(model, train_loader, epochs, device, data_flag, lr, current_update_plan=None, client_id=None, round_num=None, client_logger=None, warehouse_communication=None):
     """Train the model on the training set."""
+    print(f"🚀 [TRAIN FUNCTION CALLED] Client {client_id}, Round {round_num}")
+    print(f"🚀 [TRAIN FUNCTION] epochs={epochs}, lr={lr}, data_flag={data_flag}")
+    print(f"🚀 [TRAIN FUNCTION] current_update_plan provided: {current_update_plan is not None}")
+    exit()  # Exit immediately to see if train() is being called
+    
     info = INFO[data_flag]
     task = info['task']
     if task == "multi-label, binary-class":
