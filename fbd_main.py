@@ -379,8 +379,7 @@ def main():
             communication_dir=args.communication_dir,
             client_palette=client_palette,
             architecture=architecture,
-            output_dir=output_dir,
-            debug_mode=getattr(config, 'debug_mode', True)  # Default to True if not specified
+            output_dir=output_dir
         ).to_client()
     
     # Initialize FBD strategy
