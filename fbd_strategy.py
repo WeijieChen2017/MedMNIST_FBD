@@ -1422,9 +1422,9 @@ class FBDEnsembleEvaluationStrategy(FBDEvaluationStrategy):
         for color in colors_ensemble:
             try:
                 color_weights = warehouse.get_model_weights(color)
-                print(f"[DEBUG] Color {color}: weights available = {color_weights is not None}")
+                warehouse.warehouse_logger.info(f"Color {color}: weights available = {color_weights is not None}")
                 if color_weights:
-                    print(f"[DEBUG] Color {color}: keys = {list(color_weights.keys())}")
+                    warehouse.warehouse_logger.info(f"Color {color}: keys = {list(color_weights.keys())}")
                     for position in model_parts:
                         if position in color_weights:
                             # Flatten all parameters of this block into a single tensor
@@ -1435,7 +1435,7 @@ class FBDEnsembleEvaluationStrategy(FBDEvaluationStrategy):
                                     param_norm = torch.norm(param_tensor.float()).item()
                                 else:
                                     param_norm = torch.norm(param_tensor).item()
-                                print(f"[DEBUG] Color {color}, Position {position}, Param {param_name}: shape = {param_tensor.shape}, norm = {param_norm:.6f}")
+                                warehouse.warehouse_logger.info(f"Color {color}, Position {position}, Param {param_name}: shape = {param_tensor.shape}, norm = {param_norm:.6f}")
                                 block_params.append(param_tensor.flatten())
                             if block_params:
                                 flattened_block = torch.cat(block_params)
@@ -1444,14 +1444,14 @@ class FBDEnsembleEvaluationStrategy(FBDEvaluationStrategy):
                                     block_norm = torch.norm(flattened_block.float()).item()
                                 else:
                                     block_norm = torch.norm(flattened_block).item()
-                                print(f"[DEBUG] Color {color}, Position {position}: flattened block norm = {block_norm:.6f}, size = {flattened_block.size()}")
+                                warehouse.warehouse_logger.info(f"Color {color}, Position {position}: flattened block norm = {block_norm:.6f}, size = {flattened_block.size()}")
                                 color_position_blocks[color][position].append(flattened_block)
                         else:
-                            print(f"[DEBUG] Color {color}: Position {position} not found in weights")
+                            warehouse.warehouse_logger.info(f"Color {color}: Position {position} not found in weights")
                 else:
-                    print(f"[DEBUG] Color {color}: No weights returned from warehouse")
+                    warehouse.warehouse_logger.info(f"Color {color}: No weights returned from warehouse")
             except Exception as e:
-                print(f"[FBD Ensemble] Warning: Could not extract weights for color {color}: {e}")
+                warehouse.warehouse_logger.error(f"Could not extract weights for color {color}: {e}")
                 continue
         
         # Compute L2 distances between blocks of different colors at the same position
@@ -1492,9 +1492,9 @@ class FBDEnsembleEvaluationStrategy(FBDEvaluationStrategy):
                         diff_tensor = block1 - block2
                         l2_distance = torch.norm(diff_tensor, p=2).item()
                         
-                        print(f"[DEBUG] {position}: {color1} norm = {block1_norm:.6f}, {color2} norm = {block2_norm:.6f}")
-                        print(f"[DEBUG] {position}: {color1} vs {color2} - difference norm = {l2_distance:.6f}")
-                        print(f"[DEBUG] {position}: Are blocks identical? {torch.allclose(block1, block2, atol=1e-6)}")
+                        warehouse.warehouse_logger.info(f"{position}: {color1} norm = {block1_norm:.6f}, {color2} norm = {block2_norm:.6f}")
+                        warehouse.warehouse_logger.info(f"{position}: {color1} vs {color2} - difference norm = {l2_distance:.6f}")
+                        warehouse.warehouse_logger.info(f"{position}: Are blocks identical? {torch.allclose(block1, block2, atol=1e-6)}")
                         
                         pair_key = f"{color1}_vs_{color2}"
                         position_comparisons[position][pair_key] = l2_distance
@@ -1894,7 +1894,7 @@ def analyze_color_l2_distances(warehouse,
                                     flattened_block = torch.cat(block_params)
                                     color_position_blocks[color][position].append(flattened_block)
                 except Exception as e:
-                    print(f"[L2 Analysis] Warning: Could not extract weights for color {color}: {e}")
+                    warehouse.warehouse_logger.error(f"Could not extract weights for color {color}: {e}")
                     continue
             
             # Compute L2 distances between blocks of different colors at the same position
@@ -1902,8 +1902,8 @@ def analyze_color_l2_distances(warehouse,
             position_comparisons = {}
             all_position_averages = []
             
-            print(f"[L2 Analysis] Computing L2 distances between colors: {colors_ensemble}")
-            print(f"[L2 Analysis] Architecture: {architecture_type}, Model parts: {model_parts}")
+            warehouse.warehouse_logger.info(f"Computing L2 distances between colors: {colors_ensemble}")
+            warehouse.warehouse_logger.info(f"Architecture: {architecture_type}, Model parts: {model_parts}")
             
             # For each position, compare blocks of different colors
             for position in model_parts:
@@ -1914,7 +1914,7 @@ def analyze_color_l2_distances(warehouse,
                 colors_at_position = [color for color in colors_ensemble if color_position_blocks[color][position]]
                 
                 if len(colors_at_position) < 2:
-                    print(f"  {position}: Only {len(colors_at_position)} colors available - skipping")
+                    warehouse.warehouse_logger.info(f"{position}: Only {len(colors_at_position)} colors available - skipping")
                     continue
                 
                 # Compare all pairs of colors at this position
@@ -1926,7 +1926,7 @@ def analyze_color_l2_distances(warehouse,
                             
                             # These should have the same shape since they're at the same position
                             if block1.shape != block2.shape:
-                                print(f"  Warning: {color1} and {color2} at {position} have different shapes!")
+                                warehouse.warehouse_logger.warning(f"Warning: {color1} and {color2} at {position} have different shapes!")
                                 continue
                             
                             l2_distance = torch.norm(block1 - block2, p=2).item()
@@ -1937,7 +1937,7 @@ def analyze_color_l2_distances(warehouse,
                 
                 if position_distances:
                     avg_distance = np.mean(position_distances)
-                    print(f"  {position}: Average L2 distance = {avg_distance:.6f} (from {len(position_distances)} comparisons)")
+                    warehouse.warehouse_logger.info(f"{position}: Average L2 distance = {avg_distance:.6f} (from {len(position_distances)} comparisons)")
                     position_comparisons[position]['average'] = avg_distance
                     position_comparisons[position]['num_comparisons'] = len(position_distances)
                     position_comparisons[position]['std_dev'] = np.std(position_distances)
@@ -1957,13 +1957,13 @@ def analyze_color_l2_distances(warehouse,
                     'total_positions': len(model_parts)
                 }
                 
-                print(f"[L2 Analysis] Overall L2 Distance Summary:")
-                print(f"  Overall average L2 distance: {overall_metrics['overall_average_l2_distance']:.6f}")
-                print(f"  Standard deviation: {overall_metrics['overall_std_dev']:.6f}")
-                print(f"  Range: {overall_metrics['overall_min']:.6f} - {overall_metrics['overall_max']:.6f}")
-                print(f"  Positions compared: {overall_metrics['num_positions_compared']}/{overall_metrics['total_positions']}")
+                warehouse.warehouse_logger.info(f"Overall L2 Distance Summary:")
+                warehouse.warehouse_logger.info(f"Overall average L2 distance: {overall_metrics['overall_average_l2_distance']:.6f}")
+                warehouse.warehouse_logger.info(f"Standard deviation: {overall_metrics['overall_std_dev']:.6f}")
+                warehouse.warehouse_logger.info(f"Range: {overall_metrics['overall_min']:.6f} - {overall_metrics['overall_max']:.6f}")
+                warehouse.warehouse_logger.info(f"Positions compared: {overall_metrics['num_positions_compared']}/{overall_metrics['total_positions']}")
             else:
-                print(f"[L2 Analysis] Warning: No L2 distances could be computed - insufficient colors or data")
+                warehouse.warehouse_logger.warning(f"No L2 distances could be computed - insufficient colors or data")
             
             return {
                 'by_position_comparisons': position_comparisons,
