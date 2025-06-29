@@ -184,6 +184,21 @@ class FBDStrategy(FedAvg):
             # Get base config
             base_config = self.on_fit_config_fn(server_round)
             
+            # Debug: Check update plan conditions
+            print(f"[Server Update Plan Debug] Client {client_id}, Round {server_round}:")
+            print(f"  - self.update_plan is not None: {self.update_plan is not None}")
+            if self.update_plan is not None:
+                print(f"  - Available rounds in update_plan: {list(self.update_plan.keys())}")
+                print(f"  - str(server_round) in self.update_plan: {str(server_round) in self.update_plan}")
+                if str(server_round) in self.update_plan:
+                    round_clients = list(self.update_plan[str(server_round)].keys())
+                    print(f"  - Available clients in round {server_round}: {round_clients}")
+                    print(f"  - str(client_id) in round plan: {str(client_id) in self.update_plan[str(server_round)]}")
+                else:
+                    print(f"  - Round {server_round} NOT FOUND in update plan")
+            else:
+                print(f"  - Update plan is None on server side")
+            
             # Add client-specific update plan if available
             if (self.update_plan is not None and 
                 str(server_round) in self.update_plan and 
@@ -192,8 +207,11 @@ class FBDStrategy(FedAvg):
                 client_update_plan = self.update_plan[str(server_round)][str(client_id)]
                 base_config["current_update_plan"] = client_update_plan
                 
+                print(f"[Server Update Plan Debug] ✅ SENDING update plan to client {client_id}")
                 logging.info(f"[FBD Strategy] Sending update plan to client {client_id}: "
                            f"model_to_update with {len(client_update_plan['model_as_regularizer'])} regularizers")
+            else:
+                print(f"[Server Update Plan Debug] ❌ NOT SENDING update plan to client {client_id}")
             
             fit_instructions.append((client, fl.common.FitIns(parameters, base_config)))
         
