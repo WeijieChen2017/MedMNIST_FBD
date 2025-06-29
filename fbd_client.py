@@ -64,6 +64,21 @@ def train(model, train_loader, epochs, device, data_flag, lr, current_update_pla
                       client_id is not None and 
                       round_num is not None)
     
+    # Debug: Output path decision logic
+    print(f"[Path Decision Debug] Client {client_id}, Round {round_num}")
+    print(f"  - current_update_plan is not None: {current_update_plan is not None}")
+    print(f"  - client_id is not None: {client_id is not None}")
+    print(f"  - round_num is not None: {round_num is not None}")
+    print(f"  - Final use_update_plan: {use_update_plan}")
+    if current_update_plan is not None:
+        print(f"  - Update plan keys: {list(current_update_plan.keys())}")
+        if "model_to_update" in current_update_plan:
+            print(f"  - model_to_update: {current_update_plan['model_to_update']}")
+        if "model_as_regularizer" in current_update_plan:
+            print(f"  - num_regularizers: {len(current_update_plan['model_as_regularizer'])}")
+    else:
+        print(f"  - Update plan is None - no plan received from server")
+    
     # Initialize regularizer metrics tracking
     regularizer_metrics = {
         'regularizer_distances': [],
@@ -166,6 +181,11 @@ def train(model, train_loader, epochs, device, data_flag, lr, current_update_pla
 
                 # Training Path 2
                 print(f"[Client {client_id}] Round {round_num}: Entering Training Path 2 (Standard Training)")
+                print(f"[Update Strategy] Client {client_id} Round {round_num}: Using standard FL training strategy")
+                print(f"[Update Strategy] Reason for Path 2: update_plan_received={current_update_plan is not None}, client_id_provided={client_id is not None}, round_num_provided={round_num is not None}")
+                print(f"[Update Strategy] Training mode: Standard federated learning without FBD regularization")
+                print(f"[Update Strategy] Optimizer: Adam with lr={lr}")
+                print(f"[Update Strategy] Model architecture: Full model training (no part-based updates)")
 
                 # Standard training without update plan
                 outputs = model(inputs)
@@ -177,12 +197,14 @@ def train(model, train_loader, epochs, device, data_flag, lr, current_update_pla
                     targets = torch.squeeze(targets, 1).long()
                     loss = criterion(outputs, targets)
 
-                # add a log message
-                log_msg = f"Round {round_num}: Standard training, loss={loss.item():.4f}"
+                # Enhanced log message for Path 2
+                log_msg = f"Round {round_num}: [Update Strategy] Standard training, loss={loss.item():.4f}, task={task}"
                 if client_logger:
                     client_logger.info(log_msg)
                 else:
                     print(f"[Client {client_id}] {log_msg}")  # Fallback to print if no logger
+
+                print(f"[Update Strategy] Client {client_id} Round {round_num}: Batch loss={loss.item():.6f}, task_type={task}")
 
                 # Standard training step
                 optimizer.zero_grad()
@@ -626,6 +648,19 @@ class FBDFlowerClient(fl.client.Client):
         round_num = config.get("server_round", 1)
         local_lr = config.get("local_learning_rate", 0.001)
         
+        # Debug: Check if update plan was received from server
+        current_update_plan = config.get("current_update_plan", None)
+        print(f"[Update Plan Debug] Client {self.cid} Round {round_num}:")
+        print(f"  - Config keys received: {list(config.keys())}")
+        print(f"  - current_update_plan in config: {'current_update_plan' in config}")
+        print(f"  - current_update_plan is not None: {current_update_plan is not None}")
+        if current_update_plan is not None:
+            print(f"  - Update plan structure: {list(current_update_plan.keys())}")
+            print(f"  - CLIENT {self.cid} RECEIVED UPDATE PLAN from server!")
+        else:
+            print(f"  - CLIENT {self.cid} DID NOT RECEIVE UPDATE PLAN from server")
+            print(f"  - This will lead to Path 2 (Standard Training)")
+        
         # FBD: Receive weights from server (shipping phase)
         try:
             received_weights = self.communication.client_receive_weights(self.cid, round_num)
@@ -636,7 +671,6 @@ class FBDFlowerClient(fl.client.Client):
             logging.info(f"[FBD Client {self.cid}] Round {round_num}: No weights received from server - using current model")
         
         # Perform local training
-        current_update_plan = config.get("current_update_plan", None)
         train_result = self._train_model(local_lr, current_update_plan=current_update_plan, round_num=round_num)
         
         # Handle different return types from train function
