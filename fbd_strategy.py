@@ -134,6 +134,7 @@ class FBDStrategy(FedAvg):
 
     def configure_fit(self, server_round: int, parameters: Parameters, client_manager):
         """Configure fit round with FBD shipping phase."""
+        print(f"🕵️  [STRATEGY DEBUG] server_round {server_round}: configure_fit called", flush=True)
         
         # Track round start time
         if self.training_history['start_time'] is None:
@@ -179,14 +180,25 @@ class FBDStrategy(FedAvg):
             logging.info(f"[FBD Strategy] Shipped weights to {shipped_count} expected clients")
         
         # Get available clients
-        sample_size, min_num_clients = client_manager.num_available(), self.min_fit_clients
-        if sample_size < min_num_clients:
-            logging.warning(f"Not enough clients available for training: {sample_size} < {min_num_clients}")
+        num_available = client_manager.num_available()
+        min_num_clients = self.min_fit_clients
+        print(f"🕵️  [STRATEGY DEBUG] server_round {server_round}: Checking client availability", flush=True)
+        print(f"🕵️  [STRATEGY DEBUG]   - Clients available: {num_available}", flush=True)
+        print(f"🕵️  [STRATEGY DEBUG]   - Minimum clients required: {min_num_clients}", flush=True)
+        
+        if num_available < min_num_clients:
+            logging.warning(f"Not enough clients available for training: {num_available} < {min_num_clients}")
+            print(f"🕵️  [STRATEGY DEBUG]   - Returning empty list, not enough clients.", flush=True)
             return []
         
         # Sample clients
-        sampled_clients = client_manager.sample(num_clients=min_num_clients) # , criterion=client_manager.criterion
+        sampled_clients = client_manager.sample(num_clients=min_num_clients)
+        print(f"🕵️  [STRATEGY DEBUG]   - Sampled {len(sampled_clients)} clients.", flush=True)
         
+        if not sampled_clients:
+            print(f"🕵️  [STRATEGY DEBUG]   - Sampling returned empty list. Returning empty list.", flush=True)
+            return []
+            
         # Create per-client configuration with update plans
         fit_instructions = []
         for idx, client in enumerate(sampled_clients):
@@ -229,6 +241,7 @@ class FBDStrategy(FedAvg):
             
             fit_instructions.append((client, fl.common.FitIns(parameters, base_config)))
         
+        print(f"🕵️  [STRATEGY DEBUG] server_round {server_round}: Returning {len(fit_instructions)} fit instructions.", flush=True)
         return fit_instructions
 
     def aggregate_fit(self, server_round: int, results: List[Tuple[ClientProxy, FitRes]], failures):

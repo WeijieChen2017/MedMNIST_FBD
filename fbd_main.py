@@ -320,36 +320,32 @@ def main():
     os.makedirs(args.communication_dir, exist_ok=True)
     
     # Load shipping, request, and update plans
-    logging.info("Loading shipping, request, and update plans...")
-    shipping_plan = load_shipping_plan(args.shipping_plan)
-    request_plan = load_request_plan(args.request_plan)
-    
-    # Load update plan
+    logging.info("--- [DEBUG] FBD Plans Deactivated for Path 2 ---")
+    shipping_plan = {}
+    request_plan = {}
     update_plan = None
-    if args.update_plan and os.path.exists(args.update_plan):
-        with open(args.update_plan, 'r') as f:
-            update_plan = json.load(f)
+    logging.info("--- [DEBUG] Using configuration rounds for Path 2 ---")
     
     # FBD training is driven by shipping plan, not config
-    max_shipping_round = max(shipping_plan.keys()) if shipping_plan else 0
-    max_request_round = max(request_plan.keys()) if request_plan else 0
-    fbd_total_rounds = max(max_shipping_round, max_request_round)
+    # max_shipping_round = max(shipping_plan.keys()) if shipping_plan else 0
+    # max_request_round = max(request_plan.keys()) if request_plan else 0
+    # fbd_total_rounds = max(max_shipping_round, max_request_round)
     
-    if fbd_total_rounds <= 0:
-        raise ValueError("No valid shipping/request plan found - cannot determine number of rounds")
+    # if fbd_total_rounds <= 0:
+    #     raise ValueError("No valid shipping/request plan found - cannot determine number of rounds")
     
-    # Always use shipping plan rounds (ignore config.num_rounds completely)
-    config.num_rounds = fbd_total_rounds
+    # # Always use shipping plan rounds (ignore config.num_rounds completely)
+    # config.num_rounds = fbd_total_rounds
     
-    logging.info(f"📋 FBD Training Configuration:")
-    logging.info(f"   Shipping plan rounds: {len(shipping_plan)}")
-    logging.info(f"   Request plan rounds: {len(request_plan)}")
-    logging.info(f"   FBD training rounds: {config.num_rounds} (authoritative)")
-    logging.info(f"   Config rounds (ignored): {original_config_rounds}")
-    logging.info(f"   ✓ Training will stop after {config.num_rounds} rounds as defined by shipping plan")
+    logging.info(f"📋 Standard FL Training Configuration:")
+    # logging.info(f"   Shipping plan rounds: {len(shipping_plan)}")
+    # logging.info(f"   Request plan rounds: {len(request_plan)}")
+    logging.info(f"   FBD training rounds: {config.num_rounds} (from config)")
+    # logging.info(f"   Config rounds (ignored): {original_config_rounds}")
+    # logging.info(f"   ✓ Training will stop after {config.num_rounds} rounds as defined by shipping plan")
     
-    logging.info(f"Loaded shipping plan for {len(shipping_plan)} rounds")
-    logging.info(f"Loaded request plan for {len(request_plan)} rounds")
+    # logging.info(f"Loaded shipping plan for {len(shipping_plan)} rounds")
+    # logging.info(f"Loaded request plan for {len(request_plan)} rounds")
     
     def client_fn(cid: str) -> Client:
         """Create an FBD Flower client."""
@@ -403,30 +399,17 @@ def main():
             return fbd_client
     
     # Initialize FBD strategy
-    strategy = FBDStrategy(
-        fbd_config_path=args.fbd_config,
-        shipping_plan_path=args.shipping_plan,
-        request_plan_path=args.request_plan,
-        update_plan_path=args.update_plan,  # Pass update plan path
-        num_clients=config.num_clients,
-        communication_dir=args.communication_dir,
-        model_template=model,
-        output_dir=output_dir,
-        num_classes=n_classes,
-        input_shape=(n_channels, config.size, config.size),
-        test_dataset=test_dataset,
-        batch_size=config.batch_size,
-        norm_type=norm_type,  # Pass normalization type
-        architecture=architecture,  # Pass model architecture
-        num_rounds=config.num_rounds,  # Pass total number of rounds
-        num_ensemble=config.num_ensemble,  # Pass number of ensemble models from config
-        ensemble_colors=args.ensemble_colors,  # Pass ensemble colors from command line
+    logging.info("🚨 SWITCHING TO STANDARD FedAvg STRATEGY (Path 2) FOR DEBUGGING 🚨")
+    strategy = fl.server.strategy.FedAvg(
         fraction_fit=1.0,
-        fraction_evaluate=0.0,  # Disable client-side evaluation
+        fraction_evaluate=0.0,  # Disable server-side evaluation for this test
         min_fit_clients=config.num_clients,
-        min_evaluate_clients=0,  # Disable client-side evaluation
+        min_evaluate_clients=0,
         min_available_clients=config.num_clients,
-        on_fit_config_fn=get_fit_config_fn(config)
+        on_fit_config_fn=get_fit_config_fn(config),
+        initial_parameters=fl.common.ndarrays_to_parameters(
+            [val.cpu().numpy() for _, val in model.state_dict().items()]
+        ),
     )
     
     # Define client resources
