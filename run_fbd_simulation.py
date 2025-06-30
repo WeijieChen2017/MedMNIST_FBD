@@ -148,6 +148,15 @@ def run_fbd_simulation():
     print("📊 Evaluation includes: Comprehensive (M0-M5 + Averaging) + Ensemble (configurable size)")
     print("=" * 60)
     
+    # Load configuration to display details
+    try:
+        config = load_config("bloodmnist", ARCHITECTURE, 28)
+        # Override num_ensemble with value from FBD configuration
+        config.num_ensemble = fbd_settings['ensemble_size']
+    except ValueError as e:
+        print(f"❌ Error loading configuration: {e}")
+        return False
+
     # Define simulation parameters
     cmd = [
         "python3", "fbd_main.py",
@@ -167,15 +176,6 @@ def run_fbd_simulation():
         "--ensemble_colors"] + fbd_settings['ensemble_colors']
     
     print("Command:", " ".join(cmd))
-
-    # Load configuration to display details
-    try:
-        config = load_config("bloodmnist", ARCHITECTURE, 28)
-        # Override num_ensemble with value from FBD configuration
-        config.num_ensemble = fbd_settings['ensemble_size']
-    except ValueError as e:
-        print(f"❌ Error loading configuration: {e}")
-        return False
 
     print("\n" + "="*30)
     print("       Training Plan")
