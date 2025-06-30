@@ -158,7 +158,7 @@ def main():
     parser.add_argument("--iid", action="store_true", help="Whether to partition data in an IID manner")
     parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility")
     parser.add_argument("--output_dir", type=str, default=None, help="Output directory for results")
-    parser.add_argument("--cpus_per_client", type=int, default=6, help="Number of CPUs allocated per client")
+    parser.add_argument("--cpus_per_client", type=int, default=2, help="Number of CPUs allocated per client")
     parser.add_argument("--imagenet", action="store_true", help="Use ImageNet pretrained weights for initialization")
     
     # FBD specific arguments

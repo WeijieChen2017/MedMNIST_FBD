@@ -155,7 +155,7 @@ def run_fbd_simulation():
         "--model_flag", f"{ARCHITECTURE}_fbd",
         "--size", "28",
         "--seed", "42",
-        "--cpus_per_client", "6",
+        "--cpus_per_client", "2",
         "--fbd_config", "fbd_record/fbd_settings.py",
         "--shipping_plan", "fbd_record/shipping_plan.json",
         "--request_plan", "fbd_record/request_plan.json",
