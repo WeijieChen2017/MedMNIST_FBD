@@ -79,6 +79,9 @@ def train(model, train_loader, epochs, device, data_flag, lr, current_update_pla
             optimizer.zero_grad()
             
             if use_update_plan:
+                
+                print(f"🚀 [CLIENT FIT CALLED] Path 1 here!")
+
                 # Get current update plan for this client
                 model_to_update_parts = current_update_plan["model_to_update"]
                 model_as_regularizer_list = current_update_plan["model_as_regularizer"]
@@ -161,6 +164,9 @@ def train(model, train_loader, epochs, device, data_flag, lr, current_update_pla
             else:
                 # Standard training without update plan
                 outputs = model(inputs)
+                
+                # this is path 2, please output a flag
+                print(f"🚀 [CLIENT FIT CALLED] Path 2 here!")
 
                 if task == 'multi-label, binary-class':
                     targets = targets.to(torch.float32)
