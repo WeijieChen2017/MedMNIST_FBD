@@ -197,7 +197,7 @@ def run_fbd_simulation():
     print(f"  Regularizer distance: {fbd_settings['regularizer_params'].get('distance_type', 'N/A')}")
     print(f"  Regularizer coefficient: {fbd_settings['regularizer_params'].get('coefficient', 'N/A')}")
     print(f"  Seed: 42")
-    print(f"  CPUs per client: 6")
+    print(f"  CPUs per client: {config.cpus_per_client}")
     print(f"  Communication dir: {FLWR_COMM_DIR}")
     print(f"  Using ImageNet pretrained weights: True")
     print(f"  Output dir: {OUTPUT_DIR}")
